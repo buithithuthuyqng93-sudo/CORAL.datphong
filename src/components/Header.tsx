@@ -48,14 +48,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#FAF8F5] tracking-wider uppercase leading-none">
+                <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#FAF8F5] tracking-wide uppercase leading-snug">
                   {propertyConfig?.propertyName || 'HOMESTAY & CAFE CORAL'}
                 </h1>
-                <span className="bg-[#C8A261]/15 text-[#C8A261] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#C8A261]/30 uppercase tracking-widest">
+                <span className="bg-[#C8A261]/15 text-[#C8A261] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#C8A261]/30 uppercase tracking-wide">
                   Lý Sơn
                 </span>
               </div>
-              <p className="text-[11px] text-[#A39687] tracking-widest uppercase font-light mt-1">
+              <p className="text-[11px] text-[#A39687] tracking-wide uppercase font-light mt-0.5">
                 {propertyConfig?.tagline || 'Cliffside Bungalow & Coffee'}
               </p>
             </div>

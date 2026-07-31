@@ -6,6 +6,7 @@ import {
   Flame, SlidersHorizontal, CheckCircle2, Star, Waves, Compass
 } from 'lucide-react';
 import { RoomType, Room, Booking, PropertyConfig } from '../types';
+import { useSiteContent } from '../context/SiteContentContext';
 
 interface GuestBookingEngineProps {
   roomTypes: RoomType[];
@@ -26,6 +27,8 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
   activeConfirmedBooking,
   propertyConfig,
 }) => {
+  const { getMediaUrl, getMetadata } = useSiteContent();
+
   // Date & Filter states
   const [checkIn, setCheckIn] = useState('2026-08-05');
   const [checkOut, setCheckOut] = useState('2026-08-07');
@@ -145,22 +148,28 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/coral-hero.jpg"
-            alt="Homestay & CAFE CORAL Lý Sơn"
+            src={getMediaUrl('homepage.hero.desktop', '/images/coral-hero.jpg')}
+            alt={getMetadata('homepage.hero.desktop')?.altText || "Homestay & CAFE CORAL Lý Sơn"}
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center scale-105 filter brightness-95 contrast-[1.05]"
+            style={{
+              objectPosition: `${getMetadata('homepage.hero.desktop')?.focalPoint?.x ?? 50}% ${getMetadata('homepage.hero.desktop')?.focalPoint?.y ?? 50}%`,
+            }}
+            className="w-full h-full object-cover scale-105 filter brightness-95 contrast-[1.05]"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               if (!target.dataset.tried) {
                 target.dataset.tried = '1';
-                target.src = '/images/coral_homestay_cafe_hero.jpg';
+                target.src = '/images/coral-hero.jpg';
               } else if (target.dataset.tried === '1') {
                 target.dataset.tried = '2';
                 target.src = 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=80';
               }
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#151B17] via-[#151B17]/40 to-black/25"></div>
+          <div 
+            className="absolute inset-0 bg-gradient-to-t from-[#151B17] via-[#151B17]/40 to-black/25"
+            style={{ opacity: (getMetadata('homepage.hero.desktop')?.overlayOpacity ?? 0.3) + 0.5 }}
+          ></div>
         </div>
 
         {/* Hero Content */}
@@ -171,12 +180,12 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="space-y-4"
           >
-            <div className="inline-flex items-center gap-2 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-[0.25em] font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-wide font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
               <Sparkles className="w-3.5 h-3.5 text-[#C8A261]" />
               Lý Sơn Island • Cliffside Bungalow & Coffee
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wider text-[#FAF8F5] leading-tight uppercase drop-shadow-md">
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-[#FAF8F5] leading-tight uppercase drop-shadow-md">
               HOMESTAY & CAFE CORAL
             </h1>
 
@@ -209,7 +218,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706557] mb-1.5 flex items-center gap-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-[#706557] mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#C8A261]" /> Check-In (Nhận phòng)
               </label>
               <input
@@ -221,7 +230,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
             </div>
 
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706557] mb-1.5 flex items-center gap-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-[#706557] mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#C8A261]" /> Check-Out (Trả phòng)
               </label>
               <input
@@ -233,7 +242,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
             </div>
 
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#706557] mb-1.5 flex items-center gap-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wide text-[#706557] mb-1.5 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-[#C8A261]" /> Số Khách
               </label>
               <select
@@ -250,7 +259,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
 
             <div className="lg:col-span-3">
               <div className="bg-[#151B17] text-[#FAF8F5] rounded-xl p-3 text-center border border-[#2D3931]">
-                <span className="text-[10px] text-[#B8A99A] uppercase tracking-wider block">Thời gian lưu trú</span>
+                <span className="text-[10px] text-[#B8A99A] uppercase tracking-wide block">Thời gian lưu trú</span>
                 <span className="font-serif text-lg font-bold text-[#C8A261]">{nights} Đêm Lãng Mạn</span>
               </div>
             </div>
@@ -258,7 +267,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
 
           {/* Quick Room Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pt-4 mt-4 border-t border-[#F0EADF] scrollbar-none">
-            <span className="text-[11px] font-bold text-[#8C7E6C] uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
+            <span className="text-[11px] font-bold text-[#8C7E6C] uppercase tracking-wide shrink-0 flex items-center gap-1 mr-1">
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#C8A261]" /> Lọc theo hạng phòng:
             </span>
 

@@ -10,6 +10,7 @@ import {
   ArrowUpRight, Phone, MapPin, Check, Ban, Eye, Sliders, CalendarDays,
   Sparkles as SparklesIcon, FileSpreadsheet
 } from 'lucide-react';
+import { MediaManagerPanel } from './MediaManagerPanel';
 
 interface AdminManagerProps {
   roomTypes: RoomType[];
@@ -55,7 +56,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
   const [pinInput, setPinInput] = useState<string>('');
   const [loginError, setLoginError] = useState<string>('');
 
-  // 10 Admin Dashboard Screen Tabs
+  // 11 Admin Dashboard Screen Tabs
   type AdminTab = 
     | 'dashboard'          // 1. Tổng quan hôm nay
     | 'calendar-matrix'    // 2. Sơ đồ phòng dạng lịch theo ngày
@@ -66,7 +67,8 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
     | 'housekeeping'       // 7. Check-in, Check-out & Dọn phòng
     | 'seasonal-pricing'   // 8. Quản lý giá ngày thường/lễ/cuối tuần
     | 'analytics-reports'  // 9. Báo cáo công suất & doanh thu
-    | 'web-config';        // 10. Chỉnh sửa thông tin Website (Không cần code)
+    | 'web-config'         // 10. Chỉnh sửa thông tin Website (Không cần code)
+    | 'media-manager';     // 11. Quản lý hình ảnh trực tiếp (Supabase Storage)
 
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
 
@@ -392,12 +394,13 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               { id: 'calendar-matrix', label: '2. Sơ đồ lịch 15 phòng', icon: CalendarDays },
               { id: 'booking-ledger', label: '3. Danh sách đặt phòng', icon: ListOrdered },
               { id: 'room-management', label: '4. Quản lý phòng & giá', icon: Hotel },
-              { id: 'room-blocking', label: '5. Chặn phòng / Bảo trì', icon: Ban },
-              { id: 'vietqr-ledger', label: '6. Giao dịch VietQR', icon: QrCode },
-              { id: 'housekeeping', label: '7. Check-in & Dọn phòng', icon: UserCheck },
-              { id: 'seasonal-pricing', label: '8. Giá lễ & cuối tuần', icon: Sliders },
-              { id: 'analytics-reports', label: '9. Báo cáo công suất', icon: TrendingUp },
-              { id: 'web-config', label: '10. Sửa thông tin Website', icon: Globe },
+              { id: 'media-manager', label: '5. Quản lý hình ảnh', icon: ImageIcon },
+              { id: 'room-blocking', label: '6. Chặn phòng / Bảo trì', icon: Ban },
+              { id: 'vietqr-ledger', label: '7. Giao dịch VietQR', icon: QrCode },
+              { id: 'housekeeping', label: '8. Check-in & Dọn phòng', icon: UserCheck },
+              { id: 'seasonal-pricing', label: '9. Giá lễ & cuối tuần', icon: Sliders },
+              { id: 'analytics-reports', label: '10. Báo cáo công suất', icon: TrendingUp },
+              { id: 'web-config', label: '11. Sửa thông tin Website', icon: Globe },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -439,7 +442,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             {/* 5 KPI STAT CARDS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
               <div className="bg-white border border-[#E8E2D9] p-5 rounded-2xl shadow-sm space-y-2">
-                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wider block">Phòng Trống Hôm Nay</span>
+                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wide block">Phòng Trống Hôm Nay</span>
                 <div className="flex items-baseline justify-between">
                   <span className="font-serif text-3xl font-bold text-emerald-700">{availableRoomsCount}</span>
                   <span className="text-xs text-[#706557]">/ 15 căn</span>
@@ -450,7 +453,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-white border border-[#E8E2D9] p-5 rounded-2xl shadow-sm space-y-2">
-                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wider block">Khách Đến (Check-In)</span>
+                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wide block">Khách Đến (Check-In)</span>
                 <div className="flex items-baseline justify-between">
                   <span className="font-serif text-3xl font-bold text-[#9E7A3B]">{checkInsToday.length}</span>
                   <span className="text-xs text-[#706557]">đơn hôm nay</span>
@@ -459,7 +462,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-white border border-[#E8E2D9] p-5 rounded-2xl shadow-sm space-y-2">
-                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wider block">Khách Đi (Check-Out)</span>
+                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wide block">Khách Đi (Check-Out)</span>
                 <div className="flex items-baseline justify-between">
                   <span className="font-serif text-3xl font-bold text-indigo-800">{checkOutsToday.length}</span>
                   <span className="text-xs text-[#706557]">đơn rời đi</span>
@@ -468,7 +471,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-white border border-[#E8E2D9] p-5 rounded-2xl shadow-sm space-y-2">
-                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wider block">Tỷ Lệ Lấp Đầy (Occupancy)</span>
+                <span className="text-[11px] text-[#706557] uppercase font-bold tracking-wide block">Tỷ Lệ Lấp Đầy (Occupancy)</span>
                 <div className="flex items-baseline justify-between">
                   <span className="font-serif text-3xl font-bold text-[#1C2321]">{occupancyRate}%</span>
                   <span className="text-xs text-[#706557]">{occupiedRoomsCount} căn có khách</span>
@@ -479,7 +482,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-[#151B17] text-[#FAF8F5] border border-[#2D3931] p-5 rounded-2xl shadow-sm space-y-2">
-                <span className="text-[11px] text-[#C8A261] uppercase font-bold tracking-wider block">Tiền Cọc VietQR Đã Thu</span>
+                <span className="text-[11px] text-[#C8A261] uppercase font-bold tracking-wide block">Tiền Cọc VietQR Đã Thu</span>
                 <div className="font-serif text-2xl font-bold text-[#C8A261]">
                   {totalDepositCollected.toLocaleString('vi-VN')} đ
                 </div>
@@ -840,7 +843,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
                                   onClick={() => handleBookingCheckOut(b.id, b.roomId)}
                                   className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition-all"
                                 >
-                                  Check-out Trả Phòng
+                                  Check-out Trả Phòng
                                 </button>
                               )}
                             </td>
@@ -1417,7 +1420,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white border border-[#E8E2D9] p-6 rounded-2xl shadow-sm text-center space-y-2">
-                <span className="text-xs text-[#706557] uppercase font-bold tracking-wider">Tổng Doanh Thu Dự Kiến</span>
+                <span className="text-xs text-[#706557] uppercase font-bold tracking-wide">Tổng Doanh Thu Dự Kiến</span>
                 <div className="font-serif text-3xl font-bold text-[#1C2321]">
                   {totalRevenueEstimated.toLocaleString('vi-VN')} đ
                 </div>
@@ -1425,7 +1428,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-white border border-[#E8E2D9] p-6 rounded-2xl shadow-sm text-center space-y-2">
-                <span className="text-xs text-[#706557] uppercase font-bold tracking-wider">Tiền Cọc VietQR Đã Thu</span>
+                <span className="text-xs text-[#706557] uppercase font-bold tracking-wide">Tiền Cọc VietQR Đã Thu</span>
                 <div className="font-serif text-3xl font-bold text-[#9E7A3B]">
                   {totalDepositCollected.toLocaleString('vi-VN')} đ
                 </div>
@@ -1433,7 +1436,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
 
               <div className="bg-white border border-[#E8E2D9] p-6 rounded-2xl shadow-sm text-center space-y-2">
-                <span className="text-xs text-[#706557] uppercase font-bold tracking-wider">Công Suất Phòng Hiện Tại</span>
+                <span className="text-xs text-[#706557] uppercase font-bold tracking-wide">Công Suất Phòng Hiện Tại</span>
                 <div className="font-serif text-3xl font-bold text-indigo-900">{occupancyRate}%</div>
                 <span className="text-[11px] text-indigo-700 font-semibold block">{occupiedRoomsCount} / 15 căn có khách</span>
               </div>
@@ -1585,6 +1588,17 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               </div>
             </form>
           </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB 11: QUẢN LÝ HÌNH ẢNH TRỰC TIẾP (SUPABASE STORAGE MEDIA MANAGER) */}
+        {/* ========================================================================= */}
+        {activeTab === 'media-manager' && (
+          <MediaManagerPanel
+            roomTypes={roomTypes}
+            onUpdateRoomTypes={onUpdateRoomTypes}
+            showToast={showToast}
+          />
         )}
       </main>
     </div>

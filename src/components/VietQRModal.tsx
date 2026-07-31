@@ -144,17 +144,17 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
             {/* Transfer Details */}
             <div className="space-y-2.5 text-xs">
               <div>
-                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wider">Ngân hàng:</p>
+                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wide">Ngân hàng:</p>
                 <p className="font-bold text-[#1C2321]">{bankInfo.bankName}</p>
               </div>
 
               <div>
-                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wider">Chủ tài khoản:</p>
+                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wide">Chủ tài khoản:</p>
                 <p className="font-bold text-[#9E7A3B]">{bankInfo.accountHolder}</p>
               </div>
 
               <div>
-                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wider">Số tài khoản:</p>
+                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wide">Số tài khoản:</p>
                 <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-[#E0D8CD]">
                   <span className="font-mono font-bold text-[#1C2321]">{bankInfo.accountNumber}</span>
                   <button
@@ -168,7 +168,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
               </div>
 
               <div>
-                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wider">Nội dung chuyển cọc chuẩn:</p>
+                <p className="text-[10px] text-[#8C7E6C] uppercase font-bold tracking-wide">Nội dung chuyển cọc chuẩn:</p>
                 <div className="flex items-center justify-between bg-[#FAF6EE] p-2 rounded-lg border border-[#E2D6C3]">
                   <span className="font-mono font-bold text-[#9E7A3B]">{booking.code}</span>
                   <button

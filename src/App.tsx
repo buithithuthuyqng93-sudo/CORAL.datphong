@@ -5,6 +5,7 @@ import { PmsAndChannelManager } from './components/PmsAndChannelManager';
 import { AdminManager } from './components/AdminManager';
 import { ArchitectureDiagram } from './components/ArchitectureDiagram';
 import { VietQRModal } from './components/VietQRModal';
+import { SiteContentProvider } from './context/SiteContentContext';
 
 import { Room, RoomType, Booking, ChannelSyncLog, PropertyConfig } from './types';
 import { INITIAL_ROOMS, INITIAL_BOOKINGS, INITIAL_SYNC_LOGS, CORAL_ROOM_TYPES, INITIAL_PROPERTY_CONFIG } from './data/mockData';
@@ -177,68 +178,70 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950">
-      <Header
-        activeTab={activeTab}
-        setActiveTab={handleSelectTab}
-        bookingCount={bookings.length}
-        propertyConfig={propertyConfig}
-        isAuthenticated={isAdminAuthenticated}
-      />
-
-      <main className="animate-fadeIn">
-        {activeTab === 'guest-website' && (
-          <GuestBookingEngine
-            roomTypes={roomTypes}
-            rooms={rooms}
-            bookings={bookings}
-            onInitiateBooking={handleInitiateBooking}
-            onOpenPaymentModal={handleOpenPaymentModal}
-            activeConfirmedBooking={activeConfirmedBooking}
-            propertyConfig={propertyConfig}
-          />
-        )}
-
-        {activeTab === 'pms-channel' && (
-          <PmsAndChannelManager
-            roomTypes={roomTypes}
-            rooms={rooms}
-            bookings={bookings}
-            syncLogs={syncLogs}
-            onSimulateOtaBooking={handleSimulateOtaBooking}
-            onResetAllRooms={handleResetAllRooms}
-          />
-        )}
-
-        {activeTab === 'admin-manager' && (
-          <AdminManager
-            roomTypes={roomTypes}
-            rooms={rooms}
-            bookings={bookings}
-            propertyConfig={propertyConfig}
-            syncLogs={syncLogs}
-            onUpdateRoomTypes={setRoomTypes}
-            onUpdateRooms={setRooms}
-            onUpdateBookings={setBookings}
-            onUpdatePropertyConfig={setPropertyConfig}
-            isAuthenticated={isAdminAuthenticated}
-            onAuthenticate={setIsAdminAuthenticated}
-          />
-        )}
-
-        {activeTab === 'architecture' && <ArchitectureDiagram />}
-      </main>
-
-      {/* VietQR Payment Modal */}
-      {paymentModalState && (
-        <VietQRModal
-          booking={paymentModalState.booking}
-          room={paymentModalState.room}
-          onClose={() => setPaymentModalState(null)}
-          onConfirmPayment={handleConfirmPayment}
+    <SiteContentProvider>
+      <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950">
+        <Header
+          activeTab={activeTab}
+          setActiveTab={handleSelectTab}
+          bookingCount={bookings.length}
           propertyConfig={propertyConfig}
+          isAuthenticated={isAdminAuthenticated}
         />
-      )}
-    </div>
+
+        <main className="animate-fadeIn">
+          {activeTab === 'guest-website' && (
+            <GuestBookingEngine
+              roomTypes={roomTypes}
+              rooms={rooms}
+              bookings={bookings}
+              onInitiateBooking={handleInitiateBooking}
+              onOpenPaymentModal={handleOpenPaymentModal}
+              activeConfirmedBooking={activeConfirmedBooking}
+              propertyConfig={propertyConfig}
+            />
+          )}
+
+          {activeTab === 'pms-channel' && (
+            <PmsAndChannelManager
+              roomTypes={roomTypes}
+              rooms={rooms}
+              bookings={bookings}
+              syncLogs={syncLogs}
+              onSimulateOtaBooking={handleSimulateOtaBooking}
+              onResetAllRooms={handleResetAllRooms}
+            />
+          )}
+
+          {activeTab === 'admin-manager' && (
+            <AdminManager
+              roomTypes={roomTypes}
+              rooms={rooms}
+              bookings={bookings}
+              propertyConfig={propertyConfig}
+              syncLogs={syncLogs}
+              onUpdateRoomTypes={setRoomTypes}
+              onUpdateRooms={setRooms}
+              onUpdateBookings={setBookings}
+              onUpdatePropertyConfig={setPropertyConfig}
+              isAuthenticated={isAdminAuthenticated}
+              onAuthenticate={setIsAdminAuthenticated}
+            />
+          )}
+
+          {activeTab === 'architecture' && <ArchitectureDiagram />}
+        </main>
+
+        {/* VietQR Payment Modal */}
+        {paymentModalState && (
+          <VietQRModal
+            booking={paymentModalState.booking}
+            room={paymentModalState.room}
+            onClose={() => setPaymentModalState(null)}
+            onConfirmPayment={handleConfirmPayment}
+            propertyConfig={propertyConfig}
+          />
+        )}
+      </div>
+    </SiteContentProvider>
   );
 }

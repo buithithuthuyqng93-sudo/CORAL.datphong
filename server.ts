@@ -9,14 +9,15 @@ import sepayHandler from './api/sepay';
 import adminHandler from './api/admin';
 import cronHandler from './api/cron';
 import healthHandler from './api/health';
+import mediaHandler from './api/media';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // JSON and URL-encoded body parser
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // JSON and URL-encoded body parser with 15MB limit for image uploads
+  app.use(express.json({ limit: '15mb' }));
+  app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
   // API Routes
   app.get('/api/health', healthHandler);
@@ -36,6 +37,13 @@ async function startServer() {
     .post(adminHandler);
   app.post('/api/admin/resend-email', adminHandler);
   app.post('/api/admin/resync-sheet', adminHandler);
+
+  // Media Management API
+  app.route('/api/media')
+    .get(mediaHandler)
+    .post(mediaHandler);
+  app.post('/api/media/upload', mediaHandler);
+  app.post('/api/media/restore', mediaHandler);
 
   app.route('/api/cron/expire-holds')
     .get(cronHandler)
