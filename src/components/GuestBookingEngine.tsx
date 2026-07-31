@@ -147,13 +147,20 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
           <img
             src="/images/coral-hero.jpg"
             alt="Homestay & CAFE CORAL Lý Sơn"
-            className="w-full h-full object-cover object-center scale-105 filter brightness-[0.78] contrast-[1.05]"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center scale-105 filter brightness-95 contrast-[1.05]"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = '/images/coral_homestay_cafe_hero.jpg';
+              const target = e.target as HTMLImageElement;
+              if (!target.dataset.tried) {
+                target.dataset.tried = '1';
+                target.src = '/images/coral_homestay_cafe_hero.jpg';
+              } else if (target.dataset.tried === '1') {
+                target.dataset.tried = '2';
+                target.src = 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=80';
+              }
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#151B17] via-[#151B17]/50 to-[#151B17]/30"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#151B17_90%)] opacity-70"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#151B17] via-[#151B17]/40 to-black/25"></div>
         </div>
 
         {/* Hero Content */}
@@ -418,9 +425,14 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                   <img
                     src={currentPhoto}
                     alt={`${roomType.name} - Photo ${photoIdx + 1}`}
+                    referrerPolicy="no-referrer"
                     className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                      const target = e.target as HTMLImageElement;
+                      if (!target.dataset.tried) {
+                        target.dataset.tried = '1';
+                        target.src = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80';
+                      }
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#151B17]/80 via-transparent to-[#151B17]/30"></div>
