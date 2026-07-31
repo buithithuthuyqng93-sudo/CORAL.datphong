@@ -30,14 +30,12 @@ interface AdminManagerProps {
 // Preset photo options for quick photo selection
 const PHOTO_PRESETS = [
   { name: 'Toàn Cảnh Homestay & Cafe Coral (Hero)', url: '/images/coral-hero.jpg' },
+  { name: 'Toàn Cảnh Cafe Coral (Góc Ngang)', url: '/images/coral_homestay_cafe_hero.jpg' },
   { name: 'Bungalow Vòm View Biển (Ban Ngày)', url: '/images/bungalow-cliff-day.jpg' },
   { name: 'Dãy Bungalow Hoàng Hôn Cliffside', url: '/images/bungalow-row-sunset.jpg' },
   { name: 'Phòng Vòm Bồn Tắm Panorama Biển', url: '/images/bungalow-bathtub-ocean.jpg' },
   { name: 'Phòng Vòm 2 Giường Đôi Ấm Cúng', url: '/images/bungalow-bedroom-twin.jpg' },
   { name: 'Bungalow Vòm Đèn Vàng Hoàng Hôn', url: '/images/bungalow-sunset-front.jpg' },
-  { name: 'Studio Hiện Đại', url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Deluxe View Biển', url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Family Suite Giường Đôi', url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80' },
 ];
 
 export const AdminManager: React.FC<AdminManagerProps> = ({

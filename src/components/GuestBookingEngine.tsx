@@ -159,10 +159,13 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               const target = e.target as HTMLImageElement;
               if (!target.dataset.tried) {
                 target.dataset.tried = '1';
-                target.src = '/images/coral-hero.jpg';
+                target.src = '/images/coral_homestay_cafe_hero.jpg';
               } else if (target.dataset.tried === '1') {
                 target.dataset.tried = '2';
-                target.src = 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=80';
+                target.src = '/images/bungalow-sunset-front.jpg';
+              } else if (target.dataset.tried === '2') {
+                target.dataset.tried = '3';
+                target.src = '/images/bungalow-cliff-day.jpg';
               }
             }}
           />
@@ -460,7 +463,10 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                       const target = e.target as HTMLImageElement;
                       if (!target.dataset.tried) {
                         target.dataset.tried = '1';
-                        target.src = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80';
+                        target.src = '/images/bungalow-cliff-day.jpg';
+                      } else if (target.dataset.tried === '1') {
+                        target.dataset.tried = '2';
+                        target.src = '/images/bungalow-row-sunset.jpg';
                       }
                     }}
                   />
