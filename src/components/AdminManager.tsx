@@ -406,7 +406,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as AdminTab)}
-                className={`group whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] ${
+                className={`group whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] ${
                   activeTab === tab.id
                     ? 'bg-[#C8A261] text-[#151B17] shadow-md scale-[1.02]'
                     : 'text-[#B8A99A] hover:text-[#FAF8F5] hover:bg-[#1B231E]'

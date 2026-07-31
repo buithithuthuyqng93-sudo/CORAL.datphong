@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
           <nav className="hidden lg:flex items-center gap-1.5 bg-[#1B231E] p-1.5 rounded-xl border border-[#2D3931]">
             <button
               onClick={() => setActiveTab('guest-website')}
-              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
+              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
                 activeTab === 'guest-website'
                   ? 'bg-[#C8A261] text-[#151B17] font-bold shadow-md scale-[1.02]'
                   : 'text-[#D5CBBF] hover:text-white hover:bg-[#253029]'
@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab('pms-channel')}
-              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
+              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
                 activeTab === 'pms-channel'
                   ? 'bg-[#C8A261] text-[#151B17] font-bold shadow-md scale-[1.02]'
                   : 'text-[#D5CBBF] hover:text-white hover:bg-[#253029]'
@@ -94,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab('admin-manager')}
-              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
+              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
                 activeTab === 'admin-manager'
                   ? 'bg-[#C8A261] text-[#151B17] font-bold shadow-md scale-[1.02]'
                   : 'text-[#D5CBBF] hover:text-white hover:bg-[#253029]'
@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => setActiveTab('architecture')}
-              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
+              className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B17] ${
                 activeTab === 'architecture'
                   ? 'bg-[#C8A261] text-[#151B17] font-bold shadow-md scale-[1.02]'
                   : 'text-[#D5CBBF] hover:text-white hover:bg-[#253029]'

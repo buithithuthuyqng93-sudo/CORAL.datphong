@@ -40,21 +40,21 @@
   background: #B8A99A;
 }
 
-/* Ken Burns Subtle Hero Animation */
+/* Ken Burns Subtle Hero Animation (12s smooth zoom & slow pan) */
 @keyframes kenburns {
   0% {
     transform: scale(1) translate(0%, 0%);
   }
   50% {
-    transform: scale(1.04) translate(-0.6%, -0.4%);
+    transform: scale(1.05) translate(-0.8%, -0.5%);
   }
   100% {
-    transform: scale(1.02) translate(0.4%, 0.6%);
+    transform: scale(1.03) translate(0.6%, 0.8%);
   }
 }
 
 .animate-ken-burns {
-  animation: kenburns 16s ease-in-out infinite alternate;
+  animation: kenburns 12s ease-in-out infinite alternate;
   will-change: transform;
 }
 
