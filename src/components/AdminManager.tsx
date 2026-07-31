@@ -27,11 +27,12 @@ interface AdminManagerProps {
 
 // Preset photo options for quick photo selection
 const PHOTO_PRESETS = [
-  { name: 'Bungalow Vòm View Biển (Ban Ngày)', url: '/images/bungalow_cliff_day.jpg' },
-  { name: 'Dãy Bungalow Hoàng Hôn Cliffside', url: '/images/bungalow_row_sunset.jpg' },
-  { name: 'Phòng Vòm Bồn Tắm Panorama Biển', url: '/images/bungalow_bathtub_ocean.jpg' },
-  { name: 'Phòng Vòm 2 Giường Đôi Ấm Cúng', url: '/images/bungalow_bedroom_twin.jpg' },
-  { name: 'Bungalow Vòm Đèn Vàng Hoàng Hôn', url: '/images/bungalow_sunset_front.jpg' },
+  { name: 'Toàn Cảnh Homestay & Cafe Coral (Hero)', url: '/images/coral-hero.jpg' },
+  { name: 'Bungalow Vòm View Biển (Ban Ngày)', url: '/images/bungalow-cliff-day.jpg' },
+  { name: 'Dãy Bungalow Hoàng Hôn Cliffside', url: '/images/bungalow-row-sunset.jpg' },
+  { name: 'Phòng Vòm Bồn Tắm Panorama Biển', url: '/images/bungalow-bathtub-ocean.jpg' },
+  { name: 'Phòng Vòm 2 Giường Đôi Ấm Cúng', url: '/images/bungalow-bedroom-twin.jpg' },
+  { name: 'Bungalow Vòm Đèn Vàng Hoàng Hôn', url: '/images/bungalow-sunset-front.jpg' },
   { name: 'Studio Hiện Đại', url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80' },
   { name: 'Deluxe View Biển', url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80' },
   { name: 'Family Suite Giường Đôi', url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80' },
@@ -892,7 +893,14 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
                 >
                   <div>
                     <div className="relative h-52 overflow-hidden">
-                      <img src={rt.image} alt={rt.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={rt.image} 
+                        alt={rt.name} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                        }}
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#151B17]/80 via-transparent to-transparent"></div>
                       <div className="absolute top-3 left-3 bg-[#151B17]/80 text-[#FAF8F5] font-bold text-xs px-3 py-1 rounded-full border border-white/20">
                         {rt.size} • {rt.bedType}
@@ -998,7 +1006,14 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
                               rtImage === p.url ? 'border-[#C8A261] bg-[#FAF6EE]' : 'border-[#E0D8CD]'
                             }`}
                           >
-                            <img src={p.url} alt={p.name} className="w-full h-14 object-cover rounded-lg mb-1" />
+                            <img 
+                              src={p.url} 
+                              alt={p.name} 
+                              className="w-full h-14 object-cover rounded-lg mb-1" 
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                              }}
+                            />
                             <span className="text-[9px] text-[#706557] font-semibold block line-clamp-1">{p.name}</span>
                           </button>
                         ))}

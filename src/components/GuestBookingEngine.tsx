@@ -145,9 +145,12 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/images/coral_homestay_cafe_hero.jpg"
+            src="/images/coral-hero.jpg"
             alt="Homestay & CAFE CORAL Lý Sơn"
             className="w-full h-full object-cover object-center scale-105 filter brightness-[0.78] contrast-[1.05]"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/coral_homestay_cafe_hero.jpg';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#151B17] via-[#151B17]/50 to-[#151B17]/30"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#151B17_90%)] opacity-70"></div>
@@ -416,6 +419,9 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                     src={currentPhoto}
                     alt={`${roomType.name} - Photo ${photoIdx + 1}`}
                     className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#151B17]/80 via-transparent to-[#151B17]/30"></div>
 
@@ -611,6 +617,9 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                     }
                     alt={detailModalRoomType.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                    }}
                   />
                   <div className="absolute top-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full font-mono">
                     {activeDetailPhotoIndex + 1} / {(detailModalRoomType.galleryImages?.length || 1)}
@@ -628,7 +637,14 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                           activeDetailPhotoIndex === i ? 'border-[#C8A261] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                         }`}
                       >
-                        <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                        <img 
+                          src={img} 
+                          alt="Thumbnail" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/bungalow-cliff-day.jpg';
+                          }}
+                        />
                       </button>
                     ))}
                   </div>
