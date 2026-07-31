@@ -146,7 +146,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
       {/* 1. HERO RESORT HEADER (La Siesta Luxury Aesthetic) */}
       <section className="relative min-h-[500px] lg:min-h-[580px] flex items-center justify-center overflow-hidden bg-[#151B17]">
         {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={getMediaUrl('homepage.hero.desktop', '/images/coral-hero.jpg')}
             alt={getMetadata('homepage.hero.desktop')?.altText || "Homestay & CAFE CORAL Lý Sơn"}
@@ -154,7 +154,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
             style={{
               objectPosition: `${getMetadata('homepage.hero.desktop')?.focalPoint?.x ?? 50}% ${getMetadata('homepage.hero.desktop')?.focalPoint?.y ?? 50}%`,
             }}
-            className="w-full h-full object-cover scale-105 filter brightness-95 contrast-[1.05]"
+            className="w-full h-full object-cover animate-ken-burns filter brightness-95 contrast-[1.05]"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               if (!target.dataset.tried) {
@@ -172,48 +172,68 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
           ></div>
         </div>
 
-        {/* Hero Content */}
+        {/* Hero Content Staggered Entrance */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center text-[#FAF8F5]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="space-y-4"
-          >
-            <div className="inline-flex items-center gap-2 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-wide font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
-              <Sparkles className="w-3.5 h-3.5 text-[#C8A261]" />
-              Lý Sơn Island • Cliffside Bungalow & Coffee
-            </div>
+          <div className="space-y-4">
+            {/* 1. Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
+            >
+              <div className="inline-flex items-center gap-2 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-wide font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+                <Sparkles className="w-3.5 h-3.5 text-[#C8A261]" />
+                Lý Sơn Island • Cliffside Bungalow & Coffee
+              </div>
+            </motion.div>
 
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-[#FAF8F5] leading-tight uppercase drop-shadow-md">
+            {/* 2. Title (~120ms after badge) */}
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.18, ease: 'easeOut' }}
+              className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-[#FAF8F5] leading-tight uppercase drop-shadow-md"
+            >
               HOMESTAY & CAFE CORAL
-            </h1>
+            </motion.h1>
 
-            <p className="font-light text-sm sm:text-base text-[#D5CBBF] max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
+            {/* 3. Description (~130ms after title) */}
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.31, ease: 'easeOut' }}
+              className="font-light text-sm sm:text-base text-[#D5CBBF] max-w-2xl mx-auto leading-relaxed drop-shadow-sm"
+            >
               Tận hưởng không gian kiến trúc mái vòm độc bản nhô ra vách núi ngắm trọn vẹn bình minh & hoàng hôn đại dương Lý Sơn. Đặt phòng trực tiếp bảo đảm giá tốt nhất và cọc tự động qua VietQR.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#C5B8A8] pt-3">
-              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm">
+            {/* 4. Contact & Security Labels (~140ms after description) */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.45, ease: 'easeOut' }}
+              className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#C5B8A8] pt-3"
+            >
+              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm hover:border-[#C8A261]/40 transition-colors">
                 <MapPin className="w-4 h-4 text-[#C8A261]" /> Đặc khu Lý Sơn - Quảng Ngãi
               </span>
-              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm">
+              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm hover:border-[#C8A261]/40 transition-colors">
                 <Phone className="w-4 h-4 text-[#C8A261]" /> Hotline / Zalo: <strong className="text-[#FAF8F5]">0868011799 (Mr Thiện)</strong>
               </span>
-              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm">
+              <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm hover:border-[#C8A261]/40 transition-colors">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" /> Khóa phòng tức thì 100%
               </span>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* 2. FLOATING SEARCH & FILTER BAR (La Siesta Sticky/Floating Style) */}
+      {/* 2. FLOATING SEARCH & FILTER BAR (5. Search form appears last) */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.58, ease: 'easeOut' }}
           className="bg-white/95 backdrop-blur-md border border-[#E8E2D9] rounded-2xl p-5 shadow-2xl shadow-[#151B17]/10"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
@@ -225,7 +245,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                 type="date"
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none"
+                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -237,7 +257,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                 type="date"
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none"
+                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none transition-all duration-200"
               />
             </div>
 
@@ -248,7 +268,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               <select
                 value={guestCount}
                 onChange={(e) => setGuestCount(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none"
+                className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs text-[#1C2321] font-semibold focus:ring-2 focus:ring-[#C8A261] focus:outline-none transition-all duration-200"
               >
                 <option value={1}>1 Khách lớn</option>
                 <option value={2}>2 Khách (Cặp đôi)</option>
@@ -281,10 +301,10 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               <button
                 key={filter.id}
                 onClick={() => setActiveCategoryFilter(filter.id)}
-                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] ${
                   activeCategoryFilter === filter.id
                     ? 'bg-[#C8A261] text-[#151B17] shadow-sm font-bold'
-                    : 'bg-[#FAF8F5] text-[#52483B] border border-[#E0D8CD] hover:bg-[#F2ECE1]'
+                    : 'bg-[#FAF8F5] text-[#52483B] border border-[#E0D8CD] hover:bg-[#F2ECE1] hover:text-[#1C2321]'
                 }`}
               >
                 {filter.label}

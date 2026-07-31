@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { 
   RoomType, Room, Booking, PropertyConfig, ChannelSyncLog, HousekeepingStatus
 } from '../types';
@@ -405,13 +406,13 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as AdminTab)}
-                className={`whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                className={`group whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A261] ${
                   activeTab === tab.id
-                    ? 'bg-[#C8A261] text-[#151B17] shadow-md'
+                    ? 'bg-[#C8A261] text-[#151B17] shadow-md scale-[1.02]'
                     : 'text-[#B8A99A] hover:text-[#FAF8F5] hover:bg-[#1B231E]'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-105" />
                 <span>{tab.label}</span>
               </button>
             ))}
@@ -420,6 +421,13 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="space-y-8"
+        >
         {/* ========================================================================= */}
         {/* TAB 1: TỔNG QUAN HÔM NAY (DAILY KPI DASHBOARD) */}
         {/* ========================================================================= */}
@@ -1600,6 +1608,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             showToast={showToast}
           />
         )}
+        </motion.div>
       </main>
     </div>
   );
