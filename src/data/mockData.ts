@@ -1,4 +1,7 @@
-import { RoomType, Room, Booking, ChannelSyncLog, PackageComparison, SolutionModule, PropertyConfig } from '../types';
+import { 
+  RoomType, Room, Booking, ChannelSyncLog, PackageComparison, SolutionModule, 
+  PropertyConfig, Customer, CashTransaction, StaffUser 
+} from '../types';
 
 export const CORAL_ROOM_TYPES: RoomType[] = [
   {
@@ -68,55 +71,76 @@ export const CORAL_ROOM_TYPES: RoomType[] = [
   },
 ];
 
+export const SEAGULL_ROOM_TYPES: RoomType[] = CORAL_ROOM_TYPES;
+
 export const INITIAL_PROPERTY_CONFIG: PropertyConfig = {
-  propertyName: 'Homestay & CAFE CORAL',
-  tagline: 'Cliffside Bungalow & Coffee • Lý Sơn Island',
-  address: 'Đặc khu Lý Sơn, Tỉnh Quảng Ngãi (Vách núi ngắm hoàng hôn)',
-  hotline: '0868011799',
-  ownerName: 'Chị Thủy / Mr Thiện',
-  zaloPhone: '0868011799',
+  propertyName: 'SEAGULL LÝ SƠN',
+  slogan: 'Nơi chữa lành tâm hồn bạn.',
+  tagline: 'SEAGULL LÝ SƠN — Homestay & Cà Phê • Nơi chữa lành tâm hồn bạn',
+  address: 'Thôn Tây, Xã An Vĩnh, Đặc khu Lý Sơn, Tỉnh Quảng Ngãi (Vách núi ngắm hoàng hôn)',
+  googleMapsUrl: 'https://maps.google.com/?q=Seagull+Ly+Son+Homestay',
+  hotline: '0868011799 - 0981065065',
+  email: 'seagull.lyson@gmail.com',
+  ownerName: 'Mr Thiện / Ms Điền',
+  zaloPhone: '0868011799 - 0981065065',
   bankName: 'MB Bank (Ngân Hàng Quân Đội)',
   bankBin: '970422',
   accountNumber: '0868011799',
-  accountHolder: 'CORAL HOMESTAY - BUI THI THU THUY',
-  heroTitle: 'HOMESTAY & CAFE CORAL',
-  heroDescription: 'Tận hưởng không gian kiến trúc mái vòm độc bản nhô ra vách núi ngắm trọn vẹn bình minh & hoàng hôn đại dương Lý Sơn. Đặt phòng trực tiếp bảo đảm giá tốt nhất và cọc tự động qua VietQR.',
-  announcementBar: 'Homestay & CAFE CORAL Lý Sơn (Bungalow Vòm Cliffside 15 Căn)',
+  accountHolder: 'SEAGULL HOMESTAY - BUI THI THU THUY',
+  heroTitle: 'SEAGULL LÝ SƠN — HOMESTAY & CÀ PHÊ',
+  heroDescription: 'Nơi chữa lành tâm hồn bạn giữa biển trời đảo ngọc Lý Sơn. 20 căn Bungalow vòm cliffside độc bản nép mình bên vách đá bazan hùng vĩ, thưởng thức tách cà phê ngắm hoàng hôn rực rỡ và tiếng sóng vỗ.',
+  announcementBar: 'SEAGULL LÝ SƠN — Homestay & Cà Phê (20 Căn Mái Vòm Cliffside View Biển)',
   checkInTime: '14:00',
   checkOutTime: '12:00',
   weekendSurchargePercent: 20,
   holidaySurchargePercent: 35,
-  defaultDepositPercent: 50,
+  defaultDepositPercent: 30,
+  cancellationPolicy: 'Hủy trước 7 ngày: Miễn phí hoàn 100% tiền cọc. Hủy trước 3 - 6 ngày: Hoàn 50% cọc hoặc bảo lưu 6 tháng. Hủy trong vòng 48h hoặc do tàu cao tốc dừng do thời tiết/bão: Hỗ trợ dời ngày lưu trú miễn phí.',
+  depositPolicy: 'Thanh toán cọc 30% qua VietQR tự động khớp nội dung để khóa phòng ngay lập tức. 70% số dư còn lại thanh toán khi nhận phòng.',
+  socialLinks: {
+    facebook: 'https://facebook.com/seagull.lyson.homestay',
+    zalo: 'https://zalo.me/0868011799',
+    tiktok: 'https://tiktok.com/@seagull.lyson',
+    instagram: 'https://instagram.com/seagull.lyson',
+    googleMaps: 'https://maps.google.com/?q=Seagull+Ly+Son',
+  },
 };
 
-// Initial 15 Rooms for Coral Homestay
+// Initial 20 Rooms (Demo Baseline) for Seagull Homestay & Cafe
 export const INITIAL_ROOMS: Room[] = [
-  // Tầng 1: Studio (101 - 105)
-  { id: 'rm-101', number: '101', floor: 1, roomTypeId: 'type-studio', status: 'available' },
-  { id: 'rm-102', number: '102', floor: 1, roomTypeId: 'type-studio', status: 'booked_direct' },
-  { id: 'rm-103', number: '103', floor: 1, roomTypeId: 'type-studio', status: 'available' },
-  { id: 'rm-104', number: '104', floor: 1, roomTypeId: 'type-studio', status: 'booked_booking' },
-  { id: 'rm-105', number: '105', floor: 1, roomTypeId: 'type-studio', status: 'available' },
+  // Tầng 1: Bungalow Vòm Ocean View (101 - 105) - 5 phòng
+  { id: 'rm-101', number: '101', floor: 1, area: 'Tầng 1 - Vòm Hướng Biển', roomTypeId: 'type-studio', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-102', number: '102', floor: 1, area: 'Tầng 1 - Vòm Hướng Biển', roomTypeId: 'type-studio', status: 'booked_direct', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-103', number: '103', floor: 1, area: 'Tầng 1 - Vòm Hướng Biển', roomTypeId: 'type-studio', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-104', number: '104', floor: 1, area: 'Tầng 1 - Vòm Hướng Biển', roomTypeId: 'type-studio', status: 'booked_booking', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-105', number: '105', floor: 1, area: 'Tầng 1 - Vòm Hướng Biển', roomTypeId: 'type-studio', status: 'available', housekeepingStatus: 'dirty', isActive: true },
 
-  // Tầng 2: Deluxe (201 - 205)
-  { id: 'rm-201', number: '201', floor: 2, roomTypeId: 'type-deluxe', status: 'available' },
-  { id: 'rm-202', number: '202', floor: 2, roomTypeId: 'type-deluxe', status: 'booked_agoda' },
-  { id: 'rm-203', number: '203', floor: 2, roomTypeId: 'type-deluxe', status: 'available' },
-  { id: 'rm-204', number: '204', floor: 2, roomTypeId: 'type-deluxe', status: 'booked_direct' },
-  { id: 'rm-205', number: '205', floor: 2, roomTypeId: 'type-deluxe', status: 'available' },
+  // Tầng 2: Deluxe Bungalow Bồn Tắm Biển (201 - 205) - 5 phòng
+  { id: 'rm-201', number: '201', floor: 2, area: 'Tầng 2 - Deluxe Bồn Tắm Panorama', roomTypeId: 'type-deluxe', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-202', number: '202', floor: 2, area: 'Tầng 2 - Deluxe Bồn Tắm Panorama', roomTypeId: 'type-deluxe', status: 'booked_agoda', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-203', number: '203', floor: 2, area: 'Tầng 2 - Deluxe Bồn Tắm Panorama', roomTypeId: 'type-deluxe', status: 'available', housekeepingStatus: 'cleaning', isActive: true },
+  { id: 'rm-204', number: '204', floor: 2, area: 'Tầng 2 - Deluxe Bồn Tắm Panorama', roomTypeId: 'type-deluxe', status: 'booked_direct', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-205', number: '205', floor: 2, area: 'Tầng 2 - Deluxe Bồn Tắm Panorama', roomTypeId: 'type-deluxe', status: 'available', housekeepingStatus: 'clean', isActive: true },
 
-  // Tầng 3 & Sân vườn: Family (301-303) & Bungalow (BG-01, BG-02)
-  { id: 'rm-301', number: '301', floor: 3, roomTypeId: 'type-family', status: 'available' },
-  { id: 'rm-302', number: '302', floor: 3, roomTypeId: 'type-family', status: 'booked_booking' },
-  { id: 'rm-303', number: '303', floor: 3, roomTypeId: 'type-family', status: 'available' },
-  { id: 'rm-bg1', number: 'BG-01', floor: 0, roomTypeId: 'type-bungalow', status: 'available' },
-  { id: 'rm-bg2', number: 'BG-02', floor: 0, roomTypeId: 'type-bungalow', status: 'booked_direct' },
+  // Tầng 3: Family Dome 2 Giường Đôi (301 - 305) - 5 phòng
+  { id: 'rm-301', number: '301', floor: 3, area: 'Tầng 3 - Family Dome Gia Đình', roomTypeId: 'type-family', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-302', number: '302', floor: 3, area: 'Tầng 3 - Family Dome Gia Đình', roomTypeId: 'type-family', status: 'booked_booking', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-303', number: '303', floor: 3, area: 'Tầng 3 - Family Dome Gia Đình', roomTypeId: 'type-family', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-304', number: '304', floor: 3, area: 'Tầng 3 - Family Dome Gia Đình', roomTypeId: 'type-family', status: 'available', housekeepingStatus: 'dirty', isActive: true },
+  { id: 'rm-305', number: '305', floor: 3, area: 'Tầng 3 - Family Dome Gia Đình', roomTypeId: 'type-family', status: 'booked_direct', housekeepingStatus: 'clean', isActive: true },
+
+  // Khu Vách Núi Hoàng Hôn: Cliffside Sunset Bungalow (BG-01 - BG-05) - 5 căn
+  { id: 'rm-bg1', number: 'BG-01', floor: 0, area: 'Khu Vách Núi Hoàng Hôn', roomTypeId: 'type-bungalow', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-bg2', number: 'BG-02', floor: 0, area: 'Khu Vách Núi Hoàng Hôn', roomTypeId: 'type-bungalow', status: 'booked_direct', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-bg3', number: 'BG-03', floor: 0, area: 'Khu Vách Núi Hoàng Hôn', roomTypeId: 'type-bungalow', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-bg4', number: 'BG-04', floor: 0, area: 'Khu Vách Núi Hoàng Hôn', roomTypeId: 'type-bungalow', status: 'available', housekeepingStatus: 'clean', isActive: true },
+  { id: 'rm-bg5', number: 'BG-05', floor: 0, area: 'Khu Vách Núi Hoàng Hôn', roomTypeId: 'type-bungalow', status: 'booked_agoda', housekeepingStatus: 'clean', isActive: true },
 ];
 
 export const INITIAL_BOOKINGS: Booking[] = [
   {
     id: 'bk-01',
-    code: 'CRL-9102',
+    code: 'SGL-9102',
     customerName: 'Nguyễn Văn Minh',
     customerPhone: '0988 123 456',
     customerEmail: 'minh.nguyen@gmail.com',
@@ -125,7 +149,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     nights: 2,
     roomId: 'rm-102',
     roomNumber: '102',
-    roomTypeName: 'Studio Coral Ấm Cúng',
+    roomTypeName: 'Bungalow Vòm Ocean View',
     totalPrice: 1100000,
     depositPercent: 50,
     depositAmount: 550000,
@@ -145,7 +169,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     nights: 3,
     roomId: 'rm-104',
     roomNumber: '104',
-    roomTypeName: 'Studio Coral Ấm Cúng',
+    roomTypeName: 'Bungalow Vòm Ocean View',
     totalPrice: 1650000,
     depositPercent: 100,
     depositAmount: 1650000,
@@ -202,7 +226,7 @@ export const INITIAL_SYNC_LOGS: ChannelSyncLog[] = [
     action: 'Booking từ Booking.com đẩy về Channel Manager',
     roomNumber: '104',
     status: 'synced',
-    details: 'Cập nhật PMS và đóng trống trên Website Coral Homestay.',
+    details: 'Cập nhật PMS và đóng trống trên Website Seagull Homestay.',
   },
 ];
 
@@ -211,14 +235,14 @@ export const CORE_MODULES: SolutionModule[] = [
     name: '1. PMS (Property Management System)',
     role: 'Phần mềm quản lý lễ tân & sơ đồ phòng',
     importance: 'Bắt buộc',
-    description: 'Sơ đồ 15 phòng trực quan, check-in/check-out, lịch sử khách, báo cáo doanh thu, tình trạng buồng phòng (sạch/bẩn).',
+    description: 'Sơ đồ 20 phòng trực quan, check-in/check-out, lịch sử khách, báo cáo doanh thu, tình trạng buồng phòng (sạch/bẩn).',
     estimatedCostVnd: '1,800,000 - 3,600,000đ / năm',
   },
   {
     name: '2. Booking Engine (Website Đặt Phòng Direct)',
     role: 'Website riêng cho khách chọn ngày & đặt trực tiếp',
     importance: 'Bắt buộc',
-    description: 'Trang web thương hiệu Coral Homestay, tích hợp chọn ngày, chọn loại phòng, tự tính 30-50% cọc, giúp không mất 18-20% hoa hồng OTA.',
+    description: 'Trang web thương hiệu Seagull Homestay, tích hợp chọn ngày, chọn loại phòng, tự tính 30% cọc, giúp không mất 18-20% hoa hồng OTA.',
     estimatedCostVnd: '1,500,000 - 3,500,000đ / năm',
   },
   {
@@ -241,7 +265,7 @@ export const PACKAGE_COMPARISONS: PackageComparison[] = [
   {
     id: 'pkg-bluejay-sepay',
     providerName: 'Gói Tiết Kiệm Tối Ưu (GoBerry / Vietbooking + SePAY VietQR)',
-    packageName: 'Trọn Bộ Homestay Chuyên Nghiệp (Khuyên dùng cho Coral 15 phòng)',
+    packageName: 'Trọn Bộ Homestay Chuyên Nghiệp (Khuyên dùng cho Seagull 20 phòng)',
     targetMarket: 'Rất phù hợp cho Homestay & Hotel nhỏ (10 - 25 phòng)',
     setupFee: 0,
     monthlyFee: 500000,
@@ -252,7 +276,7 @@ export const PACKAGE_COMPARISONS: PackageComparison[] = [
     includesChannelManager: true,
     otaChannelsSupported: ['Booking.com', 'Agoda', 'Expedia', 'Traveloka', 'Airbnb'],
     pros: [
-      'Tổng chi phí rất hợp lý (~6.000.000đ/năm trọn gói cho 15 phòng).',
+      'Tổng chi phí rất hợp lý (~6.000.000đ/năm trọn gói cho 20 phòng).',
       'Tích hợp sẵn VietQR Webhook (SePAY / Casso) tự động duyệt cọc 24/7.',
       'Đồng bộ 2 chiều (2-way sync) ổn định với Booking.com & Agoda.',
       'Giao diện tiếng Việt 100%, dễ thao tác trên điện thoại.',
@@ -282,7 +306,7 @@ export const PACKAGE_COMPARISONS: PackageComparison[] = [
       'Độ tin cậy cao, hỗ trợ kỹ thuật 24/7 tại Việt Nam.',
     ],
     cons: [
-      'Chi phí cao hơn cho mô hình Homestay 15 phòng (~11.4M/năm + phí khởi tạo).',
+      'Chi phí cao hơn cho mô hình Homestay 20 phòng (~11.4M/năm + phí khởi tạo).',
       'Giao diện có nhiều tính năng phức tạp dư thừa so với nhu cầu Homestay.',
     ],
   },
@@ -307,5 +331,153 @@ export const PACKAGE_COMPARISONS: PackageComparison[] = [
       'Chi phí cao nhất trong các phân khúc (~14.4M/năm).',
       'Cổng thanh toán QR ngân hàng Việt Nam cần cấu hình thêm qua bên thứ 3.',
     ],
+  },
+];
+
+export const INITIAL_CUSTOMERS: Customer[] = [
+  {
+    id: 'cust-1',
+    name: 'Nguyễn Văn Minh',
+    phone: '0988 123 456',
+    email: 'minh.nguyen@gmail.com',
+    totalStays: 2,
+    totalSpent: 3300000,
+    lastStayDate: '2026-08-01',
+    tier: 'vip',
+    notes: 'Khách thích căn vòm tầng 1 sát vách biển, hay uống Cà phê pha phin buổi sáng.',
+    zaloContact: '0988 123 456',
+    createdAt: '2026-05-10',
+  },
+  {
+    id: 'cust-2',
+    name: 'Sarah Jenkins',
+    phone: '+1 415 889 122',
+    email: 'sarah.j@outlook.com',
+    totalStays: 1,
+    totalSpent: 1650000,
+    lastStayDate: '2026-08-02',
+    tier: 'new',
+    notes: 'Khách quốc tế, thích chụp ảnh hoàng hôn và lặn ngắm san hô Đảo Bé.',
+    createdAt: '2026-07-29',
+  },
+  {
+    id: 'cust-3',
+    name: 'Trần Thị Mai',
+    phone: '0912 334 556',
+    email: 'maitt@yahoo.com',
+    totalStays: 3,
+    totalSpent: 4200000,
+    lastStayDate: '2026-08-01',
+    tier: 'regular',
+    notes: 'Gia đình 4 người, đặt trước xe máy Lý Sơn tham quan Hải Đăng & Cổng Tò Vò.',
+    zaloContact: '0912 334 556',
+    createdAt: '2026-04-12',
+  },
+  {
+    id: 'cust-4',
+    name: 'Phạm Đức Thiện',
+    phone: '0905 778 899',
+    email: 'thien.pham@danang.vn',
+    totalStays: 1,
+    totalSpent: 2400000,
+    lastStayDate: '2026-07-20',
+    tier: 'regular',
+    notes: 'Đi công tác kết hợp nghỉ dưỡng, check-in muộn lúc 18h.',
+    zaloContact: '0905 778 899',
+    createdAt: '2026-07-15',
+  },
+];
+
+export const INITIAL_TRANSACTIONS: CashTransaction[] = [
+  {
+    id: 'tx-01',
+    date: '2026-08-01 10:15',
+    type: 'income',
+    category: 'deposit',
+    amount: 550000,
+    title: 'Tiền cọc 50% phòng 102 (Đơn SGL-9102)',
+    bookingCode: 'SGL-9102',
+    performedBy: 'Hệ thống VietQR Tự Động',
+    paymentMethod: 'vietqr',
+    notes: 'Khớp mã tự động SePay MBBank',
+  },
+  {
+    id: 'tx-02',
+    date: '2026-08-01 14:30',
+    type: 'income',
+    category: 'room_balance',
+    amount: 550000,
+    title: 'Thu nốt 50% số dư phòng 102 khi check-in',
+    bookingCode: 'SGL-9102',
+    performedBy: 'Lễ tân Thủy',
+    paymentMethod: 'cash',
+  },
+  {
+    id: 'tx-03',
+    date: '2026-08-01 15:45',
+    type: 'income',
+    category: 'cafe_beverage',
+    amount: 145000,
+    title: 'Thức uống Quầy Cafe Seagull (2 Cà phê muối, 1 Nước ép dưa hấu)',
+    performedBy: 'Mr Thiện (Quản lý)',
+    paymentMethod: 'vietqr',
+  },
+  {
+    id: 'tx-04',
+    date: '2026-08-01 16:00',
+    type: 'income',
+    category: 'bike_rental',
+    amount: 300000,
+    title: 'Thuê 2 xe máy Honda Vision tham quan đảo Lý Sơn (2 ngày)',
+    performedBy: 'Lễ tân Thủy',
+    paymentMethod: 'cash',
+  },
+  {
+    id: 'tx-05',
+    date: '2026-08-01 17:30',
+    type: 'expense',
+    category: 'supplies',
+    amount: 650000,
+    title: 'Mua hạt cà phê Arabica & Robusta Cầu Đất cho quầy Bar',
+    performedBy: 'Mr Thiện (Quản lý)',
+    paymentMethod: 'bank_transfer',
+    notes: 'Hóa đơn đại lý Cầu Đất 10kg',
+  },
+  {
+    id: 'tx-06',
+    date: '2026-08-01 18:00',
+    type: 'expense',
+    category: 'utilities',
+    amount: 450000,
+    title: 'Nước lọc bình 20L & giặt ủi drap trải giường buồng phòng',
+    performedBy: 'Tổ Buồng Phòng',
+    paymentMethod: 'cash',
+  },
+];
+
+export const INITIAL_STAFF: StaffUser[] = [
+  {
+    id: 'staff-1',
+    name: 'Mr Thiện / Ms Điền (Quản lý đặt phòng)',
+    role: 'owner',
+    pin: '8888',
+    phone: '0868011799 - 0981065065',
+    isActive: true,
+  },
+  {
+    id: 'staff-2',
+    name: 'Lễ Tân Thủy (Quản lý đặt phòng & Check-in)',
+    role: 'receptionist',
+    pin: '1234',
+    phone: '0868011799',
+    isActive: true,
+  },
+  {
+    id: 'staff-3',
+    name: 'Tổ Buồng Phòng Seagull (Vệ sinh & Dọn phòng)',
+    role: 'housekeeping',
+    pin: '5678',
+    phone: '0905 112 233',
+    isActive: true,
   },
 ];

@@ -1,10 +1,16 @@
 import type { Request, Response } from 'express';
-import { getSupabaseServerClient, isSupabaseConfigured } from './lib/supabaseServer';
+import { getSupabaseServerClient, isSupabaseConfigured, checkSupabaseLiveConnection } from './lib/supabaseServer';
 import { sendBookingConfirmationEmail } from './lib/gmailAdapter';
 import { syncBookingToGoogleSheet } from './lib/googleSheetsAdapter';
 
 export default async function handler(req: Request, res: Response) {
   const action = req.query.action || req.body?.action;
+
+  // DB STATUS CHECK
+  if (action === 'db-status') {
+    const status = await checkSupabaseLiveConnection();
+    return res.status(200).json({ success: true, ...status });
+  }
 
   // GET ALL BOOKINGS
   if (req.method === 'GET') {

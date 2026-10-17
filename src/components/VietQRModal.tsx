@@ -40,7 +40,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
     bankName: propertyConfig?.bankName || 'MBBank (Ngân Hàng Quân Đội)',
     bankBin: propertyConfig?.bankBin || '970422',
     accountNumber: propertyConfig?.accountNumber || '0868011799',
-    accountHolder: propertyConfig?.accountHolder || 'CORAL HOMESTAY - BUI THI THU THUY',
+    accountHolder: propertyConfig?.accountHolder || 'SEAGULL HOMESTAY - BUI THI THU THUY',
   };
 
   // VietQR Quick Link URL
@@ -76,7 +76,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#C8A261] block">
-                CORAL RESORT LÝ SƠN
+                {propertyConfig?.propertyName ? propertyConfig.propertyName.toUpperCase() : 'HOMESTAY & CÀ PHÊ SEAGULL'} LÝ SƠN
               </span>
               <h3 className="font-serif text-lg font-bold text-[#FAF8F5]">Thanh Toán Cọc Giữ Phòng</h3>
             </div>

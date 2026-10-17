@@ -73,7 +73,7 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
             <Zap className="w-3.5 h-3.5" />
             <span>PMS & Channel Manager 2-Way Sync Engine</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-white">Quản Lý Sơ Đồ 15 Phòng Coral Homestay</h2>
+          <h2 className="text-2xl font-extrabold text-white">Quản Lý Sơ Đồ Phòng Seagull Homestay ({rooms.length} phòng)</h2>
           <p className="text-xs text-slate-400 mt-1">
             Đồng bộ 2 chiều tức thì giữa Website Direct, Booking.com & Agoda. Phòng đã cọc hoặc đặt qua OTA tự động đóng trên tất cả các kênh trong vòng 2 giây.
           </p>
@@ -98,7 +98,7 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
           <button
             onClick={onResetAllRooms}
             className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-2 rounded-xl flex items-center gap-1.5 border border-slate-700"
-            title="Mở lại toàn bộ 15 phòng"
+            title={`Mở lại toàn bộ ${rooms.length} phòng`}
           >
             <RefreshCw className="w-3.5 h-3.5" /> Reset Sơ Đồ
           </button>
@@ -111,7 +111,7 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
           <div>
             <p className="text-slate-400">Phòng Trống (Available)</p>
             <p className="text-2xl font-extrabold text-emerald-400 mt-1">
-              {rooms.filter((r) => r.status === 'available').length}
+              {rooms.filter((r) => r.status === 'available' && r.isActive !== false).length}
             </p>
           </div>
           <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -148,12 +148,12 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
         </div>
       </div>
 
-      {/* Main 15 Room Grid */}
+      {/* Main Room Grid */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-5 h-5 text-teal-400" />
-            <h3 className="font-bold text-base text-white">Sơ Đồ Lưới 15 Phòng Thật (Live Grid)</h3>
+            <h3 className="font-bold text-base text-white">Sơ Đồ Lưới Phòng Thật (Live Grid - {rooms.length} phòng)</h3>
           </div>
 
           {/* Floor filter */}
@@ -164,7 +164,7 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
                 activeFloorFilter === 'all' ? 'bg-teal-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Tất cả 15 phòng
+              Tất cả {rooms.length} phòng
             </button>
             <button
               onClick={() => setActiveFloorFilter(1)}
@@ -279,7 +279,7 @@ export const PmsAndChannelManager: React.FC<PmsAndChannelManagerProps> = ({
             <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-teal-300 flex items-center gap-1.5">
-                  <Globe className="w-4 h-4 text-teal-400" /> Website Coral Homestay (Direct)
+                  <Globe className="w-4 h-4 text-teal-400" /> Website Seagull Homestay (Direct)
                 </span>
                 <span className="text-emerald-400 font-bold">100% Khóa Tức Thì</span>
               </div>

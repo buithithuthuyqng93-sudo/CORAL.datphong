@@ -25,8 +25,8 @@ export function calculateNights(checkInStr: string, checkOutStr: string): number
 }
 
 /**
- * Generates temporary booking code: CRL-YYMMDD-XXXX
- * e.g. CRL-260731-A8K4
+ * Generates temporary booking code: SGL-YYMMDD-XXXX
+ * e.g. SGL-260731-A8K4
  */
 export function generateTemporaryOrderCode(): string {
   const today = new Date();
@@ -38,7 +38,7 @@ export function generateTemporaryOrderCode(): string {
   for (let i = 0; i < 4; i++) {
     randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return `CRL-${yy}${mm}${dd}-${randomStr}`;
+  return `SGL-${yy}${mm}${dd}-${randomStr}`;
 }
 
 /**
@@ -58,7 +58,7 @@ export async function checkAvailableRooms(
     return {
       isDemo: true,
       roomTypes: availableTypes,
-      availableRooms: INITIAL_ROOMS.filter((r) => r.status === 'available'),
+      availableRooms: INITIAL_ROOMS.filter((r) => r.status === 'available' && r.isActive !== false),
     };
   }
 
@@ -131,7 +131,7 @@ export async function createBookingDraft(input: CreateBookingInput) {
     // Demo Mode fallback
     const targetRoomType = CORAL_ROOM_TYPES.find((r) => r.id === input.roomTypeId) || CORAL_ROOM_TYPES[0];
     const totalPrice = targetRoomType.basePrice * nights;
-    const depositAmount = totalPrice * 0.5;
+    const depositAmount = Math.ceil(totalPrice * 0.30); // 30% deposit rule
 
     return {
       isDemo: true,
@@ -149,7 +149,7 @@ export async function createBookingDraft(input: CreateBookingInput) {
         roomNumber: '101',
         roomTypeName: targetRoomType.name,
         totalPrice,
-        depositPercent: 50,
+        depositPercent: 30,
         depositAmount,
         remainingAmount: totalPrice - depositAmount,
         paymentStatus: 'pending_deposit',
@@ -174,8 +174,8 @@ export async function createBookingDraft(input: CreateBookingInput) {
   }
 
   const totalPrice = Number(roomType.base_price) * nights;
-  const depositPercent = Number(roomType.deposit_value) || 50;
-  const depositAmount = (totalPrice * depositPercent) / 100;
+  const depositPercent = 30; // 30% deposit confirmed by owner
+  const depositAmount = Math.ceil((totalPrice * depositPercent) / 100);
   const holdMinutes = Number(process.env.BOOKING_HOLD_MINUTES) || 15;
 
   // Call atomic RPC function to hold room

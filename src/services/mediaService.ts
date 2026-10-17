@@ -60,17 +60,17 @@ export const DEFAULT_SITE_CONTENT: Record<string, Partial<SiteContentItem>> = {
   'homepage.hero.desktop': {
     contentKey: 'homepage.hero.desktop',
     textValue: '/images/coral-hero.jpg',
-    metadata: { focalPoint: { x: 50, y: 50 }, altText: 'Toàn cảnh Homestay & CAFE CORAL Lý Sơn', overlayOpacity: 0.3 },
+    metadata: { focalPoint: { x: 50, y: 50 }, altText: 'Toàn cảnh Homestay & Cà Phê Seagull Lý Sơn', overlayOpacity: 0.3 },
   },
   'homepage.hero.mobile': {
     contentKey: 'homepage.hero.mobile',
     textValue: '/images/coral-hero.jpg',
-    metadata: { focalPoint: { x: 50, y: 50 }, altText: 'Toàn cảnh Homestay & CAFE CORAL Lý Sơn trên di động' },
+    metadata: { focalPoint: { x: 50, y: 50 }, altText: 'Toàn cảnh Homestay & Cà Phê Seagull Lý Sơn trên di động' },
   },
   'homepage.logo': {
     contentKey: 'homepage.logo',
     textValue: '/images/coral-hero.jpg',
-    metadata: { altText: 'Logo Homestay & CAFE CORAL Lý Sơn' },
+    metadata: { altText: 'Logo Homestay & Cà Phê Seagull Lý Sơn' },
   },
   'homepage.about.image': {
     contentKey: 'homepage.about.image',

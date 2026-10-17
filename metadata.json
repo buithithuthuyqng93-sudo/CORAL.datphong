@@ -1,6 +1,6 @@
 {
-  "name": "Homestay & CAFE CORAL - Booking Engine",
-  "description": "Hệ thống đặt phòng trọn bộ PMS + Booking Engine + VietQR + Channel Manager cho Homestay & CAFE CORAL Lý Sơn (15 căn vòm cliffside)",
+  "name": "Homestay & Cà Phê Seagull - Booking Engine",
+  "description": "Hệ thống đặt phòng trọn bộ PMS + Booking Engine + VietQR + Channel Manager cho Homestay & Cà Phê Seagull Lý Sơn (20 phòng quy mô vận hành)",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

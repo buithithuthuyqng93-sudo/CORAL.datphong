@@ -75,7 +75,7 @@ function createRawEmailMessage(
   htmlBody: string
 ): string {
   const str = [
-    `From: Homestay & CAFE CORAL Lý Sơn <${senderEmail}>`,
+    `From: Homestay & Cà Phê Seagull Lý Sơn <${senderEmail}>`,
     `To: ${toEmail}`,
     `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
     'MIME-Version: 1.0',
@@ -95,7 +95,7 @@ function createRawEmailMessage(
  * Sends Email Confirmation via Gmail REST API
  */
 export async function sendBookingConfirmationEmail(data: EmailData): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const senderEmail = process.env.GMAIL_SENDER_EMAIL || 'coral.homestay.lyson@gmail.com';
+  const senderEmail = process.env.GMAIL_SENDER_EMAIL || 'seagull.homestay.lyson@gmail.com';
   const accessToken = await getGmailAccessToken();
 
   if (!accessToken) {
@@ -106,17 +106,17 @@ export async function sendBookingConfirmationEmail(data: EmailData): Promise<{ s
     };
   }
 
-  const subject = `[XÁC NHẬN ĐẶT PHÒNG] Homestay & CAFE CORAL Lý Sơn - Mã: ${data.confirmationCode || data.bookingCode}`;
+  const subject = `[XÁC NHẬN ĐẶT PHÒNG] Homestay & Cà Phê Seagull Lý Sơn - Mã: ${data.confirmationCode || data.bookingCode}`;
   
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #151B17; color: #FAF8F5; padding: 24px; border-radius: 12px; max-width: 600px; margin: 0 auto;">
       <div style="text-align: center; border-bottom: 1px solid #2C3831; padding-bottom: 16px; margin-bottom: 20px;">
-        <h1 style="color: #C8A261; margin: 0; font-size: 24px;">HOMESTAY & CAFE CORAL LÝ SƠN</h1>
-        <p style="color: #A39687; font-size: 12px; margin-top: 4px; text-transform: uppercase;">Cliffside Bungalow Vòm & Coffee - Lý Sơn, Quảng Ngãi</p>
+        <h1 style="color: #C8A261; margin: 0; font-size: 24px;">HOMESTAY & CÀ PHÊ SEAGULL LÝ SƠN</h1>
+        <p style="color: #A39687; font-size: 12px; margin-top: 4px; text-transform: uppercase;">Cliffside Seagull Bungalow Vòm & Coffee - Lý Sơn, Quảng Ngãi</p>
       </div>
 
       <p style="font-size: 16px;">Kính gửi <strong>${data.guestName}</strong>,</p>
-      <p style="color: #D5CBBF;">Cảm ơn Quý khách đã tin tưởng chọn <strong>Homestay & CAFE CORAL Lý Sơn</strong> cho kỳ nghỉ của mình. Chúng tôi xin xác nhận đơn đặt phòng của Quý khách như sau:</p>
+      <p style="color: #D5CBBF;">Cảm ơn Quý khách đã tin tưởng chọn <strong>Homestay & Cà Phê Seagull Lý Sơn</strong> cho kỳ nghỉ của mình. Chúng tôi xin xác nhận đơn đặt phòng của Quý khách như sau:</p>
 
       <div style="background-color: #1A221D; border: 1px solid #C8A261; border-radius: 8px; padding: 16px; margin: 20px 0;">
         <p style="margin: 6px 0; color: #C8A261;"><strong>Mã Đặt Phòng:</strong> <span style="font-size: 18px; color: #FFFFFF;">${data.confirmationCode || data.bookingCode}</span></p>
@@ -134,12 +134,12 @@ export async function sendBookingConfirmationEmail(data: EmailData): Promise<{ s
         <p><strong>Lưu ý nhận phòng:</strong></p>
         <ul>
           <li>Vui lòng mang theo CCCD/Hộ chiếu để làm thủ tục nhận phòng.</li>
-          <li>Hotline / Zalo hỗ trợ đưa đón cảng An Vĩnh: <strong>${data.hotline || '0868011799 (Mr Thiện)'}</strong></li>
+          <li>Hotline / Zalo hỗ trợ đặt phòng & đón cảng An Vĩnh: <strong>${data.hotline || '0868011799 - 0981065065 (Mr Thiện/ Ms Điền)'}</strong></li>
         </ul>
       </div>
 
       <div style="text-align: center; margin-top: 30px; border-top: 1px solid #2C3831; padding-top: 16px; font-size: 12px; color: #A39687;">
-        <p>Homestay & CAFE CORAL Lý Sơn • Đặc khu Lý Sơn, Quảng Ngãi</p>
+        <p>Homestay & Cà Phê Seagull Lý Sơn • Đặc khu Lý Sơn, Quảng Ngãi</p>
       </div>
     </div>
   `;

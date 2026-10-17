@@ -1,5 +1,5 @@
 import { Booking, RoomType, Room } from '../types';
-import { CORAL_ROOM_TYPES, INITIAL_ROOMS, INITIAL_BOOKINGS } from '../data/mockData';
+import { SEAGULL_ROOM_TYPES, INITIAL_ROOMS, INITIAL_BOOKINGS } from '../data/mockData';
 
 export interface CreateBookingPayload {
   roomTypeId: string;
@@ -31,8 +31,8 @@ export async function apiCheckAvailability(roomTypeId?: string, checkIn?: string
     console.warn('[DataAdapter] Fallback to local mock availability:', err);
     return {
       isDemo: true,
-      roomTypes: CORAL_ROOM_TYPES,
-      availableRooms: INITIAL_ROOMS.filter((r) => r.status === 'available'),
+      roomTypes: SEAGULL_ROOM_TYPES,
+      availableRooms: INITIAL_ROOMS.filter((r) => r.status === 'available' && r.isActive !== false),
     };
   }
 }
@@ -62,13 +62,13 @@ export async function apiCreateBooking(payload: CreateBookingPayload) {
     console.warn('[DataAdapter] Falling back to local booking creation:', err.message);
 
     // Local fallback for demo mode
-    const targetRoomType = CORAL_ROOM_TYPES.find((r) => r.id === payload.roomTypeId) || CORAL_ROOM_TYPES[0];
+    const targetRoomType = SEAGULL_ROOM_TYPES.find((r) => r.id === payload.roomTypeId) || SEAGULL_ROOM_TYPES[0];
     const dIn = new Date(payload.checkIn);
     const dOut = new Date(payload.checkOut);
     const nights = Math.max(1, Math.ceil((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
     const totalPrice = targetRoomType.basePrice * nights;
-    const depositAmount = totalPrice * 0.5;
-    const randomCode = `CRL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const depositAmount = Math.ceil(totalPrice * 0.30); // Confirmed 30% deposit rule
+    const randomCode = `SGL-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const fallbackBooking: Booking = {
       id: `local-${Date.now()}`,
@@ -83,7 +83,7 @@ export async function apiCreateBooking(payload: CreateBookingPayload) {
       roomNumber: '101',
       roomTypeName: targetRoomType.name,
       totalPrice,
-      depositPercent: 50,
+      depositPercent: 30,
       depositAmount,
       paymentStatus: 'pending_deposit',
       channel: 'direct',

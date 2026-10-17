@@ -66,7 +66,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Homestay CORAL Server] Running on http://0.0.0.0:${PORT}`);
+    console.log(`[Seagull Homestay Server] Running on http://0.0.0.0:${PORT} (20 Rooms Planned)`);
   });
 }
 

@@ -11,6 +11,7 @@ import {
   SiteContentItem
 } from '../services/mediaService';
 import { RoomType } from '../types';
+import { CORAL_ROOM_TYPES } from '../data/mockData';
 import { 
   Upload, Image as ImageIcon, RotateCcw, Save, X, Check, AlertCircle, 
   Monitor, Smartphone, Sliders, Info, ShieldCheck, Sparkles, Move, 
@@ -18,16 +19,17 @@ import {
 } from 'lucide-react';
 
 interface MediaManagerPanelProps {
-  roomTypes: RoomType[];
-  onUpdateRoomTypes: (roomTypes: RoomType[]) => void;
-  showToast: (msg: string) => void;
+  roomTypes?: RoomType[];
+  onUpdateRoomTypes?: (roomTypes: RoomType[]) => void;
+  showToast?: (msg: string) => void;
 }
 
 export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
   roomTypes,
   onUpdateRoomTypes,
-  showToast,
+  showToast = (_msg: string) => {},
 }) => {
+  const activeRoomTypes = (roomTypes && roomTypes.length > 0) ? roomTypes : CORAL_ROOM_TYPES;
   const { siteContent, isDemoMode, refreshSiteContent, getMediaUrl, getMetadata } = useSiteContent();
 
   // Active sub-category tab
@@ -55,7 +57,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
     getMetadata('homepage.hero.desktop')?.overlayOpacity ?? 0.3
   );
   const [heroAltText, setHeroAltText] = useState<string>(
-    getMetadata('homepage.hero.desktop')?.altText ?? 'Toàn cảnh Homestay & CAFE CORAL Lý Sơn'
+    getMetadata('homepage.hero.desktop')?.altText ?? 'Toàn cảnh Homestay & Cà Phê Seagull Lý Sơn'
   );
   const [heroPreviewMode, setHeroPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
 
@@ -70,10 +72,10 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
   const [dragActiveKeys, setDragActiveKeys] = useState<Record<string, boolean>>({});
 
   // Room galleries state
-  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<string>(roomTypes[0]?.id || '');
+  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<string>(activeRoomTypes[0]?.id || '');
   const [roomGalleries, setRoomGalleries] = useState<Record<string, string[]>>(() => {
     const init: Record<string, string[]> = {};
-    roomTypes.forEach((rt) => {
+    activeRoomTypes.forEach((rt) => {
       init[rt.id] = [rt.image, ...PHOTO_PRESET_URLS.filter((u) => u !== rt.image).slice(0, 3)];
     });
     return init;
@@ -539,7 +541,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
                     LÝ SƠN ISLAND • CLIFFSIDE BUNGALOW & CAFE
                   </span>
                   <h2 className="font-serif text-xl md:text-3xl font-extrabold tracking-wide drop-shadow-lg">
-                    HOMESTAY & CAFE CORAL
+                    HOMESTAY & CÀ PHÊ SEAGULL
                   </h2>
                   <p className="text-xs max-w-md text-stone-200 mt-2 hidden sm:block opacity-90">
                     Tận hưởng không gian kiến trúc mái vòm độc đáo nhỏ ra vách núi ngắm trọn vẹn bình minh & hoàng hôn đại dương Lý Sơn.
@@ -641,7 +643,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
         <div className="space-y-6">
           {renderSingleImageSlot({
             keyName: 'homepage.logo',
-            title: 'Logo Thương Hiệu Homestay & CAFE CORAL',
+            title: 'Logo Thương Hiệu Homestay & Cà Phê Seagull',
             description: 'Hiển thị ở góc trái thanh điều hướng Header và chân trang.',
             category: 'logo',
             recommendedSize: '512x512 PNG trong suốt',
@@ -676,7 +678,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {roomTypes.map((rt) => (
+              {activeRoomTypes.map((rt) => (
                 <div key={rt.id} className="bg-[#111613] border border-[#2D3931] rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-sm text-white">{rt.name}</h4>
@@ -722,7 +724,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
                 onChange={(e) => setSelectedRoomTypeId(e.target.value)}
                 className="bg-[#111613] border border-[#2D3931] text-xs text-white rounded-xl px-3 py-2 font-bold focus:outline-none focus:border-[#C8A261]"
               >
-                {roomTypes.map((rt) => (
+                {activeRoomTypes.map((rt) => (
                   <option key={rt.id} value={rt.id}>
                     {rt.name}
                   </option>
@@ -824,7 +826,7 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
           {renderSingleImageSlot({
             keyName: 'homepage.location.image',
             title: 'Ảnh Vị Trí Vách Núi Vòm Cliffside Lý Sơn',
-            description: 'Ảnh toàn cảnh vách đá địa chất độc đáo nơi đặt Homestay Coral.',
+            description: 'Ảnh toàn cảnh vách đá địa chất độc đáo nơi đặt Homestay & Cà Phê Seagull.',
             category: 'locations',
             recommendedSize: '1200x800 JPG',
             defaultFallback: '/images/bungalow-cliff-day.jpg',

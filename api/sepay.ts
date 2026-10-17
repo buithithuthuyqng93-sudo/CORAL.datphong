@@ -106,7 +106,6 @@ export default async function handler(req: Request, res: Response) {
 
   // Check if booking is already confirmed
   const isAlreadyPaid = booking.status === 'deposit_paid' || booking.status === 'confirmed';
-  const confirmationCode = booking.confirmation_code || generateConfirmationCode();
 
   // 5. Insert Payment Record (Unique constraint on provider_transaction_id)
   const { error: payErr } = await supabase.from('payments').insert({
@@ -123,18 +122,39 @@ export default async function handler(req: Request, res: Response) {
     console.error('[SePay Payment Insert Error]:', payErr);
   }
 
-  // 6. Update Booking Status
-  const requiredAmount = Number(booking.required_payment_amount) || Number(booking.total_amount) * 0.5;
-  const newStatus = transferAmount >= Number(booking.total_amount) ? 'confirmed' : 'deposit_paid';
+  // 6. State Machine Validation: Check hold expiration, cancellation & deposit threshold
+  const requiredDeposit = Number(booking.required_payment_amount) || Math.ceil(Number(booking.total_amount) * 0.30);
+  const isHoldExpired = booking.hold_expires_at ? new Date() > new Date(booking.hold_expires_at) : false;
+  const isCancelledOrExpiredState = booking.status === 'cancelled' || booking.status === 'expired';
+  const isUnderpaid = transferAmount < Math.max(0, requiredDeposit - 1000); // allowance for 1000 VND rounding
+
+  let newStatus: string;
+  let reviewReason = '';
+
+  if (isCancelledOrExpiredState || isHoldExpired) {
+    newStatus = 'payment_review';
+    reviewReason = isHoldExpired 
+      ? `Thanh toán cọc nhận sau khi hết hạn giữ phòng (Hạn: ${booking.hold_expires_at}). Chuyển sang PAYMENT_REVIEW để nhân viên đối soát tồn phòng.`
+      : `Đơn đặt phòng đang ở trạng thái ${booking.status}. Chuyển sang PAYMENT_REVIEW để nhân viên xử lý hoàn tiền hoặc xếp phòng mới.`;
+  } else if (isUnderpaid) {
+    newStatus = 'payment_review';
+    reviewReason = `Thanh toán thiếu: nhận ${transferAmount.toLocaleString('vi-VN')}đ, yêu cầu cọc tối thiểu ${requiredDeposit.toLocaleString('vi-VN')}đ. Chuyển sang PAYMENT_REVIEW.`;
+  } else {
+    // Valid hold and valid deposit amount
+    newStatus = 'confirmed';
+  }
+
   const updatedRemaining = Math.max(0, Number(booking.remaining_amount) - transferAmount);
+  const confirmationCode = booking.confirmation_code || (newStatus === 'confirmed' ? generateConfirmationCode() : null);
 
   const { error: updateErr } = await supabase
     .from('bookings')
     .update({
       status: newStatus,
       confirmation_code: confirmationCode,
-      confirmed_at: booking.confirmed_at || new Date().toISOString(),
+      confirmed_at: newStatus === 'confirmed' ? (booking.confirmed_at || new Date().toISOString()) : null,
       remaining_amount: updatedRemaining,
+      notes: reviewReason ? `${booking.notes || ''}\n[CẢNH BÁO SEPAY]: ${reviewReason}`.trim() : booking.notes,
       updated_at: new Date().toISOString(),
     })
     .eq('id', booking.id);
@@ -143,13 +163,31 @@ export default async function handler(req: Request, res: Response) {
     console.error('[SePay Booking Update Error]:', updateErr);
   }
 
+  // Log to audit_logs
+  await supabase.from('audit_logs').insert({
+    actor_id: 'sepay_webhook',
+    actor_type: 'webhook',
+    action: newStatus === 'confirmed' ? 'PAYMENT_CONFIRMED' : 'PAYMENT_REVIEW_FLAGGED',
+    entity_type: 'booking',
+    entity_id: booking.id,
+    previous_data: { status: booking.status, remaining_amount: booking.remaining_amount },
+    new_data: { 
+      status: newStatus, 
+      payment_amount: transferAmount, 
+      transaction_id: transactionId, 
+      review_reason: reviewReason || null,
+      remaining_amount: updatedRemaining 
+    },
+  });
+
   // Record webhook success event
   await supabase.from('webhook_events').insert({
     event_key: transactionId,
     provider: 'sepay',
     signature: authHeader || '',
     payload,
-    processing_status: 'processed',
+    processing_status: newStatus === 'payment_review' ? 'flagged_review' : 'processed',
+    error_message: reviewReason || null,
   });
 
   // 7. Trigger Gmail API Confirmation Email Asynchronously

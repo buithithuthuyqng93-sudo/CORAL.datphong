@@ -5,6 +5,7 @@ import {
   ChevronRight, ChevronLeft, Info, Eye, Maximize2, Coffee, Tv, Bath, Wind, 
   Flame, SlidersHorizontal, CheckCircle2, Star, Waves, Compass
 } from 'lucide-react';
+import { SeagullWingsIcon } from './SeagullWingsIcon';
 import { RoomType, Room, Booking, PropertyConfig } from '../types';
 import { useSiteContent } from '../context/SiteContentContext';
 
@@ -61,13 +62,13 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
 
   const nights = calculateNights();
 
-  // Filter available rooms count for each room type
+  // Filter available rooms count for each room type (chỉ tính phòng đang kinh doanh isActive !== false)
   const getAvailableRoomsCount = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available').length;
+    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false).length;
   };
 
   const getAvailableRoomsList = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available');
+    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false);
   };
 
   // Image slider handlers for card
@@ -115,7 +116,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
     const newBooking = onInitiateBooking({
       customerName,
       customerPhone,
-      customerEmail: customerEmail || `${customerPhone}@guest.coral`,
+      customerEmail: customerEmail || `${customerPhone}@guest.seagull`,
       checkIn,
       checkOut,
       nights,
@@ -149,7 +150,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={getMediaUrl('homepage.hero.desktop', '/images/coral-hero.jpg')}
-            alt={getMetadata('homepage.hero.desktop')?.altText || "Homestay & CAFE CORAL Lý Sơn"}
+            alt={getMetadata('homepage.hero.desktop')?.altText || propertyConfig?.propertyName || "Homestay & Cà Phê Seagull Lý Sơn"}
             referrerPolicy="no-referrer"
             style={{
               objectPosition: `${getMetadata('homepage.hero.desktop')?.focalPoint?.x ?? 50}% ${getMetadata('homepage.hero.desktop')?.focalPoint?.y ?? 50}%`,
@@ -184,9 +185,9 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
             >
-              <div className="inline-flex items-center gap-2 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-wide font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
-                <Sparkles className="w-3.5 h-3.5 text-[#C8A261]" />
-                Lý Sơn Island • Cliffside Bungalow & Coffee
+              <div className="inline-flex items-center gap-2.5 bg-[#C8A261]/25 border border-[#C8A261]/50 text-[#E8D0A8] text-[11px] uppercase tracking-wider font-semibold px-4.5 py-1.5 rounded-full backdrop-blur-md shadow-lg">
+                <SeagullWingsIcon className="w-4 h-4 text-[#C8A261]" />
+                Lý Sơn Island • SEAGULL LÝ SƠN — Homestay & Cà Phê
               </div>
             </motion.div>
 
@@ -197,7 +198,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               transition={{ duration: 0.55, delay: 0.18, ease: 'easeOut' }}
               className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-[#FAF8F5] leading-tight uppercase drop-shadow-md"
             >
-              HOMESTAY & CAFE CORAL
+              {propertyConfig?.heroTitle || 'SEAGULL LÝ SƠN — HOMESTAY & CÀ PHÊ'}
             </motion.h1>
 
             {/* 3. Description (~130ms after title) */}
@@ -207,7 +208,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               transition={{ duration: 0.55, delay: 0.31, ease: 'easeOut' }}
               className="font-light text-sm sm:text-base text-[#D5CBBF] max-w-2xl mx-auto leading-relaxed drop-shadow-sm"
             >
-              Tận hưởng không gian kiến trúc mái vòm độc bản nhô ra vách núi ngắm trọn vẹn bình minh & hoàng hôn đại dương Lý Sơn. Đặt phòng trực tiếp bảo đảm giá tốt nhất và cọc tự động qua VietQR.
+              {propertyConfig?.heroDescription || 'Nơi chữa lành tâm hồn bạn giữa biển trời đảo ngọc Lý Sơn. 20 căn Bungalow vòm cliffside độc bản nép mình bên vách đá bazan hùng vĩ, thưởng thức tách cà phê ngắm hoàng hôn rực rỡ và tiếng sóng vỗ.'}
             </motion.p>
 
             {/* 4. Contact & Security Labels (~140ms after description) */}
@@ -221,7 +222,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                 <MapPin className="w-4 h-4 text-[#C8A261]" /> Đặc khu Lý Sơn - Quảng Ngãi
               </span>
               <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm hover:border-[#C8A261]/40 transition-colors">
-                <Phone className="w-4 h-4 text-[#C8A261]" /> Hotline / Zalo: <strong className="text-[#FAF8F5]">0868011799 (Mr Thiện)</strong>
+                <Phone className="w-4 h-4 text-[#C8A261]" /> Hotline / Đặt phòng: <strong className="text-[#FAF8F5]">{(propertyConfig?.hotline || '0868011799 - 0981065065').replace(/\s*\([^)]*\)/g, '').trim()} ({propertyConfig?.ownerName && !propertyConfig.ownerName.includes('Thủy') ? propertyConfig.ownerName : 'Mr Thiện / Ms Điền'})</strong>
               </span>
               <span className="flex items-center gap-1.5 bg-[#151B17]/60 px-3 py-1.5 rounded-full border border-[#2D3931]/80 backdrop-blur-sm hover:border-[#C8A261]/40 transition-colors">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" /> Khóa phòng tức thì 100%
@@ -295,7 +296,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
             </span>
 
             {[
-              { id: 'all', label: 'Tất cả 15 Căn' },
+              { id: 'all', label: `Tất cả (${rooms.filter((r) => r.isActive !== false).length}) Căn` },
               { id: 'ocean', label: 'Bungalow View Biển' },
               { id: 'bathtub', label: 'Deluxe Bồn Tắm Panorama' },
               { id: 'family', label: 'Family Dome 2 Giường' },
@@ -333,7 +334,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-[#E2C799] font-serif text-xl font-bold">
                   <CheckCircle2 className="w-6 h-6 text-[#C8A261]" />
-                  <span>XÁC NHẬN CỌC THÀNH CÔNG - CORAL HOMESTAY</span>
+                  <span>XÁC NHẬN CỌC THÀNH CÔNG - {propertyConfig?.propertyName ? propertyConfig.propertyName.toUpperCase() : 'SEAGULL HOMESTAY'}</span>
                 </div>
                 <p className="text-xs text-[#D5CBBF] leading-relaxed">
                   Mã Đặt Phòng: <span className="font-mono font-bold text-[#C8A261] text-sm bg-[#151B17] px-2 py-0.5 rounded border border-[#C8A261]/30">{activeConfirmedBooking.code}</span> | 
@@ -341,7 +342,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                 </p>
                 <p className="text-xs text-emerald-300">
                   Phòng <strong>{activeConfirmedBooking.roomNumber}</strong> ({activeConfirmedBooking.roomTypeName}) đã được 
-                  <strong className="text-emerald-400"> Khóa Tự Động</strong> trên toàn bộ kênh bán Coral Homestay, Booking.com và Agoda.
+                  <strong className="text-emerald-400"> Khóa Tự Động</strong> trên toàn bộ kênh bán {propertyConfig?.propertyName || 'Homestay & Cà Phê Seagull'}, Booking.com và Agoda.
                 </p>
               </div>
 
@@ -366,7 +367,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C8A261]">
-            EXCLUSIVELY AT CORAL RESORT LÝ SƠN
+            EXCLUSIVELY AT {propertyConfig?.propertyName ? propertyConfig.propertyName.toUpperCase() : 'SEAGULL HOMESTAY & CAFE'} LÝ SƠN
           </span>
           <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#1C2321] mt-1">
             Trải Nghiệm Nghỉ Dưỡng Mái Vòm Độc Bản
@@ -720,7 +721,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
                   <div className="bg-[#FAF6EE] p-4 rounded-2xl border border-[#E2D6C3] space-y-1 text-xs">
                     <p className="font-bold text-[#1C2321]">Quy định Check-in & Check-out:</p>
                     <p className="text-[#6B5F50]">• Nhận phòng (Check-in): Từ 14:00 | Trả phòng (Check-out): Trước 12:00</p>
-                    <p className="text-[#6B5F50]">• Miễn phí đón tại cảng An Vĩnh cho khách đặt trước 24 giờ qua Zalo 0868011799.</p>
+                    <p className="text-[#6B5F50]">• Miễn phí đón tại cảng An Vĩnh cho khách đặt trước 24 giờ qua Hotline / Zalo: <strong>{(propertyConfig?.hotline || '0868011799 - 0981065065').replace(/\s*\([^)]*\)/g, '').trim()} ({propertyConfig?.ownerName && !propertyConfig.ownerName.includes('Thủy') ? propertyConfig.ownerName : 'Mr Thiện / Ms Điền'})</strong>.</p>
                   </div>
                 </div>
 
