@@ -849,7 +849,24 @@ BEGIN
     -- Khóa giao dịch theo hạng phòng để chống race condition khi nhiều khách đặt cùng mili-giây
     PERFORM pg_advisory_xact_lock(hashtext('hold_room_type_' || p_room_type_id));
 
-    -- Tìm 1 phòng trống hợp lệ (chưa bị giữ chỗ còn hạn, chưa có đơn xác nhận, chưa bị phân bổ, chưa bị khóa bảo trì)
+    -- Dọn nhanh tại chỗ các lượt giữ chỗ đã quá hạn 15 phút của riêng hạng phòng này
+    -- (Không phụ thuộc cron chạy hàng ngày)
+    UPDATE public.booking_holds
+    SET status = 'expired',
+        updated_at = NOW()
+    WHERE room_type_id = p_room_type_id
+      AND status = 'active'
+      AND expires_at <= NOW();
+
+    UPDATE public.bookings
+    SET status = 'expired',
+        updated_at = NOW()
+    WHERE room_type_id = p_room_type_id
+      AND status = 'pending_payment'
+      AND hold_expires_at IS NOT NULL
+      AND hold_expires_at <= NOW();
+
+    -- Tìm 1 phòng trống hợp lệ (tự động loại trừ mọi booking_holds / pending_payment đã hết hạn dựa trên NOW())
     SELECT r.* INTO v_room
     FROM public.rooms r
     WHERE r.room_type_id = p_room_type_id
@@ -860,8 +877,16 @@ BEGIN
           FROM public.bookings b
           WHERE b.assigned_room_id = r.id
             AND b.status IN ('pending_payment', 'payment_review', 'deposit_paid', 'confirmed', 'checked_in')
-            AND (b.status <> 'pending_payment' OR b.hold_expires_at > NOW())
+            AND (b.status <> 'pending_payment' OR (b.hold_expires_at IS NOT NULL AND b.hold_expires_at > NOW()))
             AND daterange(b.check_in_date, b.check_out_date, '[)') && v_req_range
+      )
+      AND NOT EXISTS (
+          SELECT 1
+          FROM public.booking_holds bh
+          WHERE bh.room_id = r.id
+            AND bh.status = 'active'
+            AND bh.expires_at > NOW()
+            AND daterange(bh.check_in_date, bh.check_out_date, '[)') && v_req_range
       )
       AND NOT EXISTS (
           SELECT 1
@@ -964,7 +989,9 @@ BEGIN
 END;
 $$;
 
--- 6.2 RPC: Tự động giải phóng các lượt giữ phòng hết hạn 15 phút (dùng cho Cron /api/cron/expire-holds)
+-- 6.2 RPC: Dọn dẹp định kỳ các lượt giữ phòng hết hạn 15 phút (Cron hàng ngày 03:00 giờ VN / 20:00 UTC)
+-- Lưu ý: Việc nhả phòng trống không phụ thuộc hàm này; fn_check_and_hold_room và /api/availability
+-- đã tự động loại trừ các hold có expires_at <= NOW() ngay tại thời điểm truy vấn.
 CREATE OR REPLACE FUNCTION public.fn_cleanup_expired_holds()
 RETURNS INT
 LANGUAGE plpgsql
@@ -978,14 +1005,14 @@ BEGIN
     SET status = 'expired',
         updated_at = NOW()
     WHERE status = 'active'
-      AND expires_at < NOW();
+      AND expires_at <= NOW();
 
     UPDATE public.bookings
     SET status = 'expired',
         updated_at = NOW()
     WHERE status = 'pending_payment'
       AND hold_expires_at IS NOT NULL
-      AND hold_expires_at < NOW();
+      AND hold_expires_at <= NOW();
 
     GET DIAGNOSTICS v_count = ROW_COUNT;
     RETURN v_count;

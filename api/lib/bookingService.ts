@@ -75,33 +75,99 @@ export async function checkAvailableRooms(
     throw new Error(`Database query error: ${rtError.message}`);
   }
 
-  // If checkIn and checkOut are provided, filter out occupied rooms
-  let roomsQuery = supabase.from('rooms').select('*').eq('active', true).neq('status', 'maintenance');
-  const { data: allRooms, error: roomsError } = await roomsQuery;
+  // Fetch active commercial rooms (excluding maintenance & inactive)
+  const { data: allRooms, error: roomsError } = await supabase
+    .from('rooms')
+    .select('*')
+    .eq('active', true)
+    .not('status', 'in', '(maintenance,inactive)');
 
   if (roomsError) {
     throw new Error(`Rooms query error: ${roomsError.message}`);
   }
 
   if (checkIn && checkOut) {
-    // Find occupied/held room IDs for the period
-    const { data: overlappingBookings } = await supabase
-      .from('bookings')
-      .select('assigned_room_id, hold_expires_at, status')
-      .in('status', ['pending_payment', 'deposit_paid', 'confirmed', 'checked_in'])
-      .lt('check_in_date', checkOut)
-      .gt('check_out_date', checkIn);
+    const nowMs = Date.now();
+    const nowIso = new Date(nowMs).toISOString();
 
-    const nowIso = new Date().toISOString();
+    // Query overlapping bookings, active UNEXPIRED booking_holds, allocations, and room_blocks in parallel.
+    // Expired holds (expires_at <= NOW / hold_expires_at <= NOW) are excluded immediately at query time
+    // without waiting for the daily cron cleanup job.
+    const [
+      { data: overlappingBookings, error: bookingsErr },
+      { data: activeUnexpiredHolds, error: holdsErr },
+      { data: overlappingAllocations, error: allocErr },
+      { data: overlappingBlocks, error: blocksErr },
+    ] = await Promise.all([
+      supabase
+        .from('bookings')
+        .select('assigned_room_id, hold_expires_at, status')
+        .in('status', ['pending_payment', 'payment_review', 'deposit_paid', 'confirmed', 'checked_in'])
+        .lt('check_in_date', checkOut)
+        .gt('check_out_date', checkIn),
+      supabase
+        .from('booking_holds')
+        .select('room_id, expires_at, status')
+        .eq('status', 'active')
+        .gt('expires_at', nowIso)
+        .lt('check_in_date', checkOut)
+        .gt('check_out_date', checkIn),
+      supabase
+        .from('booking_room_allocations')
+        .select('room_id')
+        .lt('check_in_date', checkOut)
+        .gt('check_out_date', checkIn),
+      supabase
+        .from('room_blocks')
+        .select('room_id')
+        .lt('start_date', checkOut)
+        .gt('end_date', checkIn),
+    ]);
+
+    if (bookingsErr) {
+      throw new Error(`Bookings availability query error: ${bookingsErr.message}`);
+    }
+    if (holdsErr) {
+      console.warn('[Availability] booking_holds query warning:', holdsErr.message);
+    }
+    if (allocErr) {
+      console.warn('[Availability] booking_room_allocations query warning:', allocErr.message);
+    }
+    if (blocksErr) {
+      console.warn('[Availability] room_blocks query warning:', blocksErr.message);
+    }
+
     const busyRoomIds = new Set<string>();
 
     (overlappingBookings || []).forEach((b) => {
-      // Exclude expired pending holds
-      if (b.status === 'pending_payment' && b.hold_expires_at && b.hold_expires_at < nowIso) {
-        return;
+      // Real-time exclusion of expired pending_payment holds via numeric timestamp comparison
+      if (b.status === 'pending_payment') {
+        const expiresMs = b.hold_expires_at ? new Date(b.hold_expires_at).getTime() : 0;
+        if (!Number.isFinite(expiresMs) || expiresMs <= nowMs) {
+          return;
+        }
       }
       if (b.assigned_room_id) {
         busyRoomIds.add(b.assigned_room_id);
+      }
+    });
+
+    (activeUnexpiredHolds || []).forEach((h) => {
+      const expiresMs = h.expires_at ? new Date(h.expires_at).getTime() : 0;
+      if (Number.isFinite(expiresMs) && expiresMs > nowMs && h.room_id) {
+        busyRoomIds.add(h.room_id);
+      }
+    });
+
+    (overlappingAllocations || []).forEach((a) => {
+      if (a.room_id) {
+        busyRoomIds.add(a.room_id);
+      }
+    });
+
+    (overlappingBlocks || []).forEach((rb) => {
+      if (rb.room_id) {
+        busyRoomIds.add(rb.room_id);
       }
     });
 

@@ -163,6 +163,18 @@ export default async function handler(req: Request, res: Response) {
     console.error('[SePay Booking Update Error]:', updateErr);
   }
 
+  // Keep booking_holds synchronized with booking confirmation / expiration state
+  if (newStatus === 'confirmed' || isHoldExpired) {
+    await supabase
+      .from('booking_holds')
+      .update({
+        status: newStatus === 'confirmed' ? 'confirmed' : 'expired',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('booking_id', booking.id)
+      .eq('status', 'active');
+  }
+
   // Log to audit_logs
   await supabase.from('audit_logs').insert({
     actor_id: 'sepay_webhook',
