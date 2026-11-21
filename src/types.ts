@@ -79,6 +79,101 @@ export interface Booking {
   notes?: string;
   createdBy?: string; // Người tạo đơn (Chủ homestay, Lễ tân Thủy, v.v.)
   holdExpiresAt?: string;
+  isGroupBooking?: boolean;
+  groupName?: string;
+  assignedRoomIds?: string[];
+  assignedRoomNumbers?: string[];
+}
+
+// ----------------------------------------------------------------------------
+// SEAGULL STAY & CHECK-IN MANAGEMENT (V1.1)
+// ----------------------------------------------------------------------------
+export type DeclarationStatus = 
+  | 'unprocessed'          // Chưa thực hiện
+  | 'in_progress'          // Đang xử lý
+  | 'awaiting_verification'// Chờ đối chiếu
+  | 'verified_completed'   // Đã xác nhận hoàn tất
+  | 'needs_revision';      // Cần xử lý lại
+
+export type DocumentCheckType = 'cccd' | 'passport' | 'birth_certificate' | 'other';
+
+export interface StayGuest {
+  id: string;
+  fullName: string;
+  birthYear?: number;
+  gender: 'male' | 'female' | 'other';
+  nationality: 'VN' | 'FOREIGN';
+  nationalityName?: string; // Ví dụ: "Việt Nam", "Pháp", "Úc"
+  assignedRoomId: string;
+  assignedRoomNumber: string;
+  isPrimaryContact?: boolean;
+  // Ghi nhận nhân viên kiểm tra giấy tờ trực tiếp (Không lưu số định danh / CCCD)
+  documentTypeVerified?: DocumentCheckType;
+  isDocumentChecked: boolean;
+  checkedByStaff?: string;
+  checkedAt?: string;
+  documentNotes?: string;
+  // Theo dõi tiến độ thông báo/khai báo tạm trú
+  declarationStatus: DeclarationStatus;
+  declarationReferenceCode?: string; // Mã tham chiếu biên nhận nếu có (tùy chọn)
+  declarationVerifiedBy?: string;
+  declarationVerifiedAt?: string;
+  declarationNotes?: string;
+  verificationBasis?: string; // Căn cứ đối chiếu: Biên nhận Cổng TBLT KBTT / Giấy biên nhận CA xã / Tin nhắn DVC...
+}
+
+export interface RoomTransferHistory {
+  id: string;
+  guestId: string;
+  guestName: string;
+  fromRoomNumber: string;
+  toRoomNumber: string;
+  transferredAt: string;
+  transferredBy: string;
+  reason: string;
+}
+
+export interface BookingStayRoomAllocation {
+  roomId: string;
+  roomNumber: string;
+  roomTypeName: string;
+  expectedGuests: number;
+  actualGuests: number;
+  isCheckedIn: boolean;
+  checkedInAt?: string;
+  checkedInBy?: string;
+  isCheckedOut: boolean;
+  checkedOutAt?: string;
+  checkedOutBy?: string;
+}
+
+export interface BookingStayRecord {
+  bookingId: string;
+  bookingCode: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  isGroupBooking: boolean;
+  groupName?: string;
+  checkInDate: string;
+  checkOutDate: string;
+  totalExpectedGuests: number;
+  totalActualGuests: number;
+  roomAllocations: BookingStayRoomAllocation[];
+  guests: StayGuest[];
+  transferHistory: RoomTransferHistory[];
+  overallCheckInStatus: 'not_checked_in' | 'partially_checked_in' | 'fully_checked_in' | 'checked_out';
+  overallDeclarationStatus: DeclarationStatus;
+  attentionRequired: boolean;
+  attentionReasons: string[];
+  notes?: string;
+  auditLogs: {
+    id: string;
+    timestamp: string;
+    staffName: string;
+    action: string;
+    details: string;
+  }[];
 }
 
 export interface Customer {
@@ -127,6 +222,85 @@ export interface StaffUser {
   isActive: boolean;
 }
 
+export interface SeasonalPriceRule {
+  id: string;
+  name: string; // e.g. "Mùa Hè Du Lịch Biển", "Lễ 30/4 - 1/5", "Tết Nguyên Đán"
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  roomTypeId: string; // 'all' or specific roomTypeId
+  roomTypeName?: string;
+  adjustmentType: 'fixed_price' | 'percentage';
+  adjustmentValue: number; // e.g. 850000 VND or 25%
+  note?: string;
+  isActive: boolean;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface PriceAuditLog {
+  id: string;
+  timestamp: string;
+  staffName: string;
+  roomTypeName: string;
+  fieldChanged: string;
+  oldValue: string;
+  newValue: string;
+  reason: string;
+}
+
+export interface PolicyVersion {
+  id: string;
+  version: string; // e.g. "V2.0 (Hiện tại)", "V2.1 (Bản nháp)"
+  status: 'draft' | 'approved';
+  effectiveDate: string;
+  depositPercent: number; // default 30%
+  holdTimeMinutes: number; // default 15 mins
+  cancellationPolicy: string;
+  surchargeExtraAdult: number; // VND / night
+  surchargeExtraChild: number; // VND / night
+  earlyCheckInFee: number; // VND
+  lateCheckOutFee: number; // VND
+  draftNotes?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface BankAuditLog {
+  id: string;
+  timestamp: string;
+  staffName: string;
+  action: string;
+  oldBankInfo: string;
+  newBankInfo: string;
+  reason: string;
+  confirmedByOwner: boolean;
+}
+
+export interface SettingsMediaItem {
+  id: string;
+  name: string;
+  url: string;
+  targetCategory: 'homepage' | 'cafe' | 'room_type';
+  roomTypeId?: string;
+  isPrimary?: boolean;
+  altText: string;
+  fileSizeKb?: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  isLocalDemo?: boolean;
+}
+
+export interface SeasonPricingConfig {
+  peakSeasonSurchargePercent: number; // Phụ thu mùa cao điểm (Hè / Du lịch biển Lý Sơn)
+  lowSeasonDiscountPercent: number; // Chiết khấu mùa thấp điểm (Mùa đông / biển động)
+  weekendSurchargePercent: number; // Phụ thu cuối tuần (Thứ 6, Thứ 7)
+  holidaySurchargePercent: number; // Phụ thu ngày lễ / Tết
+  activeSeasonMode: 'regular' | 'peak' | 'low'; // Mùa áp dụng hiện tại
+  seasonNotes?: string;
+}
+
 export interface PropertyConfig {
   propertyName: string;
   slogan?: string;
@@ -141,6 +315,7 @@ export interface PropertyConfig {
   bankBin: string;
   accountNumber: string;
   accountHolder: string;
+  bankBranch?: string;
   heroTitle: string;
   heroDescription: string;
   announcementBar: string;
@@ -149,6 +324,14 @@ export interface PropertyConfig {
   weekendSurchargePercent: number;
   holidaySurchargePercent: number;
   defaultDepositPercent: number;
+  holdTimeMinutes?: number;
+  surchargeExtraAdult?: number;
+  surchargeExtraChild?: number;
+  seasonPricing?: SeasonPricingConfig;
+  seasonalPriceRules?: SeasonalPriceRule[];
+  priceAuditLogs?: PriceAuditLog[];
+  policyVersions?: PolicyVersion[];
+  bankAuditLogs?: BankAuditLog[];
   cancellationPolicy?: string;
   depositPolicy?: string;
   socialLinks?: {

@@ -6,7 +6,7 @@ export default async function handler(req: Request, res: Response) {
 
   return res.status(200).json({
     status: 'ok',
-    system: 'Homestay & Cà Phê Seagull Lý Sơn Booking PMS (20 Rooms Planned)',
+    system: 'Homestay & Cà Phê Seagull Lý Sơn Booking PMS (27 Rooms Phase 1 Operational)',
     mode: dbHealth.connected ? 'production' : 'demo',
     database: {
       isConfigured: dbHealth.isConfigured,

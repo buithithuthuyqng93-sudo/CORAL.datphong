@@ -1,129 +1,100 @@
-# 🌺 HƯỚNG DẪN CẤU HÌNH PRODUCTION - HOMESTAY & CAFE CORAL LÝ SƠN
+# 🌊 HƯỚNG DẪN CẤU HÌNH PRODUCTION — SEAGULL LÝ SƠN (SEAGULL COFFEE & HOMESTAY LÝ SƠN)
 
-Tài liệu này hướng dẫn chi tiết từng bước cho **Chị Thủy** cách khởi tạo tài khoản và lấy các **Khóa Môi Trường (Environment Variables)** để chuyển hệ thống Đặt phòng Homestay & CAFE CORAL Lý Sơn từ **Chế độ Demo** sang **Chế độ Production hoàn chỉnh**.
+Tài liệu này hướng dẫn chi tiết từng bước cách khởi tạo và cấu hình các **Biến Môi Trường (Environment Variables)** và **Cơ Sở Dữ Liệu Supabase Production** để chuyển hệ thống **SEAGULL LÝ SƠN** (27 phòng kinh doanh giai đoạn 1 / 32 phòng tổng quy hoạch) từ **Chế độ Demo** sang **Chế độ Production hoàn chỉnh**.
 
 ---
 
 ## 📌 NGUYÊN TẮC HOẠT ĐỘNG
-- **Chế độ Demo (Mặc định)**: Khi chưa điền các khóa bên dưới, hệ thống tự động chạy ổn định bằng **Dữ liệu giả lập (Mock Data)**. Khách hàng vẫn có thể trải nghiệm chọn phòng, tạo đơn và xem QR VietQR mà **không bao giờ bị lỗi hay trắng trang**.
-- **Chế độ Production**: Khi điền đầy đủ các khóa môi trường bên dưới vào bảng **Environment Variables** (trên Vercel/Cloud Run/Hosting), hệ thống sẽ kích hoạt tự động:
-  1. Khóa giữ phòng **xử lý giao dịch đồng thời** trên **Supabase Database**.
-  2. Tự động **xác nhận cọc VietQR** khi SePay gửi Webhook.
-  3. Tự động **gửi email xác nhận** bằng **Gmail API** chính thức.
-  4. Tự động **đồng bộ lưu trữ đơn** vào **Google Sheets**.
+- **Chế độ Demo (Mặc định)**: Khi chưa điền các khóa bên dưới, hệ thống tự động chạy ổn định bằng **Dữ liệu giả lập (Mock Data)** để kiểm thử giao diện và quy trình mà không ảnh hưởng dữ liệu thật.
+- **Chế độ Production**: Khi điền đầy đủ biến môi trường trên Hosting (Vercel / Cloud Run / VPS), hệ thống sẽ kích hoạt:
+  1. Khóa giữ phòng 15 phút xử lý đồng thời (`fn_check_and_hold_room`) và chống trùng phòng mức PostgreSQL (`EXCLUDE USING gist`) trên **Supabase Database**.
+  2. Tự động **xác nhận cọc VietQR** khi **SePay** gửi Webhook (kèm chống trùng giao dịch `webhook_events`).
+  3. Tự động **gửi email xác nhận** qua **Gmail API**.
+  4. Tự động **đồng bộ sao lưu đơn** vào **Google Sheets**.
 
 ---
 
-## 1️⃣ BƯỚC 1: CẤU HÌNH SUPABASE DATABASE (PostgreSQL & Lock Room RPC)
+## 1️⃣ BƯỚC 1: KHỞI TẠO SUPABASE PRODUCTION DATABASE (CHỈ CHẠY DUY NHẤT 1 FILE SQL)
 
-Supabase quản lý danh sách phòng, trạng thái khóa giữ phòng 15 phút, và chống trùng đơn khi có nhiều khách đặt cùng lúc.
+> **⚠️ LƯU Ý QUAN TRỌNG VỀ FILE SQL:**
+> - File **`supabase_production_schema_FINAL.sql`** (nằm ngay tại thư mục gốc của dự án) là **FILE DUY NHẤT** cần chạy trong **Supabase SQL Editor** cho một project Supabase mới tinh.
+> - **KHÔNG cần và KHÔNG nên chạy** 7 file migration cũ trong thư mục `supabase/migrations/` (chúng được giữ lại làm lịch sử tham khảo và có thứ tự phụ thuộc/bản nháp staging không đồng nhất).
+> - File `supabase_production_schema_FINAL.sql` được thiết kế **Idempotent 100%** (có thể chạy lại nhiều lần không lỗi), đúng thứ tự phụ thuộc, đầy đủ 32 bảng, 27 phòng mở bán giai đoạn 1 + 5 phòng giai đoạn 2, ràng buộc chống trùng đặt phòng `EXCLUDE USING gist`, RPC khóa phòng 15 phút (`fn_check_and_hold_room`), Storage bucket `site-media`, và phân quyền RLS chặt chẽ theo 4 vai trò (**Owner / Reception / Accountant / Public**).
 
 ### Các bước thực hiện:
-1. Đăng ký/Đăng nhập tài khoản miễn phí tại [https://supabase.com](https://supabase.com).
-2. Tạo Project mới:
-   - **Name**: `Coral Homestay Ly Son PMS`
-   - **Database Password**: Lưu lại mật khẩu của bạn.
-   - **Region**: Chọn `Singapore (ap-southeast-1)` để có tốc độ nhanh nhất về Việt Nam.
-3. Sau khi tạo xong, vào **Project Settings** (biểu tượng Bánh răng ở góc dưới bên trái) ➔ chọn **API**:
-   - Sao chép **Project URL** ➔ Gán vào: `VITE_SUPABASE_URL`
-   - Sao chép **`anon` `public` key** ➔ Gán vào: `VITE_SUPABASE_ANON_KEY`
-   - Sao chép **`service_role` `secret` key** (Nhấp Reveal) ➔ Gán vào: `SUPABASE_SERVICE_ROLE_KEY`
-4. Chạy File SQL khởi tạo:
-   - Trong giao diện Supabase, chọn mục **SQL Editor** ở thanh menu bên trái.
-   - Dán toàn bộ nội dung trong file `supabase_schema.sql` (ở thư mục gốc của mã nguồn này) và chọn **Run**.
+1. Đăng nhập [https://supabase.com](https://supabase.com) và tạo Project Production mới:
+   - **Name**: `Seagull Ly Son PMS Production`
+   - **Database Password**: Lưu mật khẩu an toàn.
+   - **Region**: Chọn `Singapore (ap-southeast-1)` để có độ trễ thấp nhất về Việt Nam.
+2. **Chạy file SQL khởi tạo duy nhất**:
+   - Trong Supabase Dashboard, mở **SQL Editor** ở thanh bên trái ➔ nhấn **New query**.
+   - Mở file **`supabase_production_schema_FINAL.sql`** ở thư mục gốc của mã nguồn, sao chép toàn bộ nội dung, dán vào SQL Editor và nhấn **Run**.
+   - Xác nhận kết quả báo **Success**.
+3. **Kiểm tra nhanh sau khi chạy (Tùy chọn)**:
+   Chạy câu lệnh kiểm tra sau trong SQL Editor để xác nhận đủ 27 phòng mở bán GĐ1, 5 phòng GĐ2 và 3 ràng buộc chống trùng:
+   ```sql
+   SELECT active, COUNT(*) AS so_phong FROM public.rooms GROUP BY active ORDER BY active DESC;
+   SELECT conname FROM pg_constraint WHERE conname LIKE 'exclude_overlapping_%';
+   ```
+   Kết quả chuẩn: `active = true: 27`, `active = false: 5`, và 3 constraint (`exclude_overlapping_room_allocations`, `exclude_overlapping_room_blocks`, `exclude_overlapping_active_bookings`).
+4. **Lấy khóa kết nối API**:
+   Vào **Project Settings** ➔ **API**:
+   - **Project URL** ➔ gán vào `VITE_SUPABASE_URL` (và/hoặc `SUPABASE_URL` phía server).
+   - **Publishable Key (`sb_publishable_...`)** hoặc **Legacy `anon` public key** ➔ gán vào `VITE_SUPABASE_PUBLISHABLE_KEY` hoặc `VITE_SUPABASE_ANON_KEY`.
+   - **`service_role` secret key** ➔ gán vào `SUPABASE_SERVICE_ROLE_KEY` (**CHỈ đặt ở biến server-side**, tuyệt đối không đặt tiền tố `VITE_`).
+5. **Phân quyền tài khoản nhân sự (4 vai trò RLS)**:
+   Khi tạo tài khoản đăng nhập Supabase Auth cho nhân sự, gán `role` trong `app_metadata` hoặc thêm email vào bảng `public.user_roles` với 1 trong các giá trị:
+   - `owner`: Toàn quyền quản trị, đổi giá, đổi tài khoản ngân hàng, hủy đơn cọc, xem sổ quỹ và lưu trú.
+   - `reception`: Đọc/cập nhật check-in/check-out, khóa phòng bảo trì, quản lý hồ sơ khách lưu trú; bị chặn hủy đơn cọc và bị chặn bảng `cash_transactions`.
+   - `accountant`: Đọc/ghi sổ quỹ `cash_transactions`, đọc báo cáo thanh toán & đơn hàng; bị chặn sửa trạng thái phòng và bị chặn hồ sơ giấy tờ lưu trú (`stay_guests`, `booking_stay_records`).
+   - `anon` (Public): Chỉ đọc thông tin công khai (phòng đang mở bán, giá, media) và tạo đơn nháp `pending_payment`; không được đọc danh sách đơn hay PII của khách khác.
 
 ---
 
 ## 2️⃣ BƯỚC 2: CẤU HÌNH SEPAY VIETQR AUTOMATIC WEBHOOK
 
-SePay lắng nghe biến động số dư ngân hàng/VietQR và tự động xác nhận đơn cọc cho khách trong vòng 3 giây mà không cần kiểm tra thủ công.
+SePay lắng nghe biến động số dư tài khoản ngân hàng (MB Bank `0868011799`) và tự động xác nhận đơn cọc cho khách qua `/api/sepay/webhook`.
 
 ### Các bước thực hiện:
-1. Đăng ký tài khoản tại [https://sepay.vn](https://sepay.vn).
-2. Kết nối Ngân hàng / Tài khoản MBBank/VietinBank/TPBank/... nhận tiền cọc của Homestay CORAL.
-3. Tạo Webhook trên SePay:
-   - Vào menu **Cấu hình Webhook** ➔ Thêm Webhook mới.
-   - **Gọi đến URL (Endpoint)**: `https://ten-miendain-cua-ban.com/api/sepay/webhook`
+1. Đăng nhập [https://sepay.vn](https://sepay.vn) và liên kết tài khoản nhận cọc của **Seagull Lý Sơn**.
+2. Vào **Cấu hình Webhook** ➔ Thêm Webhook mới:
+   - **Endpoint URL**: `https://ten-mien-cua-ban.com/api/sepay/webhook`
    - **Kiểu dữ liệu**: `JSON`
-   - **Mã xác thực (Secret Key)**: Tự nghĩ ra một chuỗi bí mật ngẫu nhiên (Ví dụ: `CoralLySon2026_SePaySecretKey_8921`)
-4. Sao chép Mã xác thực này ➔ Gán vào: `SEPAY_WEBHOOK_SECRET`
+   - **Mã xác thực (Secret Key)**: Tạo chuỗi bí mật ngẫu nhiên mạnh (Ví dụ: `SeagullLySon2026_SePaySecret_...`)
+3. Gán mã xác thực vào biến môi trường server: `SEPAY_WEBHOOK_SECRET`.
 
 ---
 
 ## 3️⃣ BƯỚC 3: CẤU HÌNH GMAIL API GỬI EMAIL XÁC NHẬN TỰ ĐỘNG
 
-Dùng tài khoản Gmail của Homestay (`coral.homestay.lyson@gmail.com`) để tự động gửi email xác nhận cọc chuyên nghiệp cho khách hàng.
-
-### Các bước thực hiện:
-1. Truy cập [Google Cloud Console](https://console.cloud.google.com).
-2. Tạo Project mới tên `Coral Homestay Email Service`.
-3. Trong ô tìm kiếm, gõ **Gmail API** ➔ Nhấn **Enable (Bật)**.
-4. Mục **OAuth Consent Screen**:
-   - Chọn `External` ➔ Đặt tên App: `Homestay CORAL Lý Sơn`.
-   - Điền Email hỗ trợ: `coral.homestay.lyson@gmail.com`.
-5. Mục **Credentials** ➔ **Create Credentials** ➔ Chọn **OAuth Client ID**:
-   - **Application Type**: `Web Application`.
-   - **Authorized redirect URIs**: Thêm `https://developers.google.com/oauthplayground`
-   - Nhấn Create và lưu lại **Client ID** và **Client Secret**:
-     - Gán Client ID vào: `GMAIL_CLIENT_ID`
-     - Gán Client Secret vào: `GMAIL_CLIENT_SECRET`
-6. Lấy Refresh Token:
-   - Truy cập [Google OAuth2 Playground](https://developers.google.com/oauthplayground).
-   - Bấm biểu tượng bánh răng ⚙️ góc trên bên phải ➔ Tích chọn `Use your own OAuth credentials` ➔ Dán Client ID & Client Secret vừa lấy.
-   - Ở cột bên trái, tìm mục **Gmail API v1** ➔ Tích chọn `https://mail.google.com/` ➔ Nhấn **Authorize APIs**.
-   - Đăng nhập bằng Gmail Homestay và chấp nhận quyền.
-   - Nhấn **Exchange authorization code for tokens** ➔ Sao chép giá trị **Refresh Token**:
-     - Gán Refresh Token vào: `GMAIL_REFRESH_TOKEN`
-7. Điền email gửi:
-   - `GMAIL_SENDER_EMAIL=coral.homestay.lyson@gmail.com`
+1. Truy cập [Google Cloud Console](https://console.cloud.google.com) ➔ tạo Project `Seagull Ly Son Email Service` ➔ bật **Gmail API**.
+2. Cấu hình **OAuth Consent Screen** (`External`, tên App: `SEAGULL LÝ SƠN`).
+3. Tạo **OAuth Client ID** (`Web Application`) với Redirect URI `https://developers.google.com/oauthplayground` ➔ lấy `GMAIL_CLIENT_ID` và `GMAIL_CLIENT_SECRET`.
+4. Lấy `GMAIL_REFRESH_TOKEN` qua OAuth2 Playground với scope `https://mail.google.com/`.
+5. Điền email gửi chính thức vào `GMAIL_SENDER_EMAIL` (ví dụ: `seagull.lyson@gmail.com`).
 
 ---
 
-## 4️⃣ BƯỚC 4: CẤU HÌNH GOOGLE SHEETS LƯU TRỮ VÀ SAO LƯU ĐƠN
+## 4️⃣ BƯỚC 4: CẤU HÌNH GOOGLE SHEETS SAO LƯU ĐƠN
 
-Tự động lưu dòng dữ liệu đơn đặt phòng mới và trạng thái cọc vào file Google Sheets quản lý của Homestay.
-
-### Các bước thực hiện:
-1. Tạo một File Google Sheets mới trong Google Drive của Homestay:
-   - Đổi tên trang tính (Tab name) thành: **`BOOKINGS`**
-   - Mở File, nhìn lên đường dẫn URL trình duyệt để lấy **Sheet ID**:
-     - Ví dụ URL: `https://docs.google.com/spreadsheets/d/1A2b3C4d5E6f7G8h9I0j/edit`
-     - Mã Sheet ID là: `1A2b3C4d5E6f7G8h9I0j`
-     - Gán vào: `GOOGLE_SHEET_ID`
-2. Tạo Service Account trong Google Cloud Console:
-   - Vào **IAM & Admin** ➔ **Service Accounts** ➔ **Create Service Account**.
-   - Đặt tên: `coral-sheets-sync`.
-   - Tạo khóa (Keys) ➔ Chọn dạng **JSON** ➔ Tải file về máy.
-3. Mở file JSON vừa tải bằng Notepad:
-   - Sao chép `client_email` ➔ Gán vào: `GOOGLE_SERVICE_ACCOUNT_EMAIL`
-   - Sao chép `private_key` ➔ Gán vào: `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
-4. **CẤP QUYỀN TRUY CẬP SHEETS**:
-   - Mở File Google Sheets ở Bước 1 ➔ Nhấn nút **Chia sẻ (Share)**.
-   - Dán địa chỉ email Service Account (`GOOGLE_SERVICE_ACCOUNT_EMAIL`) vào và cấp quyền **Người chỉnh sửa (Editor)**.
+1. Tạo Google Sheet mới với tab tên **`BOOKINGS`** ➔ lấy **Sheet ID** từ URL gán vào `GOOGLE_SHEET_ID`.
+2. Tạo **Service Account** trên Google Cloud Console ➔ tải khóa JSON ➔ gán `client_email` vào `GOOGLE_SERVICE_ACCOUNT_EMAIL` và `private_key` vào `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`.
+3. Nhấn **Chia sẻ (Share)** trên Google Sheet và cấp quyền **Editor** cho email Service Account.
 
 ---
 
-## 📋 TỔNG HỢP DANH SÁCH BIẾN MÔI TRƯỜNG TRÊN DEPLOYMENT (VERCEL / CLOUD RUN)
+## 📋 TỔNG HỢP BIẾN MÔI TRƯỜNG PRODUCTION
 
-Sao chép toàn bộ danh sách tên biến này vào mục **Environment Variables** trên trang quản trị Hosting của bạn:
-
-| Tên biến môi trường | Giá trị ví dụ | Bắt buộc cho Production |
-| :--- | :--- | :---: |
-| `VITE_SUPABASE_URL` | `https://xyz.supabase.co` |  Có |
-| `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOi...` |  Có |
-| `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOi...` |  Có |
-| `SEPAY_WEBHOOK_SECRET` | `CoralLySon2026_SePaySecretKey_8921` |  Có |
-| `GMAIL_CLIENT_ID` | `123456...apps.googleusercontent.com` |  Có |
-| `GMAIL_CLIENT_SECRET` | `GOCSPX-...` |  Có |
-| `GMAIL_REFRESH_TOKEN` | `1//04...` |  Có |
-| `GMAIL_SENDER_EMAIL` | `coral.homestay.lyson@gmail.com` |  Có |
-| `GOOGLE_SHEET_ID` | `1A2b3C4d5E6f7G8h9I0j` |  Có |
-| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | `coral-sheets-sync@...gserviceaccount.com` |  Có |
-| `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` | `"-----BEGIN PRIVATE KEY-----\n..."` |  Có |
-| `BOOKING_HOLD_MINUTES` | `15` | Tùy chọn |
-| `CRON_SECRET` | `MySecretCronKey123` | Tùy chọn |
-| `TIMEZONE` | `Asia/Ho_Chi_Minh` | Tùy chọn |
-
----
-
-Nếu cần hỗ trợ kỹ thuật thêm trong quá trình triển khai, Chị Thủy có thể xem lại file `README_SETUP.md` này hoặc cập nhật trực tiếp trên bảng điều khiển quản trị Admin của hệ thống.
+| Tên biến môi trường | Phạm vi | Mô tả | Bắt buộc Production |
+| :--- | :---: | :--- | :---: |
+| `VITE_SUPABASE_URL` | Frontend & Server | Project URL của Supabase | Có |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` *(hoặc `VITE_SUPABASE_ANON_KEY`)* | Frontend & Server | Khóa công khai quyền hạn tối thiểu (bảo vệ bằng RLS) | Có |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Chỉ Server** | Khóa quản trị cho API `/api/*`, SePay Webhook, Cron | Có |
+| `ADMIN_SESSION_SECRET` | **Chỉ Server** | Chuỗi bí mật ký token HMAC-SHA256 cho phiên Admin | Khuyến nghị |
+| `ADMIN_OWNER_PASS` / `ADMIN_RECEPTION_PASS` / `ADMIN_ACCOUNTANT_PASS` | **Chỉ Server** | Mật khẩu đăng nhập từng vai trò quản trị | Khuyến nghị |
+| `SEPAY_WEBHOOK_SECRET` | **Chỉ Server** | Khóa xác thực Webhook SePay | Có |
+| `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL` | **Chỉ Server** | Cấu hình gửi email xác nhận tự động | Có |
+| `GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` | **Chỉ Server** | Cấu hình đồng bộ Google Sheets | Tùy chọn |
+| `BOOKING_HOLD_MINUTES` | Server | Thời gian giữ phòng mặc định (`15`) | Tùy chọn |
+| `CRON_SECRET` | **Chỉ Server** | Khóa bảo vệ endpoint `/api/cron/expire-holds` | Khuyến nghị |
+| `TIMEZONE` | Server | Múi giờ hệ thống (`Asia/Ho_Chi_Minh`) | Tùy chọn |

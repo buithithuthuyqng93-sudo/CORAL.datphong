@@ -45,9 +45,18 @@ async function startServer() {
   app.post('/api/media/upload', mediaHandler);
   app.post('/api/media/restore', mediaHandler);
 
+  app.route('/api/cron')
+    .get(cronHandler)
+    .post(cronHandler);
+
   app.route('/api/cron/expire-holds')
     .get(cronHandler)
     .post(cronHandler);
+
+  // Serve static images & assets directly before Vite to guarantee binary JPEG/PNG delivery
+  app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
+  app.use('/images', express.static(path.join(process.cwd(), 'public/images')));
+  app.use(express.static(path.join(process.cwd(), 'public')));
 
   // Vite Middleware in development mode
   if (process.env.NODE_ENV !== 'production') {

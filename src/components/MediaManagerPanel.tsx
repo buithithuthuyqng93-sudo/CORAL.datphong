@@ -846,7 +846,10 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
             {[
-              { name: 'coral-hero.jpg', url: '/images/coral-hero.jpg', label: 'Toàn cảnh Hero' },
+              { name: 'seagull-hero.jpg', url: '/assets/seagull-hero.jpg?v=seagull2', label: 'Toàn cảnh Hero (Seagull Coffee)' },
+              { name: 'lyson-harbor-real.jpg', url: '/assets/lyson-harbor-real.jpg', label: 'Ảnh thực tế · Bến cảng Lý Sơn' },
+              { name: 'bungalow-harbor-view.png', url: '/assets/bungalow-harbor-view.png', label: 'Phòng vòm bồn tắm view bến cảng' },
+              { name: 'lyson-beach-sup-real.jpg', url: '/assets/lyson-beach-sup-real.jpg', label: 'Ảnh thực tế · Bãi biển & SUP' },
               { name: 'bungalow-cliff-day.jpg', url: '/images/bungalow-cliff-day.jpg', label: 'Vách núi ban ngày' },
               { name: 'bungalow-row-sunset.jpg', url: '/images/bungalow-row-sunset.jpg', label: 'Dãy bungalow hoàng hôn' },
               { name: 'bungalow-bathtub-ocean.jpg', url: '/images/bungalow-bathtub-ocean.jpg', label: 'Bồn tắm panorama' },
@@ -871,7 +874,10 @@ export const MediaManagerPanel: React.FC<MediaManagerPanelProps> = ({
 };
 
 const PHOTO_PRESET_URLS = [
-  '/images/coral-hero.jpg',
+  '/assets/seagull-hero.jpg?v=seagull2',
+  '/assets/lyson-harbor-real.jpg',
+  '/assets/bungalow-harbor-view.png',
+  '/assets/lyson-beach-sup-real.jpg',
   '/images/bungalow-cliff-day.jpg',
   '/images/bungalow-row-sunset.jpg',
   '/images/bungalow-bathtub-ocean.jpg',

@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Khám phá không gian Seagull Coffee & Homestay tại Lý Sơn. Bản xem trước thiết kế.">
+  <title>Seagull Lý Sơn | Nơi chữa lành tâm hồn bạn</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317384a'/%3E%3Cpath d='M8 39Q20 21 32 38Q44 21 56 39M15 49Q32 43 49 49' fill='none' stroke='%23e6d5b4' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body.home {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #FBF9F5;
+      color: #17384A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; height: auto; display: block; }
+    button { font-family: inherit; border: none; background: transparent; cursor: pointer; }
+    .container { max-width: 1200px; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(23, 56, 74, 0.94);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(230, 213, 180, 0.18);
+      color: #FAF8F5;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0.85rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; flex-direction: column; color: #FAF8F5; text-decoration: none; line-height: 1.15; }
+    .brand strong { font-size: 1.35rem; font-weight: 900; letter-spacing: 0.08em; color: #FAF8F5; }
+    .brand small { font-size: 0.65rem; letter-spacing: 0.15em; color: #E6D5B4; text-transform: uppercase; margin-top: 2px; }
+    nav#mainNav { display: none; align-items: center; gap: 2.25rem; }
+    @media (min-width: 768px) { nav#mainNav { display: flex; } }
+    nav#mainNav a { color: #D5DFE3; font-size: 0.875rem; font-weight: 500; transition: color 0.2s ease; }
+    nav#mainNav a:hover { color: #E6D5B4; }
+
+    .button {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.65rem 1.5rem; font-size: 0.875rem; font-weight: 600;
+      border-radius: 9999px; background: #17384A; color: #E6D5B4;
+      text-decoration: none; transition: all 0.25s ease; cursor: pointer;
+    }
+    .button:hover { background: #204B63; color: #FFFFFF; transform: translateY(-1px); }
+    .button.light { background: #FAF8F5; color: #17384A; border: 1px solid #E5DFD5; }
+    .button.light:hover { background: #FFFFFF; color: #17384A; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+    .button.header-cta { background: #E6D5B4; color: #17384A; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; }
+    .button.header-cta:hover { background: #FFFFFF; color: #17384A; }
+    .menu-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border: 1px solid rgba(230, 213, 180, 0.3);
+      color: #E6D5B4; font-size: 1.25rem; border-radius: 8px;
+    }
+    @media (min-width: 768px) { .menu-toggle { display: none; } }
+
+    /* Hero */
+    .hero {
+      position: relative; min-height: 82vh; min-height: 82dvh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; background-color: #102633; overflow: hidden;
+      padding: 6rem 1.5rem 5rem;
+    }
+    .hero-image {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0.65; transform: scale(1.03); transition: transform 10s ease;
+    }
+    .hero:hover .hero-image { transform: scale(1.07); }
+    .hero-shade {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(16, 38, 51, 0.4) 0%, rgba(16, 38, 51, 0.75) 75%, #17384A 100%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 10; max-width: 800px; color: #FAF8F5; }
+    .eyebrow {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #7E8E96; margin-bottom: 0.5rem;
+    }
+    .hero-content .eyebrow { color: #E6D5B4; }
+    .hero-content h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800;
+      letter-spacing: -0.02em; line-height: 1.15; margin: 0.75rem 0 1.25rem;
+    }
+    .hero-content h1 span { color: #E6D5B4; font-weight: 900; text-transform: uppercase; }
+    .hero-content p {
+      font-size: clamp(1.1rem, 2.5vw, 1.45rem); font-weight: 300;
+      color: #DDE7EB; margin-bottom: 2.25rem; letter-spacing: 0.02em;
+    }
+    .hero-caption {
+      position: absolute; bottom: 1.25rem; left: 0; width: 100%;
+      display: flex; justify-content: space-between; padding: 0 2rem;
+      font-size: 0.75rem; color: rgba(230, 213, 180, 0.75); letter-spacing: 0.1em;
+      text-transform: uppercase; z-index: 10;
+    }
+
+    /* Hero Booking CTA */
+    .hero-booking-cta {
+      background: #17384A; color: #FAF8F5;
+      border-top: 1px solid rgba(230, 213, 180, 0.2);
+      border-bottom: 1px solid rgba(230, 213, 180, 0.1);
+      padding: 1.75rem 1.5rem;
+    }
+    .hero-booking-inner {
+      display: flex; flex-direction: column; gap: 1.25rem;
+      align-items: center; text-align: center;
+    }
+    @media (min-width: 768px) {
+      .hero-booking-inner { flex-direction: row; justify-content: space-between; text-align: left; }
+    }
+    .hero-booking-inner h2 { font-size: 1.35rem; font-weight: 700; color: #FAF8F5; margin-bottom: 0.25rem; }
+    .hero-booking-inner p { font-size: 0.9rem; color: #B2C4CB; }
+    .hero-booking-call { background: #E6D5B4; color: #17384A; padding: 0.75rem 1.75rem; font-weight: 700; white-space: nowrap; }
+    .hero-booking-call:hover { background: #FFFFFF; color: #17384A; }
+
+    /* Section 01: Nghỉ ngơi */
+    .section { padding: 5rem 1.5rem; }
+    .section-heading { margin-bottom: 3rem; }
+    .section-heading h2 {
+      font-size: clamp(1.85rem, 4vw, 2.75rem); font-weight: 800;
+      color: #17384A; letter-spacing: -0.02em; margin-top: 0.25rem; margin-bottom: 0.5rem;
+    }
+    .section-heading p { font-size: 1.05rem; color: #5A6D77; }
+    .room-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 1.5rem; }
+    @media (min-width: 768px) { .room-grid { grid-template-columns: repeat(3, 1fr); } }
+    .room-card {
+      background: #FFFFFF; border: 1px solid #EBE5DB; border-radius: 16px;
+      overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .room-card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px -8px rgba(23, 56, 74, 0.12); }
+    .image-button { width: 100%; aspect-ratio: 16 / 10; overflow: hidden; display: block; }
+    .image-button img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .image-button:hover img { transform: scale(1.05); }
+    .room-card-copy { padding: 1.5rem; }
+    .room-card-copy h3 { font-size: 1.25rem; font-weight: 700; color: #17384A; margin-bottom: 0.35rem; }
+    .room-card-copy p { font-size: 0.9rem; color: #60727B; line-height: 1.5; }
+    .caption.muted { font-size: 0.8rem; color: #8C9CA3; margin-bottom: 3.5rem; font-style: italic; }
+
+    /* Stay Invitation */
+    .stay-invitation {
+      background: #F3EEE3; border: 1px solid #E5DFD5; border-radius: 24px;
+      padding: 2.5rem 1.75rem; display: grid; grid-template-columns: 1fr; gap: 2.5rem;
+    }
+    @media (min-width: 900px) { .stay-invitation { grid-template-columns: 1.15fr 1fr; padding: 3.5rem; } }
+    .stay-intro h3 { font-size: clamp(1.75rem, 3.5vw, 2.4rem); font-weight: 800; color: #17384A; line-height: 1.25; margin: 0.5rem 0 1rem; }
+    .stay-intro p { font-size: 0.95rem; color: #4C5D66; line-height: 1.6; margin-bottom: 1.75rem; }
+    .stay-poster { border-radius: 14px; overflow: hidden; margin-bottom: 1.75rem; aspect-ratio: 16 / 9; position: relative; }
+    .stay-poster img { width: 100%; height: 100%; object-fit: cover; }
+    .stay-poster figcaption {
+      position: absolute; bottom: 0.75rem; right: 0.75rem;
+      background: rgba(23, 56, 74, 0.85); color: #FAF8F5; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 4px;
+    }
+    .stay-highlights { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+    .stay-highlights li { font-size: 0.9rem; font-weight: 500; color: #2D414D; display: flex; align-items: center; gap: 0.5rem; }
+    .stay-highlights li::before { content: "—"; color: #C8A261; font-weight: 700; }
+
+    .stay-card {
+      background: #FFFFFF; border: 1px solid #DFD8CB; border-radius: 20px;
+      padding: 2rem; box-shadow: 0 12px 28px -8px rgba(23, 56, 74, 0.08);
+    }
+    .stay-card-top { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 1.5rem; border-bottom: 1px solid #EBE5DB; margin-bottom: 1.5rem; }
+    .stay-price { font-size: 1.45rem; font-weight: 800; color: #17384A; display: block; }
+    .stay-price-note { font-size: 0.8rem; color: #7A8B93; }
+    .badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: #EBF4F7; color: #17384A; border: 1px solid #C4D9E2; padding: 0.25rem 0.65rem; border-radius: 9999px; }
+    .stay-input-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem; }
+    @media (min-width: 500px) { .stay-input-grid { grid-template-columns: 1fr 1fr; } }
+    .stay-input-grid label { display: flex; flex-direction: column; font-size: 0.8rem; font-weight: 700; color: #17384A; gap: 0.35rem; }
+    .stay-input-grid input, .stay-input-grid select {
+      padding: 0.65rem 0.75rem; font-size: 0.9rem; border: 1px solid #D5CBBF;
+      border-radius: 8px; background: #FAF8F5; color: #17384A; font-family: inherit;
+    }
+    .stay-input-grid input:focus, .stay-input-grid select:focus { outline: none; border-color: #17384A; background: #FFFFFF; }
+    .stay-capacity-note { font-size: 0.75rem; color: #7E8E96; line-height: 1.45; margin-bottom: 1.25rem; }
+    .stay-request-button { width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: #17384A; color: #E6D5B4; }
+    .stay-demo-note { font-size: 0.75rem; color: #8C9CA3; text-align: center; margin-top: 0.75rem; }
+    .stay-request-result { margin-top: 1.5rem; padding: 1.25rem; background: #F4FAF7; border: 1px solid #B8E2D0; border-radius: 12px; font-size: 0.85rem; color: #134E35; }
+
+    /* Section 02: Cà phê */
+    .coffee-section { background: #17384A; color: #FAF8F5; padding: 6rem 1.5rem; }
+    .coffee-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 3.5rem; align-items: center; }
+    @media (min-width: 900px) { .coffee-container { grid-template-columns: 1fr 1fr; } }
+    .coffee-image { position: relative; border-radius: 20px; overflow: hidden; background: #102633; aspect-ratio: 16 / 11; }
+    .coffee-image img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-label { position: absolute; bottom: 1rem; left: 1rem; background: rgba(16, 38, 51, 0.85); color: #FAF8F5; font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: 6px; }
+    .coffee-copy .eyebrow { color: #E6D5B4; }
+    .coffee-copy h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: #FAF8F5; margin: 0.5rem 0 1rem; }
+    .coffee-copy p { font-size: 1.1rem; color: #CBD8DC; line-height: 1.6; margin-bottom: 2rem; }
+    .coffee-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+    .coffee-details .image-button { border-radius: 12px; aspect-ratio: 4 / 3; }
+    .underlined { color: #E6D5B4; font-size: 0.95rem; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+    .underlined:hover { color: #FFFFFF; }
+
+    /* Section 03: Đánh giá & vị trí */
+    .reviews-ambient-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-bottom: 4rem; }
+    @media (min-width: 900px) { .reviews-ambient-grid { grid-template-columns: 1fr 1.1fr; } }
+    .review-samples { display: flex; flex-direction: column; gap: 1.25rem; }
+    .review-sample-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: #8C9CA3; }
+    .review-sample { background: #FFFFFF; border: 1px solid #EBE5DB; border-radius: 14px; padding: 1.5rem; transition: transform 0.2s ease; }
+    .review-sample:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -6px rgba(23, 56, 74, 0.08); }
+    .review-stars { color: #C8A261; font-size: 1rem; letter-spacing: 2px; margin-bottom: 0.5rem; }
+    .review-sample blockquote { font-size: 0.95rem; color: #2D414D; line-height: 1.6; margin-bottom: 0.5rem; font-style: italic; }
+    .review-sample span { font-size: 0.75rem; color: #8C9CA3; text-transform: uppercase; font-weight: 600; }
+    .ambient-figure { background: #FFFFFF; border: 1px solid #EBE5DB; border-radius: 16px; overflow: hidden; padding: 1rem; }
+    .ambient-media { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 10; background: #102633; }
+    .ambient-media img { width: 100%; height: 100%; object-fit: cover; }
+    .ambient-toggle {
+      position: absolute; bottom: 0.75rem; right: 0.75rem; background: rgba(23, 56, 74, 0.85);
+      color: #FAF8F5; border: none; padding: 0.4rem 0.85rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
+    .ambient-figure figcaption { font-size: 0.85rem; color: #4C5D66; margin-top: 0.75rem; line-height: 1.5; }
+    .ambient-figure figcaption span { display: block; font-size: 0.75rem; color: #8C9CA3; margin-top: 0.25rem; }
+
+    .visit-grid {
+      display: grid; grid-template-columns: 1fr; gap: 2.5rem;
+      background: #F3EEE3; border: 1px solid #E5DFD5; border-radius: 24px; padding: 2.5rem 1.75rem;
+    }
+    @media (min-width: 900px) { .visit-grid { grid-template-columns: 1fr 1.25fr; padding: 3.5rem; } }
+    .review-copy h3 { font-size: clamp(1.75rem, 3.5vw, 2.4rem); font-weight: 800; color: #17384A; line-height: 1.25; margin: 0.5rem 0 1rem; }
+    .review-copy p { font-size: 0.95rem; color: #4C5D66; line-height: 1.6; margin-bottom: 1.5rem; }
+    .visit-address { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #DCD5C8; }
+    .visit-address h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .visit-address p { font-size: 0.85rem; color: #60727B; margin-bottom: 0.75rem; }
+    .text-button { font-size: 0.85rem; font-weight: 700; color: #17384A; text-decoration: underline; }
+    .map-wrap { border-radius: 16px; overflow: hidden; min-height: 300px; border: 1px solid #DFD8CB; background: #EBE5DB; position: relative; }
+    .map-wrap iframe { width: 100%; height: 100%; min-height: 320px; border: 0; }
+    .map-wrap a { position: absolute; bottom: 0.75rem; left: 0.75rem; background: rgba(23, 56, 74, 0.9); color: #FAF8F5; font-size: 0.75rem; padding: 0.4rem 0.85rem; border-radius: 6px; }
+
+    /* Lightbox Modal */
+    .gallery-dialog {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      background: rgba(16, 38, 51, 0.95); backdrop-filter: blur(8px);
+      z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .gallery-dialog.open { display: flex; }
+    .dialog-close { position: absolute; top: 1.5rem; right: 1.5rem; width: 44px; height: 44px; background: rgba(255, 255, 255, 0.15); color: #FAF8F5; border-radius: 50%; font-size: 1.75rem; display: flex; align-items: center; justify-content: center; }
+    .gallery-dialog img { max-width: 90vw; max-height: 75vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    .gallery-controls { display: flex; align-items: center; gap: 1.5rem; margin-top: 1.5rem; color: #FAF8F5; }
+    .gallery-controls button { background: rgba(230, 213, 180, 0.2); color: #E6D5B4; border: 1px solid rgba(230, 213, 180, 0.4); padding: 0.5rem 1.25rem; border-radius: 9999px; cursor: pointer; font-weight: 600; }
+    .gallery-controls button:hover { background: #E6D5B4; color: #17384A; }
+
+    /* Footer */
+    .compact-footer {
+      max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 4rem;
+      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+      border-top: 1px solid #EBE5DB; text-align: center; font-size: 0.85rem; color: #7E8E96;
+    }
+    @media (min-width: 768px) { .compact-footer { flex-direction: row; justify-content: space-between; } }
+    .compact-footer a.brand { color: #17384A; }
+    .compact-footer a.brand strong { color: #17384A; }
+    .compact-footer a.brand small { color: #8C9CA3; }
+  </style>
+</head>
+<body class="home">
+  <!-- Header -->
+  <header class="site-header over-hero">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Seagull Lý Sơn, trang chủ">
+        <strong>SEAGULL</strong>
+        <small>LÝ SƠN · HOMESTAY & CÀ PHÊ</small>
+      </a>
+      <nav id="mainNav" aria-label="Điều hướng chính">
+        <a href="#luu-tru">Phòng ở</a>
+        <a href="#coffee">Cà phê</a>
+        <a href="#danh-gia">Đánh giá & vị trí</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <a class="button header-cta" href="#luu-tru">Khám phá</a>
+        <button class="menu-toggle" id="menuToggle" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero" id="hero" aria-labelledby="heroTitle">
+      <img id="hero-video" class="hero-image" src="/assets/hero-poster.jpg" alt="Phòng nghỉ Seagull nhìn ra biển">
+      <div class="hero-shade"></div>
+      <div class="hero-content container">
+        <span class="eyebrow">MỘT KHOẢNG BÌNH YÊN GIỮA ĐẢO</span>
+        <h1 id="heroTitle">Seagull <span>LÝ SƠN</span></h1>
+        <p id="heroDescription">Nơi chữa lành tâm hồn bạn.</p>
+        <div class="hero-actions">
+          <a class="button light" href="#luu-tru">Khám phá không gian</a>
+        </div>
+      </div>
+      <div class="hero-caption">
+        <span>CUỘN ĐỂ KHÁM PHÁ</span>
+        <span>Phối cảnh homestay bên vách đá biển</span>
+      </div>
+    </section>
+
+    <!-- Booking CTA Strip -->
+    <div class="hero-booking-cta" role="region" aria-labelledby="bookingCtaTitle">
+      <div class="container hero-booking-inner">
+        <div>
+          <h2 id="bookingCtaTitle">Đặt phòng tại Seagull Lý Sơn</h2>
+          <p>Liên hệ trực tiếp để được tư vấn phòng và ngày lưu trú.</p>
+        </div>
+        <a class="button hero-booking-call" href="tel:+84868011799" aria-label="Gọi đặt phòng Seagull qua số 0868 011 799">
+          Gọi đặt phòng · <span>0868 011 799</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Section 01: Lưu trú -->
+    <section class="section container" id="luu-tru" aria-labelledby="rooms-title">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">01 / NGHỈ NGƠI</span>
+          <h2 id="rooms-title">Không gian phòng ở</h2>
+        </div>
+        <p>Một chốn nghỉ ấm áp, mở ra khoảng trời và biển Lý Sơn.</p>
+      </div>
+
+      <div class="room-grid">
+        <article class="room-card">
+          <button class="image-button" data-gallery="0" aria-label="Xem ảnh phòng ngủ hướng biển">
+            <img src="/assets/gallery-2.jpg" alt="Minh họa phòng ngủ hướng biển theo phối cảnh Seagull" width="1664" height="936" loading="lazy" decoding="async">
+          </button>
+          <div class="room-card-copy">
+            <h3>Phòng ngủ hướng biển</h3>
+            <p>Gỗ ấm, vải mềm và khoảng nhìn ra biển.</p>
+          </div>
+        </article>
+
+        <article class="room-card">
+          <button class="image-button" data-gallery="1" aria-label="Xem ảnh phòng ngủ có bồn tắm">
+            <img src="/assets/gallery-3.jpg" alt="Minh họa phòng ngủ có bồn tắm theo phối cảnh Seagull" width="1664" height="936" loading="lazy" decoding="async">
+          </button>
+          <div class="room-card-copy">
+            <h3>Phòng ngủ có bồn tắm</h3>
+            <p>Một góc thư giãn riêng trong căn phòng.</p>
+          </div>
+        </article>
+
+        <article class="room-card">
+          <button class="image-button" data-gallery="2" aria-label="Xem ảnh ban công đón gió">
+            <img src="/assets/gallery-1.jpg" alt="Minh họa ban công đón gió theo phối cảnh Seagull" width="1664" height="936" loading="lazy" decoding="async">
+          </button>
+          <div class="room-card-copy">
+            <h3>Ban công đón gió</h3>
+            <p>Ngồi lại một chút, ngắm biển xa.</p>
+          </div>
+        </article>
+      </div>
+
+      <p class="caption muted">Ảnh minh họa theo phối cảnh thiết kế.</p>
+
+      <!-- Stay Invitation & Reservation Request -->
+      <div class="stay-invitation" id="yeu-cau-luu-tru">
+        <div class="stay-intro">
+          <span class="eyebrow">SEAGULL LÝ SƠN · 27 CĂN PHÒNG VẬN HÀNH</span>
+          <h3>Kỳ nghỉ an yên,<br>bắt đầu từ đây.</h3>
+          <p>Chọn ngày ghé đảo và số phòng bạn cần. Seagull sẽ xác nhận loại phòng, sức chứa và giá khi chính thức mở đặt phòng.</p>
+          <figure class="stay-poster">
+            <img src="/assets/hero-poster.jpg" alt="Minh họa phòng nghỉ Seagull mở ra ban công và biển Lý Sơn" width="1920" height="1080" loading="lazy" decoding="async">
+            <figcaption>Minh họa theo phối cảnh Seagull</figcaption>
+          </figure>
+          <ul class="stay-highlights">
+            <li>Không gian nghỉ với chất liệu gỗ ấm áp</li>
+            <li>Góc cà phê cho những cuộc hẹn bên biển</li>
+            <li>Lựa chọn nhiều phòng cho gia đình và nhóm bạn</li>
+          </ul>
+        </div>
+
+        <div class="stay-card">
+          <div class="stay-card-top">
+            <div>
+              <span class="stay-price">Liên hệ báo giá</span>
+              <span class="stay-price-note">Theo loại phòng và ngày lưu trú</span>
+            </div>
+            <span class="badge">Bản mẫu</span>
+          </div>
+
+          <form id="stayRequestForm">
+            <div class="stay-input-grid">
+              <label for="stayCheckin">Ngày nhận phòng
+                <input id="stayCheckin" name="checkin" type="date" required>
+              </label>
+              <label for="stayCheckout">Ngày trả phòng
+                <input id="stayCheckout" name="checkout" type="date" required>
+              </label>
+              <label for="stayRoomCount">Số phòng
+                <select id="stayRoomCount" name="rooms">
+                  <option value="1">1 phòng</option>
+                  <option value="2">2 phòng</option>
+                  <option value="3">3 phòng</option>
+                  <option value="4">4 phòng</option>
+                  <option value="5">5 phòng</option>
+                  <option value="6">6 phòng</option>
+                  <option value="7">7 phòng</option>
+                  <option value="8">8 phòng</option>
+                  <option value="9">9 phòng</option>
+                  <option value="10">10 phòng</option>
+                  <option value="15">15 phòng</option>
+                  <option value="20">20 phòng</option>
+                  <option value="27">27 phòng (Toàn khu)</option>
+                </select>
+              </label>
+              <label for="stayGuests">Số khách
+                <input id="stayGuests" name="guests" type="number" min="1" max="200" step="1" value="2" required>
+              </label>
+            </div>
+
+            <p class="stay-capacity-note">Bao gồm trẻ em. Sức chứa sẽ được xác nhận theo loại phòng; số phòng chọn chưa phản ánh phòng trống.</p>
+            <p id="stayDateError" class="form-error" role="alert"></p>
+            <button type="submit" class="button stay-request-button">Yêu cầu giữ chỗ ngay</button>
+            <p class="stay-demo-note">Chỉ xem trước yêu cầu · Chưa gửi, chưa giữ phòng và chưa thu tiền.</p>
+
+            <div class="stay-request-result" id="stayRequestResult" hidden tabindex="-1" role="status">
+              <strong>Yêu cầu dự kiến của bạn:</strong>
+              <p id="stayRequestDetails" style="margin-top:0.4rem;line-height:1.5;"></p>
+              <p style="margin-top:0.5rem;font-size:0.8rem;color:#047857;">Đây là bản duyệt giao diện. Bạn có thể nhấn gọi hotline hoặc chat Zalo 0868.011.799 để được hỗ trợ nhanh nhất.</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 02: Coffee -->
+    <section id="coffee" class="coffee-section" aria-labelledby="coffee-title">
+      <div class="coffee-container">
+        <div class="coffee-image">
+          <button class="image-button" data-gallery="3" aria-label="Xem ảnh không gian cà phê">
+            <img src="/assets/coffee-courtyard.webp" alt="Phối cảnh sân cà phê Seagull dưới tán cây" width="1280" height="815" loading="lazy" decoding="async">
+          </button>
+          <span class="photo-label">Phối cảnh thiết kế</span>
+        </div>
+
+        <div class="coffee-copy">
+          <span class="eyebrow">02 / GẶP GỠ</span>
+          <h2 id="coffee-title">Không gian cà phê</h2>
+          <p>Một tách cà phê, một khoảng sân xanh.<br>Dành thời gian cho mình và những người thương.</p>
+          <div class="coffee-details">
+            <button class="image-button" data-gallery="4" aria-label="Xem góc ngồi cà phê">
+              <img src="/assets/coffee-interior.webp" alt="Phối cảnh góc ngồi cà phê với nội thất gỗ" width="1415" height="1111" loading="lazy" decoding="async">
+            </button>
+            <button class="image-button" data-gallery="5" aria-label="Xem lối vào cà phê">
+              <img src="/assets/coffee-front.webp" alt="Phối cảnh lối vào Seagull Coffee" width="1536" height="1024" loading="lazy" decoding="async">
+            </button>
+          </div>
+          <a class="underlined" href="https://maps.app.goo.gl/yaYH56pM37VPbjnv7" target="_blank" rel="noopener">Ghé Seagull trên Google Maps →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 03: Đánh giá & Vị trí -->
+    <section class="section container reviews-location" id="danh-gia" aria-labelledby="reviews-title">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">03 / ĐIỂM HẸN</span>
+          <h2 id="reviews-title">Đánh giá khách & vị trí</h2>
+        </div>
+      </div>
+
+      <div class="reviews-ambient-grid">
+        <div class="review-samples">
+          <p class="review-sample-label">NHẬN XÉT MINH HỌA · CHƯA PHẢI ĐÁNH GIÁ THỰC TẾ</p>
+          <article class="review-sample">
+            <div class="review-stars" aria-label="Minh họa mức đánh giá 5 sao">★★★★★</div>
+            <blockquote>“Một góc nghỉ yên tĩnh, chỉ muốn ngồi ở ban công và nhìn biển thật lâu.”</blockquote>
+            <span>Nội dung mẫu 01</span>
+          </article>
+          <article class="review-sample">
+            <div class="review-stars" aria-label="Minh họa mức đánh giá 5 sao">★★★★★</div>
+            <blockquote>“Căn phòng ấm áp và khoảng nhìn ra biển khiến buổi sáng trở nên thật nhẹ nhàng.”</blockquote>
+            <span>Nội dung mẫu 02</span>
+          </article>
+          <article class="review-sample">
+            <div class="review-stars" aria-label="Minh họa mức đánh giá 5 sao">★★★★★</div>
+            <blockquote>“Một tách cà phê, chút gió biển và thời gian thảnh thơi bên người thương.”</blockquote>
+            <span>Nội dung mẫu 03</span>
+          </article>
+        </div>
+
+        <figure class="ambient-figure">
+          <div class="ambient-media">
+            <img src="/assets/review-ambient-poster.jpg" alt="Minh họa cặp đôi uống cà phê trên ban công nhìn ra biển Lý Sơn" width="1280" height="720">
+            <button type="button" id="ambientToggle" class="ambient-toggle" aria-label="Tạm dừng video cà phê">Tạm dừng</button>
+          </div>
+          <figcaption>Khoảnh khắc thảnh thơi bên tách cà phê sáng, nhìn ra biển Lý Sơn.<span>Video minh họa</span></figcaption>
+          <p id="ambientStatus" role="status" class="ambient-status"></p>
+        </figure>
+      </div>
+
+      <div class="visit-grid">
+        <div class="review-copy">
+          <span class="eyebrow">CẢM NHẬN TỪ KHÁCH GHÉ THĂM</span>
+          <h3>Mỗi lần ghé,<br>một câu chuyện.</h3>
+          <p>Xem đánh giá và chia sẻ trải nghiệm của bạn tại Seagull trên Google Maps.</p>
+          <a class="button" href="https://maps.app.goo.gl/yaYH56pM37VPbjnv7" target="_blank" rel="noopener">Xem đánh giá trên Google</a>
+          <div class="visit-address" id="vi-tri">
+            <h3>Seagull Lý Sơn</h3>
+            <p>Homestay & cà phê · Đảo Lý Sơn</p>
+            <a class="text-button" href="https://maps.app.goo.gl/yaYH56pM37VPbjnv7" target="_blank" rel="noopener">Chỉ đường đến Seagull</a>
+          </div>
+        </div>
+
+        <div class="map-wrap">
+          <iframe title="Bản đồ Seagull Lý Sơn Homestay & Coffee" src="https://maps.google.com/maps?cid=3047062392967181604&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <a href="https://maps.app.goo.gl/yaYH56pM37VPbjnv7" target="_blank" rel="noopener">Mở bản đồ trong Google Maps ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Gallery Dialog Modal -->
+  <dialog id="galleryDialog" class="gallery-dialog">
+    <button class="dialog-close" id="dialogClose" aria-label="Đóng ảnh">×</button>
+    <img id="galleryImage" src="/assets/coffee-entry.webp" alt="Phối cảnh lối vào coffee" width="1402" height="1122">
+    <div class="gallery-controls">
+      <button id="previousPhoto" aria-label="Ảnh trước">← Trước</button>
+      <p id="galleryCaption" style="margin:0 1rem;font-size:0.9rem;"></p>
+      <button id="nextPhoto" aria-label="Ảnh sau">Sau →</button>
+    </div>
+  </dialog>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container compact-footer">
+      <a class="brand" href="/" aria-label="Seagull Lý Sơn, trang chủ">
+        <strong>SEAGULL</strong>
+        <small>LÝ SƠN · HOMESTAY & CÀ PHÊ</small>
+      </a>
+      <span>Lý Sơn · Việt Nam</span>
+      <a href="/admin">Quản trị mẫu</a>
+    </div>
+  </footer>
+
+  <script>
+    // Gallery data
+    const galleryPhotos = [
+      { src: '/assets/gallery-2.jpg', alt: 'Phòng ngủ hướng biển', caption: 'Phòng ngủ hướng biển – Gỗ ấm, vải mềm và khoảng nhìn ra biển.' },
+      { src: '/assets/gallery-3.jpg', alt: 'Phòng ngủ có bồn tắm', caption: 'Phòng ngủ có bồn tắm – Một góc thư giãn riêng trong căn phòng.' },
+      { src: '/assets/gallery-1.jpg', alt: 'Ban công đón gió', caption: 'Ban công đón gió – Ngồi lại một chút, ngắm biển xa.' },
+      { src: '/assets/coffee-courtyard.webp', alt: 'Sân cà phê', caption: 'Sân cà phê Seagull dưới tán cây lộng gió.' },
+      { src: '/assets/coffee-interior.webp', alt: 'Góc ngồi cà phê', caption: 'Góc ngồi cà phê với nội thất gỗ ấm áp.' },
+      { src: '/assets/coffee-front.webp', alt: 'Lối vào cà phê', caption: 'Lối vào Seagull Coffee & Homestay.' }
+    ];
+    let currentGalleryIndex = 0;
+    const dialog = document.getElementById('galleryDialog');
+    const dialogImg = document.getElementById('galleryImage');
+    const dialogCaption = document.getElementById('galleryCaption');
+
+    function updateGallery(idx) {
+      currentGalleryIndex = (idx + galleryPhotos.length) % galleryPhotos.length;
+      dialogImg.src = galleryPhotos[currentGalleryIndex].src;
+      dialogImg.alt = galleryPhotos[currentGalleryIndex].alt;
+      dialogCaption.textContent = galleryPhotos[currentGalleryIndex].caption + ' (' + (currentGalleryIndex + 1) + '/' + galleryPhotos.length + ')';
+    }
+
+    document.querySelectorAll('[data-gallery]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-gallery'), 10) || 0;
+        updateGallery(idx);
+        dialog.classList.add('open');
+      });
+    });
+
+    document.getElementById('dialogClose').addEventListener('click', () => {
+      dialog.classList.remove('open');
+    });
+
+    document.getElementById('previousPhoto').addEventListener('click', () => {
+      updateGallery(currentGalleryIndex - 1);
+    });
+
+    document.getElementById('nextPhoto').addEventListener('click', () => {
+      updateGallery(currentGalleryIndex + 1);
+    });
+
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.classList.remove('open');
+    });
+
+    // Stay form
+    const form = document.getElementById('stayRequestForm');
+    const checkin = document.getElementById('stayCheckin');
+    const checkout = document.getElementById('stayCheckout');
+    const now = new Date();
+    const dCheckin = new Date(now.getTime() + 3*86400000);
+    const dCheckout = new Date(now.getTime() + 5*86400000);
+    checkin.value = dCheckin.toISOString().split('T')[0];
+    checkout.value = dCheckout.toISOString().split('T')[0];
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inDate = new Date(checkin.value);
+      const outDate = new Date(checkout.value);
+      const errEl = document.getElementById('stayDateError');
+      if (outDate <= inDate) {
+        errEl.textContent = 'Ngày trả phòng phải sau ngày nhận phòng.';
+        return;
+      }
+      errEl.textContent = '';
+      const diffDays = Math.ceil((outDate - inDate) / 86400000);
+      const details = document.getElementById('stayRequestDetails');
+      details.textContent = 'Ngày đến: ' + checkin.value + ' · Ngày đi: ' + checkout.value + ' (' + diffDays + ' đêm) · ' + document.getElementById('stayRoomCount').value + ' phòng cho ' + document.getElementById('stayGuests').value + ' khách.';
+      const res = document.getElementById('stayRequestResult');
+      res.hidden = false;
+      res.focus();
+    });
+  </script>
+</body>
+</html>

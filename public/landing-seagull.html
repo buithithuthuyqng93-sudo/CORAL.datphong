@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="ocean">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Seagull Lý Sơn – Nơi Sóng Vỗ Vách Đá Núi Lửa | Homestay · Tour · Đặc Sản</title>
+  <meta name="description" content="Trải nghiệm nghỉ dưỡng tại Seagull Lý Sơn – Homestay vòm biển ngắm hoàng hôn, tour cano Đảo Bé lặn ngắm san hô và thưởng thức tỏi cô đơn, chả cá đỏ củ Lý Sơn trứ danh.">
+  
+  <!-- Google Font: Be Vietnam Pro (chuẩn dấu tiếng Việt) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS VARIABLES & 3 DESIGN THEMES (BẢN DỰNG 3 PHƯƠNG ÁN)
+       ========================================================================== */
+    :root {
+      --font-main: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      --transition-base: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* --- PHƯƠNG ÁN 1: SÁNG – BIỂN XANH (OCEAN AZURE) --- */
+    html[data-theme="ocean"] {
+      --bg-canvas: #F4FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #EBF6FA;
+      --text-primary: #0F2D37;
+      --text-secondary: #4A6B78;
+      --text-muted: #7E9FA9;
+      --accent-primary: #0284C7;
+      --accent-hover: #0369A1;
+      --accent-gradient: linear-gradient(135deg, #0284C7 0%, #06B6D4 100%);
+      --accent-warm: #F59E0B;
+      --glass-bg: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(14, 165, 233, 0.22);
+      --glass-shadow: 0 16px 36px -12px rgba(2, 132, 199, 0.15);
+      --wave-deep: #0369A1;
+      --wave-mid: #0284C7;
+      --wave-light: #38BDF8;
+      --wave-base: #F4FAFC;
+      --hero-bg: radial-gradient(circle at 50% 20%, #E0F2FE 0%, #BAE6FD 45%, #7DD3FC 100%);
+      --hero-badge-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(2, 132, 199, 0.12);
+    }
+
+    /* --- PHƯƠNG ÁN 2: TỐI – HOÀNG HÔN NÚI LỬA (VOLCANIC SUNSET) --- */
+    html[data-theme="sunset"] {
+      --bg-canvas: #0C1110;
+      --bg-surface: #151D1A;
+      --bg-surface-elevated: #1F2B26;
+      --text-primary: #FAF8F5;
+      --text-secondary: #C8D1CC;
+      --text-muted: #8E9C95;
+      --accent-primary: #F59E0B;
+      --accent-hover: #D97706;
+      --accent-gradient: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+      --accent-warm: #EF4444;
+      --glass-bg: rgba(21, 29, 26, 0.78);
+      --glass-border: rgba(245, 158, 11, 0.25);
+      --glass-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.65);
+      --wave-deep: #080D0B;
+      --wave-mid: #1A2420;
+      --wave-light: #EA580C;
+      --wave-base: #0C1110;
+      --hero-bg: radial-gradient(circle at 50% 30%, #451A03 0%, #291206 40%, #0C1110 95%);
+      --hero-badge-bg: rgba(31, 43, 38, 0.85);
+      --card-border: rgba(245, 158, 11, 0.15);
+    }
+
+    /* --- PHƯƠNG ÁN 3: TỐI GIẢN – TRẮNG CÁT SAN HÔ (SAND MINIMALIST) --- */
+    html[data-theme="sand"] {
+      --bg-canvas: #FAF7F2;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #F3ECE2;
+      --text-primary: #2C2621;
+      --text-secondary: #6B6258;
+      --text-muted: #9E9387;
+      --accent-primary: #8C6D53;
+      --accent-hover: #70543D;
+      --accent-gradient: linear-gradient(135deg, #8C6D53 0%, #B8977E 100%);
+      --accent-warm: #D97757;
+      --glass-bg: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(140, 109, 83, 0.2);
+      --glass-shadow: 0 16px 32px -10px rgba(112, 84, 61, 0.08);
+      --wave-deep: #DDD3C7;
+      --wave-mid: #ECE4D9;
+      --wave-light: #F5ECE2;
+      --wave-base: #FAF7F2;
+      --hero-bg: radial-gradient(circle at 50% 20%, #FFFDF9 0%, #F5EFEB 50%, #EBE0D3 100%);
+      --hero-badge-bg: rgba(255, 255, 255, 0.95);
+      --card-border: rgba(140, 109, 83, 0.15);
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE TYPOGRAPHY
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    /* ==========================================================================
+       3. THEME PICKER BAR (THANH CHỌN 3 PHƯƠNG ÁN TRỰC QUAN)
+       ========================================================================== */
+    .theme-controller {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      padding: 0.35rem 0.6rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .theme-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 0 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .theme-btn {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      color: var(--text-secondary);
+      background: transparent;
+      transition: var(--transition-base);
+      white-space: nowrap;
+    }
+
+    .theme-btn.active {
+      background: var(--accent-gradient);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ==========================================================================
+       4. NAVIGATION BAR (TOP BAR CONTRACT)
+       ========================================================================== */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 900;
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: var(--transition-base);
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 4.25rem;
+    }
+
+    .brand-wordmark {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .brand-wordmark span {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+      color: var(--accent-primary);
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    @media (min-width: 900px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    .nav-links a {
+      font-size: 0.925rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-primary);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.35rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background: var(--accent-gradient);
+      color: #FFFFFF;
+      transition: var(--transition-base);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      transition: var(--transition-base);
+      white-space: nowrap;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       5. HERO SECTION & PARALLAX SEAGULL & SVG WAVES
+       ========================================================================== */
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--hero-bg);
+      overflow: hidden;
+      padding: 6rem 1.5rem 8rem;
+      text-align: center;
+      transition: background 0.5s ease;
+    }
+
+    /* Interactive Parallax Seagull */
+    .seagull-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .seagull-actor {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s linear;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,0.18));
+      will-change: transform;
+    }
+
+    .seagull-actor svg {
+      width: 100%;
+      height: 100%;
+      animation: seagullFlap 1.8s infinite ease-in-out;
+      transform-origin: center;
+    }
+
+    @keyframes seagullFlap {
+      0%, 100% {
+        transform: scaleY(1) rotate(0deg);
+      }
+      50% {
+        transform: scaleY(0.78) rotate(-2deg);
+      }
+    }
+
+    /* Floating Clouds / Volcanic Mist */
+    .hero-aura {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      opacity: 0.18;
+      filter: blur(120px);
+      pointer-events: none;
+      animation: floatAura 8s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatAura {
+      0% { transform: translate(-30%, -20%) scale(0.9); }
+      100% { transform: translate(30%, 20%) scale(1.15); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 20;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      background: var(--hero-badge-bg);
+      border: 1px solid var(--glass-border);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5.5vw, 4.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      text-wrap: balance;
+    }
+
+    .hero-title .highlight {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-weight: 400;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+      text-wrap: balance;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--glass-border);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Animated Multi-Layer SVG Waves */
+    .wave-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      line-height: 0;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .wave-svg {
+      position: relative;
+      display: block;
+      width: calc(100% + 1.3px);
+      height: 90px;
+    }
+
+    @media (min-width: 768px) {
+      .wave-svg {
+        height: 140px;
+      }
+    }
+
+    .wave-path-1 {
+      fill: var(--wave-light);
+      opacity: 0.35;
+      animation: waveFloat 9s infinite linear;
+    }
+
+    .wave-path-2 {
+      fill: var(--wave-mid);
+      opacity: 0.55;
+      animation: waveFloat 6s infinite linear reverse;
+    }
+
+    .wave-path-3 {
+      fill: var(--wave-base);
+      opacity: 1;
+    }
+
+    @keyframes waveFloat {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-25px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* ==========================================================================
+       6. SECTION HEADINGS & BADGES
+       ========================================================================== */
+    .section-wrap {
+      padding: 6rem 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 650px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .section-kicker {
+      font-size: 0.825rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-primary);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .section-title {
+      font-size: clamp(1.85rem, 3.5vw, 2.65rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      text-wrap: balance;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ==========================================================================
+       7. SECTION: GIỚI THIỆU (HOMESTAY · TOUR · ĐẶC SẢN)
+       ========================================================================== */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .intro-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .intro-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px -10px rgba(0,0,0,0.06);
+      transition: var(--transition-base);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .intro-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--glass-shadow);
+      border-color: var(--accent-primary);
+    }
+
+    .intro-media {
+      position: relative;
+      height: 220px;
+      background: var(--bg-surface-elevated);
+      overflow: hidden;
+    }
+
+    .intro-media-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-secondary);
+      background: linear-gradient(135deg, var(--bg-surface-elevated) 0%, var(--bg-canvas) 100%);
+    }
+
+    .intro-media-placeholder svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+      color: var(--accent-primary);
+    }
+
+    .intro-media-tag {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+    }
+
+    .intro-body {
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .intro-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .intro-card-text {
+      font-size: 0.925rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+
+    .intro-card-features {
+      list-style: none;
+      margin-bottom: 1.25rem;
+    }
+
+    .intro-card-features li {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .intro-card-features li svg {
+      width: 16px;
+      height: 16px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       8. SECTION: TRẢI NGHIỆM ĐẢO (THẺ KÍNH MỜ CUỘN NGANG)
+       ========================================================================== */
+    .experience-section {
+      background: var(--bg-surface-elevated);
+      overflow: hidden;
+      transition: background 0.4s ease;
+    }
+
+    .scroll-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .scroll-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: var(--transition-base);
+    }
+
+    .scroll-btn:hover {
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      transform: scale(1.05);
+    }
+
+    /* Horizontal Glass Carousel */
+    .glass-carousel {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 2rem;
+      padding-top: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary) transparent;
+    }
+
+    .glass-carousel::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .glass-carousel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .glass-carousel::-webkit-scrollbar-thumb {
+      background: var(--accent-primary);
+      border-radius: 9999px;
+    }
+
+    .glass-card {
+      flex: 0 0 320px;
+      scroll-snap-align: start;
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition-base);
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .glass-card {
+        flex: 0 0 380px;
+      }
+    }
+
+    .glass-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent-primary);
+    }
+
+    .glass-card-img {
+      height: 210px;
+      border-radius: 14px;
+      background: var(--bg-surface);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .glass-card-img .placeholder-box {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(245, 158, 11, 0.15));
+      color: var(--text-primary);
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .glass-card-img .tag {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .glass-card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .glass-card-desc {
+      font-size: 0.925rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+
+    .glass-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid var(--glass-border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .glass-card-action {
+      color: var(--accent-primary);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* ==========================================================================
+       9. SECTION: BẢNG GIÁ & GÓI COMBO
+       ========================================================================== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .pricing-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .pricing-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.25rem 1.75rem;
+      position: relative;
+      transition: var(--transition-base);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent-primary);
+      box-shadow: var(--glass-shadow);
+      transform: scale(1.02);
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-gradient);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      white-space: nowrap;
+    }
+
+    .pricing-card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-price {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-amount {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+      line-height: 1;
+    }
+
+    .pricing-unit {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+
+    .pricing-features li {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pricing-features li svg {
+      width: 18px;
+      height: 18px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       10. SECTION: ĐÁNH GIÁ KHÁCH HÀNG (TESTIMONIALS)
+       ========================================================================== */
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .reviews-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .review-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: var(--transition-base);
+    }
+
+    .review-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px -10px rgba(0,0,0,0.08);
+      border-color: var(--accent-primary);
+    }
+
+    .review-stars {
+      color: #F59E0B;
+      display: flex;
+      gap: 0.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .review-text {
+      font-size: 0.925rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .reviewer-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .reviewer-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--accent-primary);
+      border: 2px solid var(--card-border);
+    }
+
+    .reviewer-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .reviewer-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       11. SECTION: BẢN ĐỒ & LIÊN HỆ (ZALO, HOTLINE, FORM)
+       ========================================================================== */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .contact-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .contact-info-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .info-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--bg-surface-elevated);
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .info-content h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-content p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Interactive Map Canvas */
+    .map-preview {
+      height: 220px;
+      border-radius: 14px;
+      background: var(--bg-surface-elevated);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--card-border);
+    }
+
+    .map-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .map-placeholder svg {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-form-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.25rem;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.925rem;
+      font-family: inherit;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      transition: var(--transition-base);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    textarea.form-control {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .form-feedback {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-top: 1rem;
+      text-align: center;
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* ==========================================================================
+       12. MOBILE FLOATING ACTION BAR (< 15% VIEWPORT HEIGHT)
+       ========================================================================== */
+    .mobile-float-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 850;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--glass-border);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (min-width: 900px) {
+      .mobile-float-bar {
+        display: none;
+      }
+    }
+
+    .mobile-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      border-radius: 8px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .btn-zalo {
+      background: #0068FF;
+      color: #FFFFFF;
+    }
+
+    .btn-call {
+      background: var(--accent-gradient);
+      color: #FFFFFF;
+    }
+
+    /* ==========================================================================
+       13. FOOTER
+       ========================================================================== */
+    .site-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--card-border);
+      padding: 4rem 0 6rem;
+      text-align: center;
+    }
+
+    @media (min-width: 900px) {
+      .site-footer {
+        padding-bottom: 4rem;
+      }
+    }
+
+    .footer-brand {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .footer-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      list-style: none;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-primary);
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       BỘ ĐIỀU KHIỂN CHUYỂN 3 PHƯƠNG ÁN (THEME SWITCHER LIVE DEMO)
+       ========================================================================== -->
+  <aside class="theme-controller" aria-label="Bộ chọn giao diện phương án">
+    <span class="theme-label">Bản dựng:</span>
+    <button class="theme-btn active" data-set-theme="ocean" onclick="switchTheme('ocean')">
+      1. Biển Xanh
+    </button>
+    <button class="theme-btn" data-set-theme="sunset" onclick="switchTheme('sunset')">
+      2. Hoàng Hôn
+    </button>
+    <button class="theme-btn" data-set-theme="sand" onclick="switchTheme('sand')">
+      3. Trắng Cát
+    </button>
+  </aside>
+
+  <!-- ==========================================================================
+       TOP NAVIGATION BAR
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <div class="nav-wrapper">
+        <!-- Zone 1: Single text element wordmark -->
+        <a href="#hero" class="brand-wordmark">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 10s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          SEAGULL <span>LÝ SƠN</span>
+        </a>
+
+        <!-- Zone 2: Navigation Links -->
+        <nav class="nav-links">
+          <a href="#about">Giới Thiệu</a>
+          <a href="#experience">Trải Nghiệm</a>
+          <a href="#packages">Gói Dịch Vụ</a>
+          <a href="#reviews">Đánh Giá</a>
+          <a href="#contact">Bản Đồ & Liên Hệ</a>
+        </nav>
+
+        <!-- Zone 3: Primary Action CTA -->
+        <div class="nav-cta">
+          <a href="tel:0868011799" class="btn-outline" style="display: none; @media(min-width: 600px){display:inline-flex;}">
+            0868.011.799
+          </a>
+          <a href="#packages" class="btn-primary">
+            Đặt Chỗ Ngay
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO FULL MÀN HÌNH + MÒNG BIỂN PARALLAX + SÓNG BIỂN CSS/SVG
+       ========================================================================== -->
+  <section id="hero" class="hero-section">
+    <!-- Decorative Floating Aura -->
+    <div class="hero-aura"></div>
+
+    <!-- Interactive Parallax Seagull Actor -->
+    <div class="seagull-container" id="seagullScene">
+      <div class="seagull-actor" id="seagullBird">
+        <!-- Seagull SVG Icon with Wing Flap Animation -->
+        <svg viewBox="0 0 100 60" fill="currentColor">
+          <path d="M 0 30 Q 25 5, 50 28 Q 75 5, 100 30 Q 75 18, 50 35 Q 25 18, 0 30 Z" opacity="0.95"></path>
+          <path d="M 12 30 Q 30 14, 50 31 Q 70 14, 88 30 Q 70 24, 50 38 Q 30 24, 12 30 Z" fill="white" opacity="0.3"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main Hero Text Content -->
+    <div class="hero-content">
+      <div class="hero-kicker">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        Homestay Vòm Biển · Tour Cano Đảo Bé · Đặc Sản Đảo Tỏi
+      </div>
+
+      <h1 class="hero-title">
+        Chạm Vào Sóng Vỗ <br>
+        <span class="highlight">Bên Vách Đá Núi Lửa</span> Lý Sơn
+      </h1>
+
+      <p class="hero-subtitle">
+        Trải nghiệm không gian nghỉ dưỡng bungalow vòm biển đón bình minh, cano lướt sóng san hô Đảo Bé và thưởng trọn phong vị tỏi cô đơn, chả cá đỏ củ trứ danh.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#packages" class="btn-primary" style="padding: 0.85rem 1.85rem; font-size: 1rem;">
+          Khám Phá Các Gói Phòng
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="#experience" class="btn-outline" style="padding: 0.85rem 1.65rem; font-size: 1rem;">
+          Xem 3 Trải Nghiệm Đảo
+        </a>
+      </div>
+
+      <!-- Hero Social Proof Strip -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">View Biển Vòm Vách Đá</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">4.9★</span>
+          <span class="stat-label">Từ 850+ Du Khách</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">15 Phút</span>
+          <span class="stat-label">Cano Đến Đảo Bé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fluid Animated Multi-Layer SVG Waves -->
+    <div class="wave-container">
+      <svg class="wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path class="wave-path-1" d="M0,0 C150,90 350,-40 500,45 C650,130 900,-20 1200,30 L1200,120 L0,120 Z"></path>
+        <path class="wave-path-2" d="M0,20 C200,100 450,-30 700,55 C950,140 1100,10 1200,40 L1200,120 L0,120 Z"></path>
+        <path class="wave-path-3" d="M0,45 C150,110 350,10 600,65 C850,120 1050,30 1200,60 L1200,120 L0,120 Z"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PHẦN 1: GIỚI THIỆU (HOMESTAY · TOUR · ĐẶC SẢN)
+       ========================================================================== -->
+  <section id="about" class="section-wrap">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker">Hệ Sinh Thái Seagull Lý Sơn</span>
+        <h2 class="section-title">Ba Giá Trị Trọn Vẹn Cho Kỳ Nghỉ Đảo</h2>
+        <p class="section-desc">
+          Từ nơi ngả lưng ngắm trọn đại dương bao la, những chuyến cano rẽ sóng khám phá đến hương vị hải sản tươi ngon đậm đà bản xứ.
+        </p>
+      </div>
+
+      <div class="intro-grid">
+        <!-- Card 1: Homestay Vòm Biển -->
+        <article class="intro-card">
+          <div class="intro-media">
+            <span class="intro-media-tag">Nghỉ Dưỡng</span>
+            <!-- PLACEHOLDER ẢNH HOMESTAY: Thay thế bằng thẻ <img> với URL ảnh thật của bạn tại đây -->
+            <div class="intro-media-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <strong>Bungalow Vòm Vách Đá</strong>
+              <small style="margin-top: 0.25rem; opacity: 0.8;">[Placeholder Ảnh: /images/bungalow-cliff-day.jpg]</small>
+            </div>
+          </div>
+          <div class="intro-body">
+            <h3 class="intro-card-title">Homestay Vòm Biển Cliffside</h3>
+            <p class="intro-card-text">
+              Kiến trúc vòm độc bản tựa lưng vào vách đá bazan cổ, ban công kính nhìn thẳng ra biển trời Lý Sơn. Mỗi sớm mai thức giấc trong tiếng sóng vỗ rì rào.
+            </p>
+            <ul class="intro-card-features">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Ban công riêng view biển 180 độ
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Trang bị bồn tắm ocean-view & điều hòa êm
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Đón trả miễn phí tại cảng tàu An Vĩnh
+              </li>
+            </ul>
+            <a href="#packages" class="btn-outline" style="text-align: center; width: 100%;">Xem Các Hạng Phòng</a>
+          </div>
+        </article>
+
+        <!-- Card 2: Tour Khám Phá Cano -->
+        <article class="intro-card">
+          <div class="intro-media">
+            <span class="intro-media-tag">Trải Nghiệm</span>
+            <!-- PLACEHOLDER ẢNH TOUR: Thay thế bằng thẻ <img> với URL ảnh thật của bạn tại đây -->
+            <div class="intro-media-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+              </svg>
+              <strong>Tour Cano & Lặn San Hô</strong>
+              <small style="margin-top: 0.25rem; opacity: 0.8;">[Placeholder Ảnh: /images/tour-cano-daobe.jpg]</small>
+            </div>
+          </div>
+          <div class="intro-body">
+            <h3 class="intro-card-title">Tour Cano Đảo Bé & Hang Câu</h3>
+            <p class="intro-card-text">
+              Đội cano siêu tốc độc quyền dẫn bạn lướt sóng qua làn nước xanh ngọc bích như Maldives thu nhỏ, trải nghiệm chèo SUP và lặn ngắm rạn san hô nguyên sơ.
+            </p>
+            <ul class="intro-card-features">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Cano khứ hồi Đảo Lớn – Đảo Bé siêu tốc
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Áo phao, kính lặn & thuyền thúng đáy kính
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Hướng dẫn viên bản địa am hiểu từng rạn đá
+              </li>
+            </ul>
+            <a href="#packages" class="btn-outline" style="text-align: center; width: 100%;">Chi Tiết Tour Cano</a>
+          </div>
+        </article>
+
+        <!-- Card 3: Đặc Sản Đảo Tỏi -->
+        <article class="intro-card">
+          <div class="intro-media">
+            <span class="intro-media-tag">Ẩm Thực</span>
+            <!-- PLACEHOLDER ẢNH ĐẶC SẢN: Thay thế bằng thẻ <img> với URL ảnh thật của bạn tại đây -->
+            <div class="intro-media-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+              <strong>Đặc Sản & Cà Phê Biển</strong>
+              <small style="margin-top: 0.25rem; opacity: 0.8;">[Placeholder Ảnh: /images/dac-san-toi-lyson.jpg]</small>
+            </div>
+          </div>
+          <div class="intro-body">
+            <h3 class="intro-card-title">Đặc Sản & Cà Phê Seagull</h3>
+            <p class="intro-card-text">
+              Thưởng thức tỏi cô đơn cát san hô chính gốc Lý Sơn, chả cá đỏ củ chiên phồng thơm giòn cùng tách cà phê pha máy bên quán vách đá lộng gió.
+            </p>
+            <ul class="intro-card-features">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Tỏi cô đơn & tỏi nhiều tép thu hoạch tại chỗ
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Chả cá đỏ củ tươi nguyên chất không pha bột
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Hỗ trợ đóng thùng xốp hút chân không mang về
+              </li>
+            </ul>
+            <a href="#contact" class="btn-outline" style="text-align: center; width: 100%;">Đặt Quà Đặc Sản</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PHẦN 2: TRẢI NGHIỆM ĐẢO (THẺ KÍNH MỜ CUỘN NGANG)
+       ========================================================================== */
+  -->
+  <section id="experience" class="section-wrap experience-section">
+    <div class="container">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem;">
+        <div>
+          <span class="section-kicker">Điểm Đến Không Thể Bỏ Lỡ</span>
+          <h2 class="section-title" style="margin-bottom: 0.5rem;">Bộ Ba Kỳ Quan Đảo Lý Sơn</h2>
+          <p class="section-desc" style="margin-bottom: 0;">Cuộn ngang để khám phá những góc ngắm cảnh đẹp nhất đảo ngọc.</p>
+        </div>
+        
+        <!-- Nút cuộn ngang tương tác -->
+        <div class="scroll-controls">
+          <button class="scroll-btn" onclick="scrollCarousel(-1)" aria-label="Cuộn sang trái">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button class="scroll-btn" onclick="scrollCarousel(1)" aria-label="Cuộn sang phải">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Thẻ kính mờ (Glassmorphism) cuộn ngang -->
+      <div class="glass-carousel" id="experienceCarousel">
+        <!-- Card 1: Cổng Tò Vò -->
+        <div class="glass-card">
+          <div class="glass-card-img">
+            <!-- PLACEHOLDER ẢNH CỔNG TÒ VÒ -->
+            <div class="placeholder-box">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              <strong>Vòm Đá Nham Thạch</strong>
+              <small>[Placeholder: /images/cong-to-vo.jpg]</small>
+            </div>
+            <span class="tag">Hoàng Hôn Tuyệt Mỹ</span>
+          </div>
+          <h3 class="glass-card-title">Cổng Tò Vò Núi Lửa</h3>
+          <p class="glass-card-desc">
+            Vòm đá bazan tự nhiên hình thành từ dung nham phun trào hàng triệu năm trước. Điểm đón hoàng hôn lãng mạn bậc nhất Lý Sơn với ánh nắng chiều vàng rực chiếu xuyên qua vòm đá.
+          </p>
+          <div class="glass-card-meta">
+            <span>Khoảng cách: 1.2 km từ Seagull</span>
+            <span class="glass-card-action">
+              Xem vị trí
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 2: Đảo Bé An Bình -->
+        <div class="glass-card">
+          <div class="glass-card-img">
+            <!-- PLACEHOLDER ẢNH ĐẢO BÉ -->
+            <div class="placeholder-box">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20"></path>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <strong>Maldives Thu Nhỏ</strong>
+              <small>[Placeholder: /images/dao-be-an-binh.jpg]</small>
+            </div>
+            <span class="tag">Nước Biển Trong Vắt</span>
+          </div>
+          <h3 class="glass-card-title">Đảo Bé – Bãi Tắm Tiên</h3>
+          <p class="glass-card-desc">
+            Thiên đường bãi cát trắng mịn ôm lấy làn nước xanh thấu đáy. Nơi du khách được ngồi thuyền thúng dạo rạn san hô ngũ sắc và thỏa thích tắm biển trong vịnh đá kín gió.
+          </p>
+          <div class="glass-card-meta">
+            <span>Đi cano: 10 phút từ cảng</span>
+            <span class="glass-card-action">
+              Lịch cano
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 3: Chùa Hang -->
+        <div class="glass-card">
+          <div class="glass-card-img">
+            <!-- PLACEHOLDER ẢNH CHÙA HANG -->
+            <div class="placeholder-box">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              <strong>Cổ Tự Trong Lòng Đá</strong>
+              <small>[Placeholder: /images/chua-hang-lyson.jpg]</small>
+            </div>
+            <span class="tag">Di Tích Quốc Gia</span>
+          </div>
+          <h3 class="glass-card-title">Chùa Hang Dưới Vách Núi</h3>
+          <p class="glass-card-desc">
+            Ngôi cổ tự nằm sâu trong lòng vách đá Thới Lới hướng ra biển Đông. Không khí trong động mát lạnh tự nhiên quanh năm, thoang thoảng hương trầm hòa quyện tiếng sóng linh thiêng.
+          </p>
+          <div class="glass-card-meta">
+            <span>Khoảng cách: 3.5 km từ Seagull</span>
+            <span class="glass-card-action">
+              Xem chỉ đường
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 4: Đỉnh Núi Thới Lới & Cột Cờ -->
+        <div class="glass-card">
+          <div class="glass-card-img">
+            <!-- PLACEHOLDER ẢNH THỚI LỚI -->
+            <div class="placeholder-box">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                <line x1="4" y1="22" x2="4" y2="15"></line>
+              </svg>
+              <strong>Đỉnh Cao Nhất Đảo</strong>
+              <small>[Placeholder: /images/dinh-thoi-loi.jpg]</small>
+            </div>
+            <span class="tag">Toàn Cảnh 360°</span>
+          </div>
+          <h3 class="glass-card-title">Núi Thới Lới & Hồ Nước Ngọt</h3>
+          <p class="glass-card-desc">
+            Miệng núi lửa cổ cao nhất Lý Sơn với lòng hồ nước ngọt kỳ vĩ và Cột cờ Tổ quốc sừng sững trên đỉnh vách đá dựng đứng nhìn thẳng ra biển cả bao la.
+          </p>
+          <div class="glass-card-meta">
+            <span>Khoảng cách: 4.0 km từ Seagull</span>
+            <span class="glass-card-action">
+              Khám phá
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PHẦN 3: BẢNG GIÁ & GÓI DỊCH VỤ
+       ========================================================================== -->
+  <section id="packages" class="section-wrap">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker">Minh Bạch & Tiết Kiệm</span>
+        <h2 class="section-title">Bảng Giá Gói Dịch Vụ Nghỉ Dưỡng</h2>
+        <p class="section-desc">Lựa chọn gói dịch vụ phù hợp nhất cho chuyến du lịch cùng bạn bè hoặc gia đình.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Gói 1: Phòng Nghỉ Dưỡng Vòm Biển -->
+        <div class="pricing-card">
+          <h3 class="pricing-card-title">Bungalow Vòm Biển</h3>
+          <p class="pricing-card-desc">Dành cho cặp đôi hoặc du khách thích sự yên tĩnh ngắm bình minh.</p>
+          <div class="pricing-price">
+            <span class="pricing-amount">850.000₫</span>
+            <span class="pricing-unit">/ đêm</span>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              1 Giường đôi King size view biển trực diện
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Bao gồm bữa sáng đặc sản Lý Sơn
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Miễn phí xe máy tham quan trong ngày
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Trà, cà phê & nước khoáng mỗi ngày
+            </li>
+          </ul>
+          <a href="#contact" class="btn-outline" style="text-align: center;">Chọn Gói Phòng Này</a>
+        </div>
+
+        <!-- Gói 2: Combo Trọn Gói 2N1Đ (Khuyên Chọn) -->
+        <div class="pricing-card featured">
+          <span class="pricing-badge">GÓI ĐƯỢC CHỌN NHIỀU NHẤT</span>
+          <h3 class="pricing-card-title">Combo 2N1Đ Trọn Gói</h3>
+          <p class="pricing-card-desc">Trọn bộ Homestay + Vé cano Đảo Bé + Xe máy + Đón cảng.</p>
+          <div class="pricing-price">
+            <span class="pricing-amount">1.350.000₫</span>
+            <span class="pricing-unit">/ khách</span>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Nghỉ dưỡng phòng vòm biển cao cấp 2N1Đ
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Vé cano khứ hồi & lặn ngắm san hô Đảo Bé
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Xe máy đầy bình xăng suốt hành trình
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Tặng 01 phần quà Tỏi cô đơn Lý Sơn chính hiệu
+            </li>
+          </ul>
+          <a href="#contact" class="btn-primary" style="text-align: center;">Đặt Combo Ưu Đãi Ngay</a>
+        </div>
+
+        <!-- Gói 3: Trải Nghiệm Tour Đoàn & Gia Đình -->
+        <div class="pricing-card">
+          <h3 class="pricing-card-title">Gói Trải Nghiệm Tour Đoàn</h3>
+          <p class="pricing-card-desc">Thiết kế riêng cho nhóm gia đình, đoàn thể từ 6 người trở lên.</p>
+          <div class="pricing-price">
+            <span class="pricing-amount">1.850.000₫</span>
+            <span class="pricing-unit">/ khách</span>
+          </div>
+          <ul class="pricing-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Phòng bungalow liền kề view biển trọn vẹn
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Cano bao nguyên chuyến theo giờ giấc của đoàn
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              01 Tiệc nướng BBQ hải sản tươi tại ban công biển
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Xe ô tô điện đưa đón toàn bộ lịch trình đảo
+            </li>
+          </ul>
+          <a href="#contact" class="btn-outline" style="text-align: center;">Tư Vấn Tour Đoàn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PHẦN 4: ĐÁNH GIÁ KHÁCH HÀNG (TESTIMONIALS)
+       ========================================================================== -->
+  <section id="reviews" class="section-wrap" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker">Cảm Nhận Chân Thực</span>
+        <h2 class="section-title">Khách Hàng Nói Gì Về Seagull?</h2>
+        <p class="section-desc">Hơn 850 kỳ nghỉ trọn vẹn đã được đồng hành cùng nụ cười của du khách bốn phương.</p>
+      </div>
+
+      <div class="reviews-grid">
+        <!-- Review 1 -->
+        <article class="review-card">
+          <div class="review-stars">
+            ★★★★★
+          </div>
+          <p class="review-text">
+            “Phòng vòm view biển quá đẹp, sáng mở cửa ra là nghe sóng vỗ và đón ánh bình minh ngay chân giường. Anh chị chủ homestay nhiệt tình chỉ chỗ ăn chả cá và đặt cano sang Đảo Bé siêu nhanh.”
+          </p>
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">NT</div>
+            <div>
+              <div class="reviewer-name">Nguyễn Thùy Linh</div>
+              <div class="reviewer-meta">Du khách từ Hà Nội · Nghỉ dưỡng 3N2Đ</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Review 2 -->
+        <article class="review-card">
+          <div class="review-stars">
+            ★★★★★
+          </div>
+          <p class="review-text">
+            “Gia đình mình đi 6 người chọn gói Combo. Cano đón tận nơi, xe máy chuẩn bị sẵn. Đặc biệt quán cà phê vách đá của homestay buổi chiều ngắm hoàng hôn đỉnh chóp, không cần phải đi đâu xa!”
+          </p>
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">HQ</div>
+            <div>
+              <div class="reviewer-name">Hoàng Quốc Tuấn</div>
+              <div class="reviewer-meta">Du khách từ Đà Nẵng · Tour gia đình</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Review 3 -->
+        <article class="review-card">
+          <div class="review-stars">
+            ★★★★★
+          </div>
+          <p class="review-text">
+            “Tỏi cô đơn và chả cá mua tại Seagull đóng gói cực kỳ cẩn thận đem về làm quà ai cũng khen tấm tắc. Giá cả minh bạch, phòng ốc sạch sẽ, nước nóng và điều hòa chạy rất êm.”
+          </p>
+          <div class="reviewer-info">
+            <div class="reviewer-avatar">MH</div>
+            <div>
+              <div class="reviewer-name">Mai Hoàng Nam</div>
+              <div class="reviewer-meta">Du khách từ TP. Hồ Chí Minh · Tháng 10/2026</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PHẦN 5: BẢN ĐỒ & LIÊN HỆ (ZALO, HOTLINE, FORM)
+       ========================================================================== -->
+  <section id="contact" class="section-wrap">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker">Kết Nối Ngay</span>
+        <h2 class="section-title">Bản Đồ Chỉ Đường & Liên Hệ</h2>
+        <p class="section-desc">Chúng tôi sẵn sàng hỗ trợ bạn 24/7 từ lịch tàu cao tốc, đặt phòng đến tư vấn thời tiết đảo.</p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Cột 1: Thông tin liên lạc & Bản đồ mô phỏng -->
+        <div class="contact-info-card">
+          <div>
+            <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem;">Homestay & Cà Phê Seagull Lý Sơn</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">Điểm hẹn yên bình bên vòm đá đại dương</p>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="info-content">
+              <h4>Địa chỉ cơ sở:</h4>
+              <p>Thôn Tây An Vĩnh (cách Cảng tàu khách An Vĩnh 800m), Đặc khu Lý Sơn, Quảng Ngãi.</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </div>
+            <div class="info-content">
+              <h4>Hotline / Zalo hỗ trợ 24/7:</h4>
+              <p>
+                <a href="tel:0868011799" style="color: var(--accent-primary); font-weight: 700;">0868.011.799</a> (Mr. Thiện)<br>
+                <a href="tel:0981065065" style="color: var(--accent-primary); font-weight: 700;">0981.065.065</a> (Ms. Điền)
+              </p>
+            </div>
+          </div>
+
+          <!-- Bản đồ vị trí trực quan -->
+          <div class="map-preview">
+            <!-- PLACEHOLDER GOOGLE MAPS: Có thể thay bằng thẻ <iframe> Google Maps nhúng thật -->
+            <div class="map-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                <line x1="8" y1="2" x2="8" y2="18"></line>
+                <line x1="16" y1="6" x2="16" y2="22"></line>
+              </svg>
+              <strong>Bản Đồ Đảo Lý Sơn · Vị Trí Seagull</strong>
+              <small style="margin-top: 0.25rem;">[Thay bằng mã nhúng iframe Google Maps tại Thôn Tây An Vĩnh]</small>
+            </div>
+          </div>
+
+          <!-- Nút bấm gọi điện & Zalo trực tiếp -->
+          <div style="display: flex; gap: 0.75rem;">
+            <a href="https://zalo.me/0868011799" target="_blank" rel="noopener noreferrer" class="btn-primary" style="flex: 1; background: #0068FF; text-align: center;">
+              Nhắn Tin Zalo Ngay
+            </a>
+            <a href="tel:0868011799" class="btn-primary" style="flex: 1; text-align: center;">
+              Gọi Điện Trực Tiếp
+            </a>
+          </div>
+        </div>
+
+        <!-- Cột 2: Form gửi yêu cầu tư vấn -->
+        <div class="contact-form-card">
+          <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem;">Gửi Yêu Cầu Giữ Chỗ & Báo Giá</h3>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+            Để lại thông tin, đội ngũ Seagull sẽ liên hệ phản hồi trong vòng 10 phút.
+          </p>
+
+          <form id="contactForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-group">
+              <label for="custName">Họ và tên của bạn:</label>
+              <input type="text" id="custName" class="form-control" placeholder="Ví dụ: Nguyễn Văn Nam" required>
+            </div>
+
+            <div class="form-group">
+              <label for="custPhone">Số điện thoại / Zalo:</label>
+              <input type="tel" id="custPhone" class="form-control" placeholder="Ví dụ: 0981 065 065" required pattern="[0-9]{9,11}">
+            </div>
+
+            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label for="checkInDate">Ngày dự kiến đến:</label>
+                <input type="date" id="checkInDate" class="form-control">
+              </div>
+              <div>
+                <label for="guestCount">Số lượng khách:</label>
+                <select id="guestCount" class="form-control">
+                  <option value="2">2 Khách (Cặp đôi)</option>
+                  <option value="4">4 Khách (Nhóm nhỏ)</option>
+                  <option value="6">6+ Khách (Đoàn/Gia đình)</option>
+                  <option value="1">1 Khách (Solo)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="custService">Dịch vụ quan tâm:</label>
+              <select id="custService" class="form-control">
+                <option value="combo">Combo Trọn Gói 2N1Đ (Phòng + Cano + Xe máy)</option>
+                <option value="room">Chỉ đặt phòng Bungalow Vòm Biển</option>
+                <option value="tour">Tour Cano Đảo Bé & Lặn San Hô</option>
+                <option value="food">Đặt mua Đặc sản Tỏi & Chả cá Lý Sơn</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="custNote">Lời nhắn hoặc yêu cầu đặc biệt (tùy chọn):</label>
+              <textarea id="custNote" class="form-control" placeholder="Ghi chú thêm về giờ tàu cập bến, yêu cầu đón cảng..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+              Gửi Thông Tin Cho Seagull
+            </button>
+
+            <div id="formSuccessMessage" class="form-feedback">
+              ✓ Cảm ơn Quý khách! Seagull đã tiếp nhận thông tin và sẽ gọi lại tư vấn ngay.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       MOBILE FLOATING ACTION BAR (< 15% CHIỀU CAO MÀN HÌNH ĐIỆN THOẠI)
+       ========================================================================== -->
+  <aside class="mobile-float-bar" aria-label="Thao tác liên hệ nhanh trên điện thoại">
+    <a href="https://zalo.me/0868011799" target="_blank" rel="noopener noreferrer" class="mobile-btn btn-zalo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.84 7.08L5 22l4.1-1.37C10.02 20.84 11 21 12 21c5.52 0 10-4.03 10-9s-4.48-9-10-9z"></path>
+      </svg>
+      Chat Zalo Ngay
+    </a>
+    <a href="tel:0868011799" class="mobile-btn btn-call">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+      </svg>
+      Gọi 0868.011.799
+    </a>
+  </aside>
+
+  <!-- ==========================================================================
+       QUIET FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 10s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        SEAGULL LÝ SƠN
+      </div>
+      <p class="footer-text">
+        Homestay Cliffside vòm biển · Tour cano Đảo Bé · Cà phê vách đá · Đặc sản tỏi cô đơn & Chả cá đỏ Lý Sơn.
+      </p>
+      <ul class="footer-links">
+        <li><a href="#hero">Về Đầu Trang</a></li>
+        <li><a href="#about">Dịch Vụ Homestay</a></li>
+        <li><a href="#experience">Điểm Đến Lý Sơn</a></li>
+        <li><a href="#packages">Bảng Giá Gói</a></li>
+        <li><a href="#contact">Chỉ Đường Google Maps</a></li>
+      </ul>
+      <p class="footer-copy">
+        © 2026 Seagull Lý Sơn. Thiết kế landing page độc quyền theo chuẩn Web Design cao cấp.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT: THEME SWITCHER + MÒNG BIỂN PARALLAX + CAROUSEL + FORM
+       ========================================================================== -->
+  <script>
+    // 1. Chuyển đổi linh hoạt giữa 3 Phương án Giao diện
+    function switchTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      
+      // Cập nhật trạng thái nút bấm
+      const buttons = document.querySelectorAll('.theme-btn');
+      buttons.forEach(btn => {
+        if (btn.getAttribute('data-set-theme') === themeName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Lưu sở thích vào localStorage nếu có
+      try {
+        localStorage.setItem('seagull_landing_theme', themeName);
+      } catch (e) {}
+    }
+
+    // Khôi phục theme đã chọn trước đó
+    (function initTheme() {
+      try {
+        const saved = localStorage.getItem('seagull_landing_theme');
+        if (saved && ['ocean', 'sunset', 'sand'].includes(saved)) {
+          switchTheme(saved);
+        }
+      } catch (e) {}
+    })();
+
+    // 2. Hiệu ứng Mòng Biển Bay Theo Chuột (Parallax Lerp)
+    (function initSeagullParallax() {
+      const hero = document.getElementById('hero');
+      const seagull = document.getElementById('seagullBird');
+      if (!hero || !seagull) return;
+
+      let mouseX = window.innerWidth * 0.5;
+      let mouseY = window.innerHeight * 0.3;
+      let currentX = mouseX;
+      let currentY = mouseY;
+      let prevX = currentX;
+
+      // Lắng nghe di chuột trên Desktop
+      window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = Math.min(e.clientY, window.innerHeight * 0.75); // Giới hạn không bay quá sâu xuống dưới
+      }, { passive: true });
+
+      // Lắng nghe chạm vuốt trên Điện thoại
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+          mouseX = e.touches[0].clientX;
+          mouseY = Math.min(e.touches[0].clientY, window.innerHeight * 0.75);
+        }
+      }, { passive: true });
+
+      // Vòng lặp vật lý mượt mà (Lerp animation loop)
+      function render() {
+        const deltaX = (mouseX - currentX) * 0.05;
+        const deltaY = (mouseY - currentY) * 0.05;
+        currentX += deltaX;
+        currentY += deltaY;
+
+        // Tính góc nghiêng khi đổi hướng bay
+        const velocityX = currentX - prevX;
+        prevX = currentX;
+        const tilt = Math.max(-25, Math.min(25, velocityX * 2.5));
+
+        seagull.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${tilt}deg)`;
+        requestAnimationFrame(render);
+      }
+
+      requestAnimationFrame(render);
+    })();
+
+    // 3. Cuộn ngang thẻ kính mờ Trải nghiệm (Carousel navigation)
+    function scrollCarousel(direction) {
+      const carousel = document.getElementById('experienceCarousel');
+      if (!carousel) return;
+      const scrollStep = 340;
+      carousel.scrollBy({
+        left: direction * scrollStep,
+        behavior: 'smooth'
+      });
+    }
+
+    // 4. Xử lý gửi Form liên hệ (Client-side validation & Feedback)
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const feedback = document.getElementById('formSuccessMessage');
+
+      if (!name || !phone) {
+        alert('Vui lòng điền họ tên và số điện thoại liên hệ!');
+        return;
+      }
+
+      // Giả lập gửi thành công
+      if (feedback) {
+        feedback.style.display = 'block';
+        feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Reset form sau 2 giây
+      setTimeout(() => {
+        document.getElementById('contactForm').reset();
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

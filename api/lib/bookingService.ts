@@ -280,27 +280,51 @@ export async function lookupBookingByCode(code: string, phoneOrEmail: string) {
 }
 
 /**
- * Expires hold reservations whose hold_expires_at has passed
+ * Expires hold reservations whose hold_expires_at has passed via fn_cleanup_expired_holds RPC
  */
 export async function expireOverdueHolds() {
   if (!isSupabaseConfigured()) {
-    return { expiredCount: 0 };
+    return { expiredCount: 0, method: 'demo' as const };
   }
 
   const supabase = getSupabaseServerClient();
+
+  // Primary path: atomic Postgres RPC that cleans up both booking_holds and bookings
+  const { data: rpcCount, error: rpcError } = await supabase.rpc('fn_cleanup_expired_holds');
+
+  if (!rpcError) {
+    return {
+      expiredCount: typeof rpcCount === 'number' ? rpcCount : Number(rpcCount || 0),
+      method: 'rpc:fn_cleanup_expired_holds' as const,
+    };
+  }
+
+  console.warn('[Expire Holds] RPC fn_cleanup_expired_holds unavailable, falling back to table updates:', rpcError.message);
+
+  // Fallback path if RPC is not deployed yet
   const nowIso = new Date().toISOString();
+
+  await supabase
+    .from('booking_holds')
+    .update({ status: 'expired', updated_at: nowIso })
+    .eq('status', 'active')
+    .lt('expires_at', nowIso);
 
   const { data, error } = await supabase
     .from('bookings')
-    .update({ status: 'expired' })
+    .update({ status: 'expired', updated_at: nowIso })
     .eq('status', 'pending_payment')
     .lt('hold_expires_at', nowIso)
     .select('id, temporary_order_code');
 
   if (error) {
-    console.error('[Expire Holds] Error:', error);
+    console.error('[Expire Holds] Fallback Error:', error);
     throw error;
   }
 
-  return { expiredCount: data?.length || 0, expiredBookings: data };
+  return {
+    expiredCount: data?.length || 0,
+    expiredBookings: data,
+    method: 'fallback:table_update' as const,
+  };
 }

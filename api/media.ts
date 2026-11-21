@@ -287,7 +287,17 @@ export default async function mediaHandler(req: Request, res: Response) {
 
     return res.status(400).json({ success: false, error: 'Thao tác không hợp lệ.' });
   } catch (err: any) {
+    if (method === 'GET' || action === 'get-all') {
+      console.warn('[Media API] Fallback to defaults due to connection issue:', err?.message || err);
+      return res.status(200).json({
+        success: true,
+        isDemo: true,
+        fallback: true,
+        warning: err?.message || 'Không thể kết nối Supabase Storage',
+        contentMap: {},
+      });
+    }
     console.error('[Media API Internal Error]:', err);
-    return res.status(500).json({ success: false, error: err.message || 'Lỗi hệ thống máy chủ' });
+    return res.status(500).json({ success: false, error: err?.message || 'Lỗi hệ thống máy chủ' });
   }
 }

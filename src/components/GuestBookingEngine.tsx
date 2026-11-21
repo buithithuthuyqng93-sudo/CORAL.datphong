@@ -208,7 +208,7 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
               transition={{ duration: 0.55, delay: 0.31, ease: 'easeOut' }}
               className="font-light text-sm sm:text-base text-[#D5CBBF] max-w-2xl mx-auto leading-relaxed drop-shadow-sm"
             >
-              {propertyConfig?.heroDescription || 'Nơi chữa lành tâm hồn bạn giữa biển trời đảo ngọc Lý Sơn. 20 căn Bungalow vòm cliffside độc bản nép mình bên vách đá bazan hùng vĩ, thưởng thức tách cà phê ngắm hoàng hôn rực rỡ và tiếng sóng vỗ.'}
+              {(propertyConfig?.heroDescription || 'Nơi chữa lành tâm hồn bạn giữa biển trời đảo ngọc Lý Sơn. Bungalow vòm cliffside độc bản nép mình bên vách đá bazan hùng vĩ, thưởng thức tách cà phê ngắm hoàng hôn rực rỡ và tiếng sóng vỗ.').replace(/22\s*căn\s*/gi, '').replace(/20\s*căn\s*/gi, '')}
             </motion.p>
 
             {/* 4. Contact & Security Labels (~140ms after description) */}

@@ -24,7 +24,7 @@ export const ArchitectureDiagram: React.FC = () => {
             <span>Website Direct (Thuỷ)</span>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Khách truy cập website Homestay & Cà Phê Seagull, chọn ngày, chọn loại phòng trong 20 phòng, hệ thống tự tính 30% tiền cọc.
+            Khách truy cập website Homestay & Cà Phê Seagull, chọn ngày, chọn loại phòng trong 27 phòng, hệ thống tự tính 30% tiền cọc.
           </p>
           <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-teal-300 font-mono">
             Output: Mã Đặt Phòng SGL-8921 + Số Tiền Cọc 30%
@@ -58,7 +58,7 @@ export const ArchitectureDiagram: React.FC = () => {
             <span>PMS Core Lễ Tân</span>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Hệ thống nhận biến động cọc, tự động cập nhật trạng thái phòng trên sơ đồ 20 phòng từ [Trống] sang [Đã Đặt Cọc Direct].
+            Hệ thống nhận biến động cọc, tự động cập nhật trạng thái phòng trên sơ đồ 27 phòng từ [Trống] sang [Đã Đặt Cọc Direct].
           </p>
           <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-indigo-300 font-mono">
             Room Status: LOCKED in PMS

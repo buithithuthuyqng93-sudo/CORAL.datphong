@@ -1,20 +1,68 @@
-import React, { useState } from 'react';
-import { Header } from './components/Header';
-import { GuestBookingEngine } from './components/GuestBookingEngine';
-import { PmsAndChannelManager } from './components/PmsAndChannelManager';
+import React, { useState, useEffect } from 'react';
+import { SeagullWebsite } from './components/SeagullWebsite';
+import { BookingPortal } from './components/BookingPortal';
 import { AdminManager } from './components/AdminManager';
-import { ArchitectureDiagram } from './components/ArchitectureDiagram';
 import { VietQRModal } from './components/VietQRModal';
 import { SiteContentProvider } from './context/SiteContentContext';
 
-import { Room, RoomType, Booking, ChannelSyncLog, PropertyConfig, Customer, CashTransaction, StaffUser } from './types';
+import { Room, RoomStatus, RoomType, Booking, ChannelSyncLog, PropertyConfig, Customer, CashTransaction, StaffUser } from './types';
 import { 
   INITIAL_ROOMS, INITIAL_BOOKINGS, INITIAL_SYNC_LOGS, CORAL_ROOM_TYPES, 
   INITIAL_PROPERTY_CONFIG, INITIAL_CUSTOMERS, INITIAL_TRANSACTIONS, INITIAL_STAFF 
 } from './data/mockData';
 
+export type AppRoute = 'website' | 'booking' | 'admin';
+
+export function getInitialRoute(): AppRoute {
+  if (typeof window === 'undefined') return 'admin';
+  const path = window.location.pathname.toLowerCase();
+  const searchParams = new URLSearchParams(window.location.search);
+  const viewParam = searchParams.get('view') || searchParams.get('tab') || searchParams.get('page');
+
+  if (path.startsWith('/admin') || viewParam === 'admin' || window.location.hash === '#/admin') {
+    return 'admin';
+  }
+  if (path.startsWith('/booking') || viewParam === 'booking' || window.location.hash === '#/booking') {
+    return 'booking';
+  }
+  if (path === '/website' || viewParam === 'website' || window.location.hash === '#/website') {
+    return 'website';
+  }
+  // Default to guest website so user sees the newly created website immediately
+  return 'website';
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'guest-website' | 'pms-channel' | 'admin-manager' | 'architecture'>('guest-website');
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>(getInitialRoute);
+  const [preselectedRoomTypeId, setPreselectedRoomTypeId] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get('roomType') || undefined;
+    }
+    return undefined;
+  });
+
+  // Sync route on popstate (browser back/forward button)
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(getInitialRoute());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (route: AppRoute, roomTypeId?: string) => {
+    let targetUrl = '/';
+    if (route === 'booking') {
+      targetUrl = roomTypeId ? `/booking?roomType=${encodeURIComponent(roomTypeId)}` : '/booking';
+      setPreselectedRoomTypeId(roomTypeId);
+    } else if (route === 'admin') {
+      targetUrl = '/admin';
+    }
+    window.history.pushState(null, '', targetUrl);
+    setCurrentRoute(route);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Core App State with automatic migration to Seagull 20 rooms & (Mr Thiện / Ms Điền)
   const cleanConfig = (cfg: any): PropertyConfig => {
@@ -29,43 +77,50 @@ export default function App() {
       ownerName = cfg.ownerName;
     }
 
-    let announcementBar = cfg.announcementBar || INITIAL_PROPERTY_CONFIG.announcementBar;
-    announcementBar = announcementBar
-      .replace(/22\s*căn/gi, '20 Căn')
-      .replace(/chị\s*thủy/gi, 'Mr Thiện / Ms Điền');
+    let announcementBar = (cfg.announcementBar || INITIAL_PROPERTY_CONFIG.announcementBar)
+      .replace(/\s*\([^)]*căn[^)]*\)/gi, '')
+      .replace(/\s*\(22\s*căn[^)]*\)/gi, '')
+      .replace(/\s*\(20\s*căn[^)]*\)/gi, '')
+      .replace(/22\s*căn/gi, '')
+      .replace(/20\s*căn/gi, '27 căn')
+      .replace(/chị\s*thủy/gi, 'Mr Thiện / Ms Điền')
+      .trim();
 
-    let heroDescription = cfg.heroDescription || INITIAL_PROPERTY_CONFIG.heroDescription;
-    heroDescription = heroDescription
-      .replace(/22\s*căn/gi, '20 căn')
-      .replace(/chị\s*thủy/gi, 'Mr Thiện / Ms Điền');
+    let heroDescription = (cfg.heroDescription || INITIAL_PROPERTY_CONFIG.heroDescription)
+      .replace(/22\s*căn\s*/gi, '')
+      .replace(/20\s*căn\s*/gi, '27 căn ')
+      .replace(/chị\s*thủy/gi, 'Mr Thiện / Ms Điền')
+      .trim();
 
     return {
       ...cfg,
       propertyName: 'SEAGULL LÝ SƠN',
       slogan: cfg.slogan || 'Nơi chữa lành tâm hồn bạn.',
       tagline: 'SEAGULL LÝ SƠN — Homestay & Cà Phê • Nơi chữa lành tâm hồn bạn',
+      address: 'Thôn Đông An Vĩnh, Đặc khu Lý Sơn, Tỉnh Quảng Ngãi (Thửa 432, Tờ bản đồ số 27)',
       heroTitle: 'SEAGULL LÝ SƠN — HOMESTAY & CÀ PHÊ',
-      announcementBar,
-      heroDescription,
+      announcementBar: announcementBar || 'SEAGULL LÝ SƠN — Homestay & Cà Phê • Thôn Đông An Vĩnh',
+      heroDescription: heroDescription || INITIAL_PROPERTY_CONFIG.heroDescription,
       hotline,
       ownerName,
       zaloPhone: cfg.zaloPhone || '0868011799 - 0981065065',
       accountHolder: 'SEAGULL HOMESTAY - BUI THI THU THUY',
+      seasonPricing: cfg.seasonPricing || INITIAL_PROPERTY_CONFIG.seasonPricing,
     };
   };
 
   const [propertyConfig, setPropertyConfig] = useState<PropertyConfig>(() => {
     try {
-      const savedV2 = localStorage.getItem('property_config_v2');
-      if (savedV2) {
-        const parsed = JSON.parse(savedV2);
+      const savedV4 = localStorage.getItem('property_config_v4');
+      if (savedV4) {
+        const parsed = JSON.parse(savedV4);
         return cleanConfig(parsed);
       }
-      const savedV1 = localStorage.getItem('property_config_v1');
-      if (savedV1) {
-        const parsed = JSON.parse(savedV1);
+      const savedV3 = localStorage.getItem('property_config_v3') || localStorage.getItem('property_config_v2');
+      if (savedV3) {
+        const parsed = JSON.parse(savedV3);
         const cleaned = cleanConfig(parsed);
-        localStorage.setItem('property_config_v2', JSON.stringify(cleaned));
+        localStorage.setItem('property_config_v4', JSON.stringify(cleaned));
         return cleaned;
       }
     } catch {
@@ -73,7 +128,7 @@ export default function App() {
     }
     const initialClean = cleanConfig(INITIAL_PROPERTY_CONFIG);
     try {
-      localStorage.setItem('property_config_v2', JSON.stringify(initialClean));
+      localStorage.setItem('property_config_v4', JSON.stringify(initialClean));
     } catch {}
     return initialClean;
   });
@@ -82,37 +137,48 @@ export default function App() {
     const cleaned = cleanConfig(newConfig);
     setPropertyConfig(cleaned);
     try {
-      localStorage.setItem('property_config_v2', JSON.stringify(cleaned));
-      localStorage.setItem('property_config_v1', JSON.stringify(cleaned));
+      localStorage.setItem('property_config_v4', JSON.stringify(cleaned));
+      localStorage.setItem('property_config_v3', JSON.stringify(cleaned));
     } catch (e) {
       console.warn('Could not save propertyConfig to localStorage', e);
     }
   };
 
-  const [roomTypes, setRoomTypes] = useState<RoomType[]>(CORAL_ROOM_TYPES);
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>(() => {
+    try {
+      const saved = localStorage.getItem('seagull_room_types_v3_27');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    // Seed and persist latest 27-room types
+    try {
+      localStorage.setItem('seagull_room_types_v3_27', JSON.stringify(CORAL_ROOM_TYPES));
+    } catch {}
+    return CORAL_ROOM_TYPES;
+  });
+
+  const handleUpdateRoomTypes = (newTypes: RoomType[]) => {
+    setRoomTypes(newTypes);
+    try {
+      localStorage.setItem('seagull_room_types_v3_27', JSON.stringify(newTypes));
+    } catch (e) {
+      console.warn('Could not save roomTypes to localStorage', e);
+    }
+  };
+
   const [rooms, setRooms] = useState<Room[]>(() => {
     try {
-      const savedV3 = localStorage.getItem('seagull_rooms_v3');
-      if (savedV3) {
-        const parsed = JSON.parse(savedV3);
+      const savedV5 = localStorage.getItem('seagull_rooms_v5_27');
+      if (savedV5) {
+        const parsed = JSON.parse(savedV5);
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
       }
-      const savedV2 = localStorage.getItem('seagull_rooms_v2');
-      if (savedV2) {
-        const parsed = JSON.parse(savedV2);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // If user had previous 22-room cache containing demo rm-106 and rm-206, trim to 20 rooms
-          if (parsed.length === 22 && parsed.some((r: Room) => r.id === 'rm-106' || r.id === 'rm-206')) {
-            const migrated = parsed.filter((r: Room) => r.id !== 'rm-106' && r.id !== 'rm-206');
-            localStorage.setItem('seagull_rooms_v3', JSON.stringify(migrated));
-            return migrated;
-          }
-          localStorage.setItem('seagull_rooms_v3', JSON.stringify(parsed));
-          return parsed;
-        }
-      }
+      // Initialize with standardized 27-room inventory
+      localStorage.setItem('seagull_rooms_v5_27', JSON.stringify(INITIAL_ROOMS));
     } catch {
       // fallback
     }
@@ -122,7 +188,7 @@ export default function App() {
   const handleUpdateRooms = (newRooms: Room[]) => {
     setRooms(newRooms);
     try {
-      localStorage.setItem('seagull_rooms_v3', JSON.stringify(newRooms));
+      localStorage.setItem('seagull_rooms_v5_27', JSON.stringify(newRooms));
     } catch (e) {
       console.warn('Could not save rooms to localStorage', e);
     }
@@ -132,10 +198,53 @@ export default function App() {
   const [syncLogs, setSyncLogs] = useState<ChannelSyncLog[]>(INITIAL_SYNC_LOGS);
   const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
   const [transactions, setTransactions] = useState<CashTransaction[]>(INITIAL_TRANSACTIONS);
-  const [staffList, setStaffList] = useState<StaffUser[]>(INITIAL_STAFF);
+  
+  const [staffList, setStaffList] = useState<StaffUser[]>(() => {
+    try {
+      const saved = localStorage.getItem('seagull_staff_list_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return INITIAL_STAFF;
+  });
 
-  // Security Auth Lock State
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(true);
+  const handleUpdateStaffList = (newStaff: StaffUser[]) => {
+    setStaffList(newStaff);
+    try {
+      localStorage.setItem('seagull_staff_list_v2', JSON.stringify(newStaff));
+    } catch (e) {
+      console.warn('Could not save staffList to localStorage', e);
+    }
+  };
+
+  // Security Auth Lock State - starts locked unless authenticated session token exists
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      const stored = sessionStorage.getItem('seagull_admin_authenticated');
+      const token = sessionStorage.getItem('seagull_admin_token');
+      return stored === 'true' && Boolean(token);
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSetAdminAuthenticated = (status: boolean) => {
+    setIsAdminAuthenticated(status);
+    try {
+      if (status) {
+        sessionStorage.setItem('seagull_admin_authenticated', 'true');
+      } else {
+        sessionStorage.removeItem('seagull_admin_authenticated');
+        sessionStorage.removeItem('seagull_admin_token');
+        sessionStorage.removeItem('seagull_admin_role');
+        sessionStorage.removeItem('seagull_admin_name');
+        sessionStorage.removeItem('seagull_admin_username');
+        sessionStorage.removeItem('seagull_admin_userid');
+      }
+    } catch {}
+  };
 
   // Modal payment state
   const [paymentModalState, setPaymentModalState] = useState<{
@@ -145,11 +254,6 @@ export default function App() {
 
   // Active confirmed booking to show success banner on Guest Website
   const [activeConfirmedBooking, setActiveConfirmedBooking] = useState<Booking | null>(null);
-
-  // Tab switcher with admin lock guard
-  const handleSelectTab = (tab: 'guest-website' | 'pms-channel' | 'admin-manager' | 'architecture') => {
-    setActiveTab(tab);
-  };
 
   // Initiate a new booking draft
   const handleInitiateBooking = (bookingData: Omit<Booking, 'id' | 'code' | 'createdAt' | 'paymentStatus'>): Booking => {
@@ -403,65 +507,61 @@ export default function App() {
 
   return (
     <SiteContentProvider>
-      <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950">
-        <Header
-          activeTab={activeTab}
-          setActiveTab={handleSelectTab}
-          bookingCount={bookings.length}
-          propertyConfig={propertyConfig}
-          isAuthenticated={isAdminAuthenticated}
-          totalRoomsCount={activeRoomsCount}
-        />
+      <div className="min-h-screen bg-[#FAF8F5] font-sans antialiased selection:bg-[#C8A261] selection:text-[#151B17]">
+        {/* ============================================================= */}
+        {/* 1. WEBSITE SEAGULL THƯƠNG HIỆU (/) */}
+        {/* ============================================================= */}
+        {currentRoute === 'website' && (
+          <SeagullWebsite
+            propertyConfig={propertyConfig}
+            roomTypes={roomTypes}
+            onNavigateToBooking={(roomTypeId) => navigateTo('booking', roomTypeId)}
+          />
+        )}
 
-        <main className="animate-fadeIn">
-          {activeTab === 'guest-website' && (
-            <GuestBookingEngine
-              roomTypes={roomTypes}
-              rooms={rooms}
-              bookings={bookings}
-              onInitiateBooking={handleInitiateBooking}
-              onOpenPaymentModal={handleOpenPaymentModal}
-              activeConfirmedBooking={activeConfirmedBooking}
-              propertyConfig={propertyConfig}
-            />
-          )}
+        {/* ============================================================= */}
+        {/* 2. SEAGULL BOOKING ENGINE (/booking) */}
+        {/* ============================================================= */}
+        {currentRoute === 'booking' && (
+          <BookingPortal
+            roomTypes={roomTypes}
+            rooms={rooms}
+            bookings={bookings}
+            propertyConfig={propertyConfig}
+            onInitiateBooking={handleInitiateBooking}
+            onOpenPaymentModal={handleOpenPaymentModal}
+            activeConfirmedBooking={activeConfirmedBooking}
+            onNavigateToWebsite={() => navigateTo('website')}
+            preselectedRoomTypeId={preselectedRoomTypeId}
+          />
+        )}
 
-          {activeTab === 'pms-channel' && (
-            <PmsAndChannelManager
-              roomTypes={roomTypes}
-              rooms={rooms}
-              bookings={bookings}
-              syncLogs={syncLogs}
-              onSimulateOtaBooking={handleSimulateOtaBooking}
-              onResetAllRooms={handleResetAllRooms}
-            />
-          )}
-
-          {activeTab === 'admin-manager' && (
-            <AdminManager
-              roomTypes={roomTypes}
-              rooms={rooms}
-              bookings={bookings}
-              propertyConfig={propertyConfig}
-              syncLogs={syncLogs}
-              customers={customers}
-              transactions={transactions}
-              staffList={staffList}
-              onUpdateRoomTypes={setRoomTypes}
-              onUpdateRooms={handleUpdateRooms}
-              onUpdateBookings={setBookings}
-              onUpdatePropertyConfig={handleUpdatePropertyConfig}
-              onUpdateCustomers={setCustomers}
-              onUpdateTransactions={setTransactions}
-              onUpdateStaffList={setStaffList}
-              onManualBooking={handleManualBooking}
-              isAuthenticated={isAdminAuthenticated}
-              onAuthenticate={setIsAdminAuthenticated}
-            />
-          )}
-
-          {activeTab === 'architecture' && <ArchitectureDiagram />}
-        </main>
+        {/* ============================================================= */}
+        {/* 3. SEAGULL ADMIN DASHBOARD (/admin) */}
+        {/* ============================================================= */}
+        {currentRoute === 'admin' && (
+          <AdminManager
+            roomTypes={roomTypes}
+            rooms={rooms}
+            bookings={bookings}
+            propertyConfig={propertyConfig}
+            syncLogs={syncLogs}
+            customers={customers}
+            transactions={transactions}
+            staffList={staffList}
+            onUpdateRoomTypes={handleUpdateRoomTypes}
+            onUpdateRooms={handleUpdateRooms}
+            onUpdateBookings={setBookings}
+            onUpdatePropertyConfig={handleUpdatePropertyConfig}
+            onUpdateCustomers={setCustomers}
+            onUpdateTransactions={setTransactions}
+            onUpdateStaffList={handleUpdateStaffList}
+            onManualBooking={handleManualBooking}
+            isAuthenticated={isAdminAuthenticated}
+            onAuthenticate={handleSetAdminAuthenticated}
+            onNavigateToWebsite={() => navigateTo('website')}
+          />
+        )}
 
         {/* VietQR Payment Modal */}
         {paymentModalState && (
@@ -473,6 +573,30 @@ export default function App() {
             propertyConfig={propertyConfig}
           />
         )}
+
+        {/* Floating Quick Navigation Switcher (Public routes only — staff access /admin directly via URL) */}
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-[#0E2A47]/95 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-2xl border border-[#C8A261]/40 flex items-center gap-1.5 text-xs font-semibold">
+          <button
+            onClick={() => navigateTo('website')}
+            className={`px-3 py-1.5 rounded-full transition-all ${
+              currentRoute === 'website'
+                ? 'bg-[#C8A261] text-[#0E2A47] font-bold shadow'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            🏠 Website Khách
+          </button>
+          <button
+            onClick={() => navigateTo('booking')}
+            className={`px-3 py-1.5 rounded-full transition-all ${
+              currentRoute === 'booking'
+                ? 'bg-[#C8A261] text-[#0E2A47] font-bold shadow'
+                : 'text-slate-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            📅 Đặt Phòng (/booking)
+          </button>
+        </div>
       </div>
     </SiteContentProvider>
   );

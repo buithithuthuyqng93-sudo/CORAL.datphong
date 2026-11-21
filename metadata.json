@@ -1,6 +1,6 @@
 {
   "name": "Homestay & Cà Phê Seagull - Booking Engine",
-  "description": "Hệ thống đặt phòng trọn bộ PMS + Booking Engine + VietQR + Channel Manager cho Homestay & Cà Phê Seagull Lý Sơn (20 phòng quy mô vận hành)",
+  "description": "Hệ thống đặt phòng trọn bộ PMS + Booking Engine + VietQR + Channel Manager cho Homestay & Cà Phê Seagull Lý Sơn (27 phòng quy mô vận hành giai đoạn đầu)",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

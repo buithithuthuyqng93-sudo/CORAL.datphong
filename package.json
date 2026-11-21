@@ -10,7 +10,12 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test:safety": "tsx tests/pms_safety_tests.ts"
+    "test:safety": "tsx tests/pms_safety_tests.ts",
+    "test:audit": "tsx tests/pms_concurrency_audit_tests.ts",
+    "test:security": "tsx tests/admin_security_audit_tests.ts",
+    "test:stay": "tsx tests/stay_checkin_tests.ts",
+    "test:v12": "tsx tests/stay_v12_acceptance_tests.ts",
+    "test:settings": "tsx tests/settings_v2_tests.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

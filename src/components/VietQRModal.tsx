@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, QrCode, Copy, CheckCircle2, ShieldCheck, ArrowRight, Loader2, Clock, Sparkles } from 'lucide-react';
+import { X, QrCode, Copy, CheckCircle2, ShieldCheck, ArrowRight, Loader2, Clock, Sparkles, Info } from 'lucide-react';
 import { Booking, Room, PropertyConfig } from '../types';
 
 interface VietQRModalProps {
@@ -20,7 +20,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedContent, setCopiedContent] = useState(false);
   const [isSimulatingBank, setIsSimulatingBank] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState(600); // 10 minutes countdown
+  const [countdownSeconds, setCountdownSeconds] = useState(900); // 15 phút (900s) giữ phòng theo chính sách Seagull
 
   // Countdown timer
   useEffect(() => {
@@ -192,6 +192,15 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
             <p className="text-emerald-800 text-[11px] leading-relaxed">
               Ngay khi tiền cọc <strong className="text-emerald-950">{booking.depositAmount.toLocaleString('vi-VN')}đ</strong> chuyển thành công với cú pháp <span className="font-mono font-bold">{booking.code}</span>, hệ thống sẽ chốt đơn và đóng lịch lập tức trên Booking.com & Agoda.
             </p>
+          </div>
+
+          {/* Clear DEMO / TEST MODE Banner */}
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-start gap-2.5 text-[11px]">
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="text-amber-900 leading-relaxed">
+              <span className="font-bold text-amber-950 block">CHẾ ĐỘ KIỂM THỬ (DEMO MODE):</span>
+              Hệ thống chưa kết nối Webhook tài khoản ngân hàng thực tế hoặc Supabase Production. Nút bên dưới mô phỏng kịch bản khách chuyển khoản thành công để kiểm tra tính năng đóng phòng tự động.
+            </div>
           </div>
         </div>
 

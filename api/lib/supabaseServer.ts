@@ -1,23 +1,77 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get Supabase URL and keys from environment
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-
-export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl && (supabaseServiceKey || supabaseAnonKey));
+function cleanEnvValue(raw?: string): string {
+  if (!raw) return '';
+  return raw.trim().replace(/^['"]+|['"]+$/g, '').trim();
 }
 
-export function getSupabaseServerClient() {
-  if (!supabaseUrl) {
-    throw new Error('SUPABASE_URL or VITE_SUPABASE_URL is required in environment variables');
+/**
+ * Normalizes a Supabase project URL so accidental dashboard URLs, subpaths (/rest/v1),
+ * trailing slashes, or surrounding quotes never trigger "Invalid path specified in request URL".
+ */
+export function normalizeSupabaseUrl(raw?: string): string {
+  const cleaned = cleanEnvValue(raw);
+  if (!cleaned) return '';
+
+  // Auto-convert pasted Supabase Dashboard URLs:
+  // e.g. https://supabase.com/dashboard/project/<project_ref>/...
+  const dashboardMatch = cleaned.match(
+    /^https?:\/\/(?:app\.)?supabase\.(?:com|io)\/(?:dashboard\/)?project\/([a-z0-9]{10,40})/i
+  );
+  if (dashboardMatch) {
+    return `https://${dashboardMatch[1]}.supabase.co`;
   }
 
-  // Prefer service role key on server side to bypass RLS for admin/webhook operations
-  const key = supabaseServiceKey || supabaseAnonKey;
+  try {
+    const parsed = new URL(cleaned);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return '';
+    }
+    // Reject bare marketing/dashboard domains without project ref
+    if (/^(?:www\.|app\.)?supabase\.(?:com|io)$/i.test(parsed.hostname)) {
+      return '';
+    }
+    // Strip any accidental subpath (e.g. /rest/v1, /auth/v1, /storage/v1)
+    return parsed.origin;
+  } catch {
+    return '';
+  }
+}
+
+function getSupabaseEnv() {
+  const rawUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseUrl = normalizeSupabaseUrl(rawUrl);
+  const supabaseServiceKey = cleanEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabasePublishableOrAnonKey = cleanEnvValue(
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.VITE_SUPABASE_ANON_KEY
+  );
+  return { supabaseUrl, rawUrl: cleanEnvValue(rawUrl), supabaseServiceKey, supabasePublishableOrAnonKey };
+}
+
+export function isSupabaseConfigured(): boolean {
+  const { supabaseUrl, supabaseServiceKey, supabasePublishableOrAnonKey } = getSupabaseEnv();
+  return Boolean(supabaseUrl && (supabaseServiceKey || supabasePublishableOrAnonKey));
+}
+
+export function isServiceRoleConfigured(): boolean {
+  const { supabaseUrl, supabaseServiceKey } = getSupabaseEnv();
+  return Boolean(supabaseUrl && supabaseServiceKey);
+}
+
+export function getSupabaseServerClient(preferAdmin = true) {
+  const { supabaseUrl, supabaseServiceKey, supabasePublishableOrAnonKey } = getSupabaseEnv();
+  if (!supabaseUrl) {
+    throw new Error('SUPABASE_URL hoặc VITE_SUPABASE_URL chưa hợp lệ (phải có dạng https://<project-ref>.supabase.co)');
+  }
+
+  // If preferAdmin is requested and service key is available, use it (for webhooks / backend cron)
+  // Otherwise, fallback safely to publishable/anon key for low-privilege read or connection test
+  const key = (preferAdmin && supabaseServiceKey) ? supabaseServiceKey : (supabasePublishableOrAnonKey || supabaseServiceKey);
   if (!key) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY or VITE_SUPABASE_ANON_KEY is required');
+    throw new Error('SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PUBLISHABLE_KEY, or SUPABASE_SERVICE_ROLE_KEY is required');
   }
 
   return createClient(supabaseUrl, key, {
@@ -40,11 +94,14 @@ export async function checkSupabaseLiveConnection(): Promise<{
   error?: string;
   tablesFound?: string[];
 }> {
+  const { rawUrl, supabaseUrl } = getSupabaseEnv();
   if (!isSupabaseConfigured()) {
     return {
       connected: false,
       isConfigured: false,
-      message: 'Chưa cấu hình biến môi trường SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY',
+      message: rawUrl && !supabaseUrl
+        ? 'URL Supabase chưa đúng định dạng API (cần dạng https://<project-ref>.supabase.co, không phải trang chủ supabase.com)'
+        : 'Chưa cấu hình biến môi trường SUPABASE_URL (hoặc VITE_SUPABASE_URL) và Publishable/Anon Key',
     };
   }
 
@@ -64,7 +121,7 @@ export async function checkSupabaseLiveConnection(): Promise<{
           connected: true,
           isConfigured: true,
           latencyMs,
-          message: 'Kết nối PostgreSQL Supabase thành công, nhưng bảng homestay_settings chưa được tạo (Cần chạy migration).',
+          message: 'Kết nối PostgreSQL Supabase thành công, nhưng bảng homestay_settings chưa được tạo (Cần chạy supabase_production_schema_FINAL.sql).',
           error: error.message,
         };
       }

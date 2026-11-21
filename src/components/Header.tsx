@@ -18,25 +18,25 @@ export const Header: React.FC<HeaderProps> = ({
   bookingCount,
   propertyConfig,
   isAuthenticated,
-  totalRoomsCount = 20,
+  totalRoomsCount = 27,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#151B17] text-[#FAF8F5] border-b border-[#2C3831] shadow-xl">
-      {/* Top Banner Notice - Dynamic from Property Config */}
+      {/* Top Banner Notice - Clean without room count & address */}
       <div className="bg-[#111613] text-[#D5CBBF] text-xs px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between border-b border-[#232D27]">
         <div className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-[#C8A261] animate-pulse"></span>
           <span className="font-medium text-[#EAE4DC] flex items-center gap-1.5">
             <SeagullWingsIcon className="w-3.5 h-3.5 text-[#C8A261]" />
-            {propertyConfig?.announcementBar || 'Homestay & Cà Phê Seagull Lý Sơn (Bungalow Vòm Cliffside 20 Căn)'}
+            {(propertyConfig?.announcementBar || 'SEAGULL LÝ SƠN — Homestay & Cà Phê')
+              .replace(/\s*\([^)]*căn[^)]*\)/gi, '')
+              .replace(/\s*\(22\s*căn[^)]*\)/gi, '')
+              .replace(/\s*\(20\s*căn[^)]*\)/gi, '')}
           </span>
         </div>
 
         <div className="flex items-center gap-5 text-xs text-[#B8A99A]">
           <span className="flex items-center gap-1 hover:text-[#C8A261] transition-colors">
-            <MapPin className="w-3.5 h-3.5 text-[#C8A261]" /> {propertyConfig?.address || 'Đặc khu Lý Sơn - Quảng Ngãi'}
-          </span>
-          <span className="hidden sm:flex items-center gap-1 hover:text-[#C8A261] transition-colors">
             <Phone className="w-3.5 h-3.5 text-[#C8A261]" /> Hotline / Đặt phòng: <strong className="text-[#FAF8F5]">{(propertyConfig?.hotline || '0868011799 - 0981065065').replace(/\s*\([^)]*\)/g, '').trim()} ({propertyConfig?.ownerName && !propertyConfig.ownerName.includes('Thủy') ? propertyConfig.ownerName : 'Mr Thiện / Ms Điền'})</strong>
           </span>
         </div>
@@ -51,7 +51,17 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif text-xl sm:text-2xl font-bold text-[#FAF8F5] tracking-wide uppercase leading-snug">
+                <h1 
+                  className="font-bold text-[#FAF8F5] tracking-wide uppercase leading-snug"
+                  style={{
+                    fontFamily: 'Verdana, sans-serif',
+                    fontStyle: 'normal',
+                    textAlign: 'center',
+                    lineHeight: '30px',
+                    fontSize: '25px',
+                    borderColor: '#695d26',
+                  }}
+                >
                   {propertyConfig?.propertyName || 'SEAGULL LÝ SƠN'}
                 </h1>
                 <span className="bg-[#C8A261]/15 text-[#C8A261] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#C8A261]/30 uppercase tracking-wide">
@@ -120,6 +130,17 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Sơ Đồ Giải Pháp</span>
               {!isAuthenticated && <Lock className="w-3 h-3 text-rose-400 transition-transform duration-200 group-hover:scale-105" />}
             </button>
+
+            <a
+              href="/landing-seagull.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-[#C8A261] border border-[#C8A261]/40 hover:bg-[#C8A261]/15 hover:scale-[1.02] ml-1"
+              title="Mở Landing Page Seagull 3 Phương Án (Sáng - Tối - Tối Giản)"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#C8A261] animate-pulse" />
+              <span>Landing Page 3 Phương Án</span>
+            </a>
           </nav>
         </div>
 
@@ -161,6 +182,15 @@ export const Header: React.FC<HeaderProps> = ({
             <GitBranch className="w-3.5 h-3.5" />
             Sơ Đồ
           </button>
+          <a
+            href="/landing-seagull.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#C8A261]/20 text-[#C8A261] border border-[#C8A261]/40"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Landing Page 3 Phương Án
+          </a>
         </div>
       </div>
     </header>

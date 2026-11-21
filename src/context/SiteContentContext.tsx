@@ -4,7 +4,7 @@ import {
   SiteContentItem,
   DEFAULT_SITE_CONTENT,
 } from '../services/mediaService';
-import { isSupabaseConfigured } from '../../api/lib/supabaseServer';
+import { isClientSupabaseConfigured as isSupabaseConfigured } from '../services/clientConfig';
 
 interface SiteContentContextType {
   siteContent: Record<string, SiteContentItem>;

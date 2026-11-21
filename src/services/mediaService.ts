@@ -1,4 +1,4 @@
-import { getSupabaseServerClient, isSupabaseConfigured } from '../../api/lib/supabaseServer';
+import { isClientSupabaseConfigured as isSupabaseConfigured } from './clientConfig';
 
 export interface MediaAsset {
   id: string;
@@ -198,42 +198,7 @@ function saveLocalDemoMediaHistory(record: MediaHistoryRecord) {
   }
 }
 
-/**
- * Fetches site content items (all or single key)
- */
-export async function fetchSiteContentMap(): Promise<Record<string, SiteContentItem>> {
-  const localDemo = getLocalDemoSiteContent();
-
-  if (!isSupabaseConfigured()) {
-    // Return local demo merged with static defaults
-    const result: Record<string, SiteContentItem> = {};
-    Object.keys(DEFAULT_SITE_CONTENT).forEach((key) => {
-      const def = DEFAULT_SITE_CONTENT[key];
-      result[key] = localDemo[key] || {
-        id: `demo-${key}`,
-        contentKey: key,
-        contentType: 'image',
-        textValue: def.textValue,
-        metadata: def.metadata,
-        updatedAt: new Date().toISOString(),
-      };
-    });
-    return result;
-  }
-
-  try {
-    const res = await fetch('/api/media?action=get-all');
-    if (!res.ok) throw new Error('API fetch failed');
-    const json = await res.json();
-
-    if (json.success && json.contentMap) {
-      return json.contentMap;
-    }
-  } catch (err) {
-    console.warn('[MediaService] Fallback to local site content due to API error:', err);
-  }
-
-  // Fallback if API fails
+function buildDefaultMap(localDemo: Record<string, SiteContentItem>): Record<string, SiteContentItem> {
   const result: Record<string, SiteContentItem> = {};
   Object.keys(DEFAULT_SITE_CONTENT).forEach((key) => {
     const def = DEFAULT_SITE_CONTENT[key];
@@ -247,6 +212,31 @@ export async function fetchSiteContentMap(): Promise<Record<string, SiteContentI
     };
   });
   return result;
+}
+
+/**
+ * Fetches site content items (all or single key)
+ */
+export async function fetchSiteContentMap(): Promise<Record<string, SiteContentItem>> {
+  const localDemo = getLocalDemoSiteContent();
+
+  if (!isSupabaseConfigured()) {
+    return buildDefaultMap(localDemo);
+  }
+
+  try {
+    const res = await fetch('/api/media?action=get-all');
+    if (!res.ok) throw new Error('API fetch failed');
+    const json = await res.json();
+
+    if (json.success && json.contentMap && Object.keys(json.contentMap).length > 0) {
+      return { ...buildDefaultMap(localDemo), ...json.contentMap };
+    }
+  } catch (err) {
+    console.warn('[MediaService] Fallback to local site content due to API error:', err);
+  }
+
+  return buildDefaultMap(localDemo);
 }
 
 /**
