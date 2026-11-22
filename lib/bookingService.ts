@@ -1,5 +1,5 @@
-import { getSupabaseServerClient, isSupabaseConfigured } from './supabaseServer';
-import { CORAL_ROOM_TYPES, INITIAL_ROOMS } from '../../src/data/mockData';
+import { getSupabaseServerClient, isSupabaseConfigured } from './supabaseServer.js';
+import { CORAL_ROOM_TYPES, INITIAL_ROOMS } from '../src/data/mockData.js';
 
 export interface CreateBookingInput {
   roomTypeId: string;

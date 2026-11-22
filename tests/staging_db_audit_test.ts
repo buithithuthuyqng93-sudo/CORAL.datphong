@@ -11,7 +11,7 @@
  * 6. Quy mô 20 phòng kinh doanh (Bảo toàn P.107 dự phòng kỹ thuật, không xóa DB)
  */
 
-import { checkRolePermission } from '../api/lib/authService';
+import { checkRolePermission } from '../lib/authService';
 import { isDateRangeOverlapping } from './pms_concurrency_audit_tests';
 import { INITIAL_ROOMS, INITIAL_BOOKINGS, INITIAL_STAY_RECORDS } from '../src/data/mockData';
 

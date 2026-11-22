@@ -1,12 +1,13 @@
-import { Request, Response } from 'express';
-import { getSupabaseServerClient, isSupabaseConfigured } from './lib/supabaseServer';
+import type { Request, Response } from 'express';
+import { getSupabaseServerClient, isSupabaseConfigured } from '../lib/supabaseServer.js';
 
 /**
- * Express handler for media API: /api/media
+ * Handler for media API: /api/media (Express + Vercel Serverless compatible)
  */
 export default async function mediaHandler(req: Request, res: Response) {
   const { method } = req;
-  const action = (req.query.action as string) || req.body?.action;
+  const action = (req.query?.action as string) || req.body?.action;
+  const reqPath = (req.path || req.url || '').split('?')[0];
 
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -88,7 +89,7 @@ export default async function mediaHandler(req: Request, res: Response) {
     }
 
     // 2. UPLOAD MEDIA VIA BASE64 PAYLOAD
-    if (method === 'POST' && (action === 'upload' || req.path.endsWith('/upload'))) {
+    if (method === 'POST' && (action === 'upload' || reqPath.endsWith('/upload'))) {
       const {
         contentKey,
         category = 'general',
@@ -230,7 +231,7 @@ export default async function mediaHandler(req: Request, res: Response) {
     }
 
     // 3. RESTORE PREVIOUS MEDIA
-    if (method === 'POST' && (action === 'restore' || req.path.endsWith('/restore'))) {
+    if (method === 'POST' && (action === 'restore' || reqPath.endsWith('/restore'))) {
       const { contentKey, updatedBy = 'admin' } = req.body;
 
       if (!contentKey) {

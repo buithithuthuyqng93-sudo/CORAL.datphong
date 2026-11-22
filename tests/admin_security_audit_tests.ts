@@ -23,7 +23,7 @@ import {
   checkRolePermission,
   maskPhoneNumber,
   maskEmail,
-} from '../api/lib/authService';
+} from '../lib/authService';
 
 export interface SecurityTestCaseResult {
   testId: string;

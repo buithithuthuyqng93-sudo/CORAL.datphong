@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import { createBookingDraft, lookupBookingByCode } from './lib/bookingService';
+import { createBookingDraft, lookupBookingByCode } from '../lib/bookingService.js';
 
 const CreateBookingSchema = z.object({
   roomTypeId: z.string().min(1, 'Loại phòng là bắt buộc'),

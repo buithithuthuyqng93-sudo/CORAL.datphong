@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { isSupabaseConfigured, checkSupabaseLiveConnection } from './lib/supabaseServer';
+import { isSupabaseConfigured, checkSupabaseLiveConnection } from '../lib/supabaseServer.js';
 
 export default async function handler(req: Request, res: Response) {
   const dbHealth = await checkSupabaseLiveConnection();

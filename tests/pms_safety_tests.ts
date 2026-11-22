@@ -9,7 +9,7 @@
  * 5. Thanh toán thiếu hoặc sai mã (Underpaid / Invalid Code)
  */
 
-import { extractBookingCode, generateConfirmationCode } from '../api/lib/sepayAdapter';
+import { extractBookingCode, generateConfirmationCode } from '../lib/sepayAdapter';
 
 export interface TestResult {
   id: string;

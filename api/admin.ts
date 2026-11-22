@@ -1,14 +1,14 @@
 import type { Request, Response } from 'express';
-import { getSupabaseServerClient, isSupabaseConfigured, checkSupabaseLiveConnection } from './lib/supabaseServer';
-import { sendBookingConfirmationEmail } from './lib/gmailAdapter';
-import { syncBookingToGoogleSheet } from './lib/googleSheetsAdapter';
+import { getSupabaseServerClient, isSupabaseConfigured, checkSupabaseLiveConnection } from '../lib/supabaseServer.js';
+import { sendBookingConfirmationEmail } from '../lib/gmailAdapter.js';
+import { syncBookingToGoogleSheet } from '../lib/googleSheetsAdapter.js';
 import {
   verifySignedSessionToken,
   generateSignedSessionToken,
   checkRolePermission,
   maskPhoneNumber,
   maskEmail,
-} from './lib/authService';
+} from '../lib/authService.js';
 import {
   authenticateStaffAccount,
   listStaffAccounts,
@@ -18,10 +18,11 @@ import {
   changeOwnStaffPassword,
   listAuditLogs,
   recordAuditEvent,
-} from './lib/staffAccountService';
+} from '../lib/staffAccountService.js';
 
 export default async function handler(req: Request, res: Response) {
-  const action = req.query.action || req.body?.action;
+  const action = req.query?.action || req.body?.action;
+  const reqPath = (req.path || req.url || '').split('?')[0];
 
   // 1. SYSTEM SECURITY & DB STATUS CHECK (No credentials exposed)
   if (action === 'db-status' || action === 'security-status') {
@@ -533,7 +534,7 @@ export default async function handler(req: Request, res: Response) {
     }
 
     // 5.4 Resend Confirmation Email (Owner & Reception allowed)
-    if (action === 'resend-email' || req.path.endsWith('/resend-email')) {
+    if (action === 'resend-email' || reqPath.endsWith('/resend-email')) {
       const { bookingId } = req.body;
       if (!bookingId) {
         return res.status(400).json({ success: false, error: 'Thiếu bookingId' });
@@ -602,7 +603,7 @@ export default async function handler(req: Request, res: Response) {
     }
 
     // 5.5 Resync Google Sheets (Owner & Reception allowed)
-    if (action === 'resync-sheet' || req.path.endsWith('/resync-sheet')) {
+    if (action === 'resync-sheet' || reqPath.endsWith('/resync-sheet')) {
       const { bookingId } = req.body;
       if (!bookingId) {
         return res.status(400).json({ success: false, error: 'Thiếu bookingId' });

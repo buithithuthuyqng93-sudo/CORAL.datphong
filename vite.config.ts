@@ -40,6 +40,19 @@ export default defineConfig(() => {
               ),
             });
           }
+
+          const publicAssetsDir = path.resolve(__dirname, 'public/assets');
+          if (fs.existsSync(publicAssetsDir)) {
+            for (const entry of fs.readdirSync(publicAssetsDir, { withFileTypes: true })) {
+              if (entry.isFile() && /\.(jpg|jpeg|png|webp|svg|gif)$/i.test(entry.name)) {
+                this.emitFile({
+                  type: 'asset',
+                  fileName: `assets/${entry.name}`,
+                  source: fs.readFileSync(path.join(publicAssetsDir, entry.name)),
+                });
+              }
+            }
+          }
         },
       },
     ],

@@ -4,10 +4,10 @@ import {
   extractBookingCode,
   generateConfirmationCode,
   SePayWebhookPayload,
-} from './lib/sepayAdapter';
-import { getSupabaseServerClient, isSupabaseConfigured } from './lib/supabaseServer';
-import { sendBookingConfirmationEmail } from './lib/gmailAdapter';
-import { syncBookingToGoogleSheet } from './lib/googleSheetsAdapter';
+} from '../lib/sepayAdapter.js';
+import { getSupabaseServerClient, isSupabaseConfigured } from '../lib/supabaseServer.js';
+import { sendBookingConfirmationEmail } from '../lib/gmailAdapter.js';
+import { syncBookingToGoogleSheet } from '../lib/googleSheetsAdapter.js';
 
 export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {

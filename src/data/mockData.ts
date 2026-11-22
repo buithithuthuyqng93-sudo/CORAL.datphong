@@ -1,4 +1,4 @@
-import { 
+import type { 
   RoomType, Room, Booking, ChannelSyncLog, PackageComparison, SolutionModule, 
   PropertyConfig, Customer, CashTransaction, StaffUser,
   BookingStayRecord, StayGuest, RoomTransferHistory

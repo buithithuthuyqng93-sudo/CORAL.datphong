@@ -19,7 +19,7 @@ import {
   verifySignedSessionToken, 
   maskPhoneNumber, 
   maskEmail 
-} from '../api/lib/authService';
+} from '../lib/authService';
 
 export interface V12AcceptanceItem {
   id: string;

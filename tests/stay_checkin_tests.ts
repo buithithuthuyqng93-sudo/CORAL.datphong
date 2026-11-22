@@ -15,7 +15,7 @@
 
 import { BookingStayRecord, StayGuest, RoomTransferHistory, DeclarationStatus } from '../src/types';
 import { INITIAL_STAY_RECORDS } from '../src/data/mockData';
-import { maskPhoneNumber } from '../api/lib/authService';
+import { maskPhoneNumber } from '../lib/authService';
 
 export interface StayTestResult {
   scenarioNumber: number;

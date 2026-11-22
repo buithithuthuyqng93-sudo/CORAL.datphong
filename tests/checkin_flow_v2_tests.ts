@@ -17,7 +17,7 @@
 
 import { BookingStayRecord, Room, Booking } from '../src/types';
 import { INITIAL_ROOMS, INITIAL_BOOKINGS, INITIAL_STAY_RECORDS } from '../src/data/mockData';
-import { checkRolePermission } from '../api/lib/authService';
+import { checkRolePermission } from '../lib/authService';
 
 export interface CheckInFlowTestResult {
   scenarioNumber: number;

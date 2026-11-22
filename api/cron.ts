@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import type { Request, Response } from 'express';
-import { expireOverdueHolds } from './lib/bookingService';
+import { expireOverdueHolds } from '../lib/bookingService.js';
 
 function extractProvidedSecret(req: Request): string {
   const authHeader = req.headers.authorization;

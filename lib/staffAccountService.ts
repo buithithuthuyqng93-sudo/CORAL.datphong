@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { getSupabaseServerClient, isSupabaseConfigured } from './supabaseServer';
+import { getSupabaseServerClient, isSupabaseConfigured } from './supabaseServer.js';
 import {
   AdminSession,
   UserRole,
@@ -8,7 +8,7 @@ import {
   normalizeUserRole,
   normalizeUsername,
   isValidUsername,
-} from './authService';
+} from './authService.js';
 
 export interface StaffAccountPublic {
   id: string;
