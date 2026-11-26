@@ -71,7 +71,7 @@ SePay lắng nghe biến động số dư tài khoản ngân hàng (MB Bank `086
 2. Cấu hình **OAuth Consent Screen** (`External`, tên App: `SEAGULL LÝ SƠN`).
 3. Tạo **OAuth Client ID** (`Web Application`) với Redirect URI `https://developers.google.com/oauthplayground` ➔ lấy `GMAIL_CLIENT_ID` và `GMAIL_CLIENT_SECRET`.
 4. Lấy `GMAIL_REFRESH_TOKEN` qua OAuth2 Playground với scope `https://mail.google.com/`.
-5. Điền email gửi chính thức vào `GMAIL_SENDER_EMAIL` (ví dụ: `seagull.lyson@gmail.com`).
+5. Điền email gửi chính thức vào `GMAIL_SENDER_EMAIL` (ví dụ: `seagulllyson@gmail.com`).
 
 ---
 

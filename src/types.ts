@@ -1,18 +1,62 @@
 export type RoomStatus = 'available' | 'booked_direct' | 'booked_booking' | 'booked_agoda' | 'maintenance' | 'locked' | 'inactive';
 export type HousekeepingStatus = 'clean' | 'cleaning' | 'dirty' | 'inspecting';
 
+export type CmsContentType = 'room' | 'service';
+
+export interface CmsRoomAttributes {
+  size?: string;
+  areaSqm?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  hasBalcony?: boolean;
+  bedType?: string;
+  maxGuests?: number;
+  depositPercent?: number;
+  amenities?: string[];
+}
+
+export interface CmsContentItem {
+  id: string;
+  contentType: CmsContentType;
+  title: string;
+  slug: string;
+  description: string;
+  price: number;
+  images: string[]; // images[0] is cover image, images[1..] are secondary gallery images
+  attributes: Record<string, any>;
+  sortOrder?: number;
+  active: boolean;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+export interface BookingSearchQuery {
+  roomTypeId?: string;
+  checkin?: string;
+  checkout?: string;
+  adults?: number;
+  children?: number;
+}
+
 export interface RoomType {
   id: string;
+  slug?: string;
   name: string;
   description: string;
   basePrice: number; // VND per night
+  depositPercent?: number; // Default 30%
   maxGuests: number;
   image: string;
   galleryImages?: string[];
-  size: string; // e.g. "28m²"
+  size: string; // e.g. "21m²"
+  bedrooms?: number;
+  bathrooms?: number;
+  hasBalcony?: boolean;
   bedType: string;
   amenities: string[];
   cleaningTimeMinutes?: number;
+  active?: boolean;
+  attributes?: Record<string, any>;
 }
 
 export interface Room {

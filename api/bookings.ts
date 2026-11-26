@@ -15,6 +15,8 @@ const CreateBookingSchema = z.object({
 });
 
 export default async function handler(req: Request, res: Response) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+
   if (req.method === 'POST') {
     try {
       const parsedInput = CreateBookingSchema.parse(req.body);

@@ -10,6 +10,7 @@ import adminHandler from './api/admin';
 import cronHandler from './api/cron';
 import healthHandler from './api/health';
 import mediaHandler from './api/media';
+import cmsHandler from './api/cms';
 
 async function startServer() {
   const app = express();
@@ -44,6 +45,12 @@ async function startServer() {
     .post(mediaHandler);
   app.post('/api/media/upload', mediaHandler);
   app.post('/api/media/restore', mediaHandler);
+
+  // Generic CMS API (rooms & services)
+  app.route('/api/cms')
+    .get(cmsHandler)
+    .post(cmsHandler);
+  app.post('/api/cms/upload-image', cmsHandler);
 
   app.route('/api/cron')
     .get(cronHandler)

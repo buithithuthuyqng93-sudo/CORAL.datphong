@@ -699,7 +699,10 @@ export const SettingsManagerV2: React.FC<SettingsManagerV2Props> = ({
     address: propertyConfig.address,
     hotline: propertyConfig.hotline,
     zaloPhone: propertyConfig.zaloPhone,
-    email: propertyConfig.email || 'seagull.lyson@gmail.com',
+    email:
+      propertyConfig.email && propertyConfig.email.toLowerCase() !== 'seagull.lyson@gmail.com'
+        ? propertyConfig.email
+        : 'seagulllyson@gmail.com',
     bankName: propertyConfig.bankName,
     bankBin: propertyConfig.bankBin,
     accountNumber: propertyConfig.accountNumber,

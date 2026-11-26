@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS public.homestay_settings (
     google_maps_url TEXT DEFAULT 'https://maps.app.goo.gl/yaYH56pM37VPbjnv7',
     hotline VARCHAR(100) NOT NULL DEFAULT '0868011799 - 0981065065',
     zalo VARCHAR(100) NOT NULL DEFAULT '0868011799 - 0981065065',
-    email VARCHAR(255) NOT NULL DEFAULT 'seagull.lyson@gmail.com',
+    email VARCHAR(255) NOT NULL DEFAULT 'seagulllyson@gmail.com',
     check_in_time VARCHAR(10) NOT NULL DEFAULT '14:00',
     check_out_time VARCHAR(10) NOT NULL DEFAULT '12:00',
     deposit_percentage INT NOT NULL DEFAULT 30 CHECK (deposit_percentage BETWEEN 0 AND 100),
@@ -849,24 +849,29 @@ BEGIN
     -- Khóa giao dịch theo hạng phòng để chống race condition khi nhiều khách đặt cùng mili-giây
     PERFORM pg_advisory_xact_lock(hashtext('hold_room_type_' || p_room_type_id));
 
-    -- Dọn nhanh tại chỗ các lượt giữ chỗ đã quá hạn 15 phút của riêng hạng phòng này
-    -- (Không phụ thuộc cron chạy hàng ngày)
+    -- Dọn nhanh tại chỗ các lượt giữ chỗ đã quá hạn (dựa trên cả hold_expires_at lẫn created_at + p_hold_minutes)
+    -- Không phụ thuộc cron chạy hàng ngày
     UPDATE public.booking_holds
     SET status = 'expired',
         updated_at = NOW()
     WHERE room_type_id = p_room_type_id
       AND status = 'active'
-      AND expires_at <= NOW();
+      AND (
+          expires_at <= NOW()
+          OR created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15))) <= NOW()
+      );
 
     UPDATE public.bookings
     SET status = 'expired',
         updated_at = NOW()
     WHERE room_type_id = p_room_type_id
       AND status = 'pending_payment'
-      AND hold_expires_at IS NOT NULL
-      AND hold_expires_at <= NOW();
+      AND (
+          (hold_expires_at IS NOT NULL AND hold_expires_at <= NOW())
+          OR created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15))) <= NOW()
+      );
 
-    -- Tìm 1 phòng trống hợp lệ (tự động loại trừ mọi booking_holds / pending_payment đã hết hạn dựa trên NOW())
+    -- Tìm 1 phòng trống hợp lệ (tự động loại trừ mọi booking_holds / pending_payment đã hết hạn ngay tại thời điểm truy vấn)
     SELECT r.* INTO v_room
     FROM public.rooms r
     WHERE r.room_type_id = p_room_type_id
@@ -877,7 +882,13 @@ BEGIN
           FROM public.bookings b
           WHERE b.assigned_room_id = r.id
             AND b.status IN ('pending_payment', 'payment_review', 'deposit_paid', 'confirmed', 'checked_in')
-            AND (b.status <> 'pending_payment' OR (b.hold_expires_at IS NOT NULL AND b.hold_expires_at > NOW()))
+            AND (
+                b.status <> 'pending_payment'
+                OR (
+                    COALESCE(b.hold_expires_at, b.created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15)))) > NOW()
+                    AND b.created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15))) > NOW()
+                )
+            )
             AND daterange(b.check_in_date, b.check_out_date, '[)') && v_req_range
       )
       AND NOT EXISTS (
@@ -886,12 +897,27 @@ BEGIN
           WHERE bh.room_id = r.id
             AND bh.status = 'active'
             AND bh.expires_at > NOW()
+            AND bh.created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15))) > NOW()
             AND daterange(bh.check_in_date, bh.check_out_date, '[)') && v_req_range
       )
       AND NOT EXISTS (
           SELECT 1
           FROM public.booking_room_allocations bra
+          LEFT JOIN public.bookings b_alloc ON b_alloc.id = bra.booking_id
           WHERE bra.room_id = r.id
+            AND (
+                b_alloc.id IS NULL
+                OR (
+                    b_alloc.status NOT IN ('cancelled', 'expired')
+                    AND (
+                        b_alloc.status <> 'pending_payment'
+                        OR (
+                            COALESCE(b_alloc.hold_expires_at, b_alloc.created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15)))) > NOW()
+                            AND b_alloc.created_at + make_interval(mins => GREATEST(1, COALESCE(p_hold_minutes, 15))) > NOW()
+                        )
+                    )
+                )
+            )
             AND daterange(bra.check_in_date, bra.check_out_date, '[)') && v_req_range
       )
       AND NOT EXISTS (
@@ -991,7 +1017,7 @@ $$;
 
 -- 6.2 RPC: Dọn dẹp định kỳ các lượt giữ phòng hết hạn 15 phút (Cron hàng ngày 03:00 giờ VN / 20:00 UTC)
 -- Lưu ý: Việc nhả phòng trống không phụ thuộc hàm này; fn_check_and_hold_room và /api/availability
--- đã tự động loại trừ các hold có expires_at <= NOW() ngay tại thời điểm truy vấn.
+-- đã tự động loại trừ các hold có expires_at <= NOW() hoặc created_at + 15 phút <= NOW() ngay tại thời điểm truy vấn.
 CREATE OR REPLACE FUNCTION public.fn_cleanup_expired_holds()
 RETURNS INT
 LANGUAGE plpgsql
@@ -1005,14 +1031,19 @@ BEGIN
     SET status = 'expired',
         updated_at = NOW()
     WHERE status = 'active'
-      AND expires_at <= NOW();
+      AND (
+          expires_at <= NOW()
+          OR created_at + INTERVAL '15 minutes' <= NOW()
+      );
 
     UPDATE public.bookings
     SET status = 'expired',
         updated_at = NOW()
     WHERE status = 'pending_payment'
-      AND hold_expires_at IS NOT NULL
-      AND hold_expires_at <= NOW();
+      AND (
+          (hold_expires_at IS NOT NULL AND hold_expires_at <= NOW())
+          OR created_at + INTERVAL '15 minutes' <= NOW()
+      );
 
     GET DIAGNOSTICS v_count = ROW_COUNT;
     RETURN v_count;
@@ -1639,7 +1670,7 @@ VALUES (
     'https://maps.app.goo.gl/yaYH56pM37VPbjnv7',
     '0868011799 - 0981065065',
     '0868011799 - 0981065065',
-    'seagull.lyson@gmail.com',
+    'seagulllyson@gmail.com',
     '14:00',
     '12:00',
     30,
@@ -1799,6 +1830,44 @@ VALUES
     ('homepage.cafe.image',    'image', '/assets/lyson-harbor-real.jpg', '{"altText": "Không gian Seagull Coffee nhìn ra bến cảng Lý Sơn"}'::jsonb),
     ('homepage.location.image','image', '/assets/lyson-beach-sup-real.jpg','{"altText": "Bãi biển san hô & chèo SUP dưới chân đồi Seagull Lý Sơn"}'::jsonb)
 ON CONFLICT (content_key) DO NOTHING;
+
+-- 9.5 Nền tảng CMS dùng chung cho Phòng (room) & Dịch vụ (service)
+ALTER TABLE public.room_types
+    ADD COLUMN IF NOT EXISTS attributes JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+CREATE TABLE IF NOT EXISTS public.cms_contents (
+    id VARCHAR(64) PRIMARY KEY,
+    content_type VARCHAR(30) NOT NULL CHECK (content_type IN ('room', 'service')),
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    price DECIMAL(12, 2) NOT NULL DEFAULT 0.00 CHECK (price >= 0),
+    images JSONB NOT NULL DEFAULT '[]'::jsonb,
+    attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
+    sort_order INT NOT NULL DEFAULT 100,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_by VARCHAR(100),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_cms_contents_type_active
+    ON public.cms_contents (content_type, active, sort_order);
+
+ALTER TABLE public.cms_contents ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "cms_contents_public_read_active" ON public.cms_contents;
+CREATE POLICY "cms_contents_public_read_active"
+    ON public.cms_contents
+    FOR SELECT
+    USING (active = TRUE OR public.fn_current_user_role() = 'owner');
+
+DROP POLICY IF EXISTS "cms_contents_owner_manage" ON public.cms_contents;
+CREATE POLICY "cms_contents_owner_manage"
+    ON public.cms_contents
+    FOR ALL
+    USING (public.fn_current_user_role() = 'owner')
+    WITH CHECK (public.fn_current_user_role() = 'owner');
 
 -- ==============================================================================
 -- HOÀN TẤT KHỞI TẠO SCHEMA PRODUCTION - SEAGULL LÝ SƠN (27 PHÒNG GĐ1 / 32 TỔNG)

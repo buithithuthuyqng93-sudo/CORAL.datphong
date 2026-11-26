@@ -2,12 +2,15 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { 
   RoomType, Room, Booking, PropertyConfig, ChannelSyncLog,
   Customer, CashTransaction, StaffUser, RoomStatus, PaymentStatus,
-  BookingStayRecord, StayGuest, HousekeepingStatus
+  BookingStayRecord, StayGuest, HousekeepingStatus, CmsContentItem
 } from '../types';
 import { INITIAL_STAY_RECORDS } from '../data/mockData';
+import { EXPERIENCE_SERVICES_SEED } from '../data/serviceCatalog';
 import { CheckInStayManager } from './CheckInStayManager';
 import { SettingsManagerV2 } from './SettingsManagerV2';
 import { CheckInFlowModal } from './CheckInFlowModal';
+import { RoomCmsManager } from './RoomCmsManager';
+import { ServiceCmsManager } from './ServiceCmsManager';
 import { 
   LayoutDashboard, BedDouble, DollarSign, BarChart3, Settings, 
   Plus, Search, Lock, Unlock, CheckCircle2, AlertCircle, 
@@ -16,12 +19,14 @@ import {
   QrCode, CalendarCheck, ChevronRight, Filter, ArrowLeft, 
   Eye, EyeOff, X, Tag, Sliders, ArrowUpRight, ArrowDownRight,
   Sparkles, Check, RefreshCw, Smartphone, Edit3, Trash2,
-  Shield, User
+  Shield, User, Compass
 } from 'lucide-react';
 import { SeagullWingsIcon } from './SeagullWingsIcon';
+import { isLocalHoldExpired } from '../utils/bookingHold';
 
 interface AdminManagerProps {
   roomTypes: RoomType[];
+  serviceItems?: CmsContentItem[];
   rooms: Room[];
   bookings: Booking[];
   propertyConfig: PropertyConfig;
@@ -30,6 +35,7 @@ interface AdminManagerProps {
   transactions?: CashTransaction[];
   staffList?: StaffUser[];
   onUpdateRoomTypes: (roomTypes: RoomType[]) => void;
+  onUpdateServiceItems?: (services: CmsContentItem[]) => void;
   onUpdateRooms: (rooms: Room[]) => void;
   onUpdateBookings: (bookings: Booking[]) => void;
   onUpdatePropertyConfig: (config: PropertyConfig) => void;
@@ -42,8 +48,8 @@ interface AdminManagerProps {
   onNavigateToWebsite?: () => void;
 }
 
-// 5 Main Navigation Tabs as specified
-type AdminTab = 'overview' | 'rooms-bookings' | 'revenue' | 'reports' | 'settings';
+// Main Navigation Tabs
+type AdminTab = 'overview' | 'rooms-bookings' | 'room-cms' | 'service-cms' | 'revenue' | 'reports' | 'settings';
 
 // Preset photo options for quick photo selection
 const PHOTO_PRESETS = [
@@ -58,6 +64,7 @@ const PHOTO_PRESETS = [
 
 export const AdminManager: React.FC<AdminManagerProps> = ({
   roomTypes,
+  serviceItems = EXPERIENCE_SERVICES_SEED,
   rooms,
   bookings,
   propertyConfig,
@@ -65,6 +72,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
   transactions = [],
   staffList = [],
   onUpdateRoomTypes,
+  onUpdateServiceItems,
   onUpdateRooms,
   onUpdateBookings,
   onUpdatePropertyConfig,
@@ -330,8 +338,16 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
     if (room.status === 'maintenance') {
       return { statusKey: 'maintenance', label: 'Bảo trì', badgeBg: 'bg-rose-50', badgeText: 'text-rose-700', borderColor: 'border-rose-300' };
     }
-    // Check attached booking if any
-    const booking = bookings.find(b => b.roomId === room.id && b.paymentStatus !== 'cancelled' && b.paymentStatus !== 'checked_out');
+    // Check attached active booking if any (automatically excludes expired pending/hold bookings in real time)
+    const nowMs = Date.now();
+    const booking = bookings.find(
+      (b) =>
+        b.roomId === room.id &&
+        b.paymentStatus !== 'cancelled' &&
+        b.paymentStatus !== 'checked_out' &&
+        b.paymentStatus !== 'no_show' &&
+        !isLocalHoldExpired(b, nowMs)
+    );
     if (booking) {
       if (booking.paymentStatus === 'checked_in') {
         return { statusKey: 'in_house', label: 'Đang ở', badgeBg: 'bg-blue-50', badgeText: 'text-blue-800', borderColor: 'border-blue-400' };
@@ -856,6 +872,44 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             </button>
 
             <button
+              onClick={() => setActiveTab('room-cms')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'room-cms'
+                  ? 'bg-[#C8A261] text-[#0E2A47] shadow-md shadow-[#C8A261]/20'
+                  : 'text-slate-300 hover:text-white hover:bg-[#163A5F]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Edit3 className="w-4 h-4 shrink-0" />
+                <span>3. Quản lý Phòng</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'room-cms' ? 'bg-[#0E2A47] text-[#C8A261]' : 'bg-[#163A5F] text-slate-300'
+              }`}>
+                {roomTypes.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('service-cms')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'service-cms'
+                  ? 'bg-[#C8A261] text-[#0E2A47] shadow-md shadow-[#C8A261]/20'
+                  : 'text-slate-300 hover:text-white hover:bg-[#163A5F]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Compass className="w-4 h-4 shrink-0" />
+                <span>4. Quản lý Dịch vụ</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'service-cms' ? 'bg-[#0E2A47] text-[#C8A261]' : 'bg-[#163A5F] text-slate-300'
+              }`}>
+                {serviceItems.length}
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('revenue')}
               className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'revenue'
@@ -864,7 +918,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <DollarSign className="w-4 h-4 shrink-0" />
-              <span>3. Doanh thu</span>
+              <span>5. Doanh thu</span>
             </button>
 
             <button
@@ -876,7 +930,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <BarChart3 className="w-4 h-4 shrink-0" />
-              <span>4. Báo cáo</span>
+              <span>6. Báo cáo</span>
             </button>
 
             <button
@@ -888,7 +942,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <Settings className="w-4 h-4 shrink-0" />
-              <span>5. Cài đặt</span>
+              <span>7. Cài đặt</span>
             </button>
           </nav>
         </div>
@@ -994,6 +1048,8 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             <h1 className="text-xl lg:text-2xl font-serif font-bold text-[#0E2A47]">
               {activeTab === 'overview' && 'Tổng Quan Tình Hình Homestay & Cafe'}
               {activeTab === 'rooms-bookings' && 'Quản Lý Phòng & Danh Sách Đặt Phòng'}
+              {activeTab === 'room-cms' && 'Quản Lý Phòng (CMS Ảnh, Giá & Thuộc Tính)'}
+              {activeTab === 'service-cms' && 'Quản Lý Dịch Vụ (CMS Ảnh & Mô Tả Trải Nghiệm)'}
               {activeTab === 'revenue' && 'Báo Cáo Doanh Thu (Homestay & Coffee)'}
               {activeTab === 'reports' && 'Báo Cáo Hoạt Động & Xuất Dữ Liệu Excel'}
               {activeTab === 'settings' && 'Cài Đặt Hệ Thống & Bảng Giá'}
@@ -2068,7 +2124,31 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
         )}
 
         {/* ================================================================= */}
-        {/* TAB 5: CÀI ĐẶT HỆ THỐNG V2 (SETTINGS MANAGEMENT V2) */}
+        {/* TAB: QUẢN LÝ PHÒNG (CMS) */}
+        {/* ================================================================= */}
+        {activeTab === 'room-cms' && (
+          <RoomCmsManager
+            roomTypes={roomTypes}
+            userRole={userRole}
+            onUpdateRoomTypes={onUpdateRoomTypes}
+            showToast={showToast}
+          />
+        )}
+
+        {/* ================================================================= */}
+        {/* TAB: QUẢN LÝ DỊCH VỤ (CMS) */}
+        {/* ================================================================= */}
+        {activeTab === 'service-cms' && (
+          <ServiceCmsManager
+            services={serviceItems}
+            userRole={userRole}
+            onUpdateServices={(updated) => onUpdateServiceItems?.(updated)}
+            showToast={showToast}
+          />
+        )}
+
+        {/* ================================================================= */}
+        {/* TAB 6: CÀI ĐẶT HỆ THỐNG V2 (SETTINGS MANAGEMENT V2) */}
         {/* ================================================================= */}
         {activeTab === 'settings' && (
           <SettingsManagerV2

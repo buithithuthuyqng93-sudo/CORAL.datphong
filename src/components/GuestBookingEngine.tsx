@@ -8,6 +8,7 @@ import {
 import { SeagullWingsIcon } from './SeagullWingsIcon';
 import { RoomType, Room, Booking, PropertyConfig } from '../types';
 import { useSiteContent } from '../context/SiteContentContext';
+import { isBookingBlockingRoom } from '../utils/bookingHold';
 
 interface GuestBookingEngineProps {
   roomTypes: RoomType[];
@@ -62,13 +63,25 @@ export const GuestBookingEngine: React.FC<GuestBookingEngineProps> = ({
 
   const nights = calculateNights();
 
-  // Filter available rooms count for each room type (chỉ tính phòng đang kinh doanh isActive !== false)
-  const getAvailableRoomsCount = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false).length;
+  // Filter available rooms count for each room type (chỉ tính phòng đang kinh doanh và loại trừ giữ chỗ đã hết hạn)
+  const getAvailableRoomsList = (typeId: string) => {
+    const nowMs = Date.now();
+    const busyRoomIds = new Set(
+      bookings
+        .filter((b) => isBookingBlockingRoom(b, checkIn, checkOut, nowMs))
+        .map((b) => b.roomId)
+    );
+    return rooms.filter(
+      (r) =>
+        r.roomTypeId === typeId &&
+        r.status === 'available' &&
+        r.isActive !== false &&
+        !busyRoomIds.has(r.id)
+    );
   };
 
-  const getAvailableRoomsList = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false);
+  const getAvailableRoomsCount = (typeId: string) => {
+    return getAvailableRoomsList(typeId).length;
   };
 
   // Image slider handlers for card

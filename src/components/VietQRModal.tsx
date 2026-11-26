@@ -20,15 +20,25 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [copiedContent, setCopiedContent] = useState(false);
   const [isSimulatingBank, setIsSimulatingBank] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState(900); // 15 phút (900s) giữ phòng theo chính sách Seagull
+  const computeRemainingSeconds = () => {
+    if (booking.holdExpiresAt) {
+      const expMs = new Date(booking.holdExpiresAt).getTime();
+      if (Number.isFinite(expMs)) {
+        return Math.max(0, Math.floor((expMs - Date.now()) / 1000));
+      }
+    }
+    return 900;
+  };
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(computeRemainingSeconds);
 
-  // Countdown timer
+  // Countdown timer synced to booking.holdExpiresAt
   useEffect(() => {
+    setCountdownSeconds(computeRemainingSeconds());
     const timer = setInterval(() => {
       setCountdownSeconds((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [booking.id, booking.holdExpiresAt]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

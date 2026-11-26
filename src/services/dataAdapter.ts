@@ -1,4 +1,4 @@
-import { Booking, RoomType, Room } from '../types';
+import { Booking, RoomType, Room, CmsContentItem, CmsContentType } from '../types';
 import { SEAGULL_ROOM_TYPES, INITIAL_ROOMS, INITIAL_BOOKINGS } from '../data/mockData';
 
 export interface CreateBookingPayload {
@@ -13,17 +13,38 @@ export interface CreateBookingPayload {
   notes?: string;
 }
 
+export interface AvailabilityApiResponse {
+  isDemo: boolean;
+  holdMinutes?: number;
+  checkedAt?: string;
+  roomTypes: any[];
+  availableRooms: any[];
+  availabilityByType?: Record<
+    string,
+    { availableCount: number; totalActiveRooms: number; availableRoomIds: string[] }
+  >;
+}
+
 /**
- * Checks available rooms for selected date range
+ * Checks available rooms for selected date range (always real-time, never cached)
  */
-export async function apiCheckAvailability(roomTypeId?: string, checkIn?: string, checkOut?: string) {
+export async function apiCheckAvailability(
+  roomTypeId?: string,
+  checkIn?: string,
+  checkOut?: string
+): Promise<AvailabilityApiResponse> {
   try {
     const params = new URLSearchParams();
     if (roomTypeId) params.append('roomTypeId', roomTypeId);
     if (checkIn) params.append('checkIn', checkIn);
     if (checkOut) params.append('checkOut', checkOut);
 
-    const res = await fetch(`/api/availability?${params.toString()}`);
+    const res = await fetch(`/api/availability?${params.toString()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    });
     if (!res.ok) throw new Error('API server returned error');
     const json = await res.json();
     return json.data;
@@ -31,6 +52,7 @@ export async function apiCheckAvailability(roomTypeId?: string, checkIn?: string
     console.warn('[DataAdapter] Fallback to local mock availability:', err);
     return {
       isDemo: true,
+      holdMinutes: 15,
       roomTypes: SEAGULL_ROOM_TYPES,
       availableRooms: INITIAL_ROOMS.filter((r) => r.status === 'available' && r.isActive !== false),
     };
@@ -41,27 +63,18 @@ export async function apiCheckAvailability(roomTypeId?: string, checkIn?: string
  * Submits a new booking draft & holds the room
  */
 export async function apiCreateBooking(payload: CreateBookingPayload) {
+  let res: Response;
   try {
-    const res = await fetch('/api/bookings', {
+    res = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
       body: JSON.stringify(payload),
     });
+  } catch (networkErr: any) {
+    console.warn('[DataAdapter] Network unavailable, falling back to local booking creation:', networkErr?.message);
 
-    const json = await res.json();
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || 'Tạo đơn đặt phòng thất bại');
-    }
-
-    return {
-      success: true,
-      booking: json.data as Booking,
-      isDemo: json.isDemo,
-    };
-  } catch (err: any) {
-    console.warn('[DataAdapter] Falling back to local booking creation:', err.message);
-
-    // Local fallback for demo mode
+    // Local fallback strictly when API server is unreachable
     const targetRoomType = SEAGULL_ROOM_TYPES.find((r) => r.id === payload.roomTypeId) || SEAGULL_ROOM_TYPES[0];
     const dIn = new Date(payload.checkIn);
     const dOut = new Date(payload.checkOut);
@@ -69,9 +82,10 @@ export async function apiCreateBooking(payload: CreateBookingPayload) {
     const totalPrice = targetRoomType.basePrice * nights;
     const depositAmount = Math.ceil(totalPrice * 0.30); // Confirmed 30% deposit rule
     const randomCode = `SGL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const now = Date.now();
 
     const fallbackBooking: Booking = {
-      id: `local-${Date.now()}`,
+      id: `local-${now}`,
       code: randomCode,
       customerName: payload.guestName,
       customerPhone: payload.phone,
@@ -87,7 +101,8 @@ export async function apiCreateBooking(payload: CreateBookingPayload) {
       depositAmount,
       paymentStatus: 'pending_deposit',
       channel: 'direct',
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(now).toISOString(),
+      holdExpiresAt: new Date(now + 15 * 60 * 1000).toISOString(),
     };
 
     return {
@@ -96,6 +111,17 @@ export async function apiCreateBooking(payload: CreateBookingPayload) {
       isDemo: true,
     };
   }
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Tạo đơn đặt phòng thất bại');
+  }
+
+  return {
+    success: true,
+    booking: json.data as Booking,
+    isDemo: Boolean(json.isDemo),
+  };
 }
 
 /**
@@ -154,3 +180,144 @@ export async function apiAdminResyncSheet(bookingId: string) {
     return { success: false, error: err.message };
   }
 }
+
+// ============================================================================
+// GENERIC CMS API ADAPTER (contentType: 'room' | 'service')
+// ============================================================================
+
+export interface CmsListApiResponse {
+  success: boolean;
+  isDemo: boolean;
+  contentType: CmsContentType;
+  items: CmsContentItem[];
+  roomTypes?: RoomType[];
+  error?: string;
+}
+
+export interface SaveCmsPayload {
+  id: string;
+  contentType: CmsContentType;
+  title: string;
+  slug?: string;
+  description: string;
+  price: number;
+  images: string[];
+  attributes?: Record<string, any>;
+  sortOrder?: number;
+  active?: boolean;
+}
+
+export function roomTypeToCmsPayload(rt: RoomType): SaveCmsPayload {
+  const images = Array.from(
+    new Set([rt.image, ...(rt.galleryImages || [])].map((u) => (u || '').trim()).filter(Boolean))
+  );
+  return {
+    id: rt.id,
+    contentType: 'room',
+    title: rt.name,
+    slug: rt.slug,
+    description: rt.description,
+    price: rt.basePrice,
+    images,
+    active: rt.active !== false,
+    attributes: {
+      ...(rt.attributes || {}),
+      size: rt.size,
+      areaSqm: rt.size,
+      bedrooms: rt.bedrooms ?? 1,
+      bathrooms: rt.bathrooms ?? 1,
+      hasBalcony: rt.hasBalcony ?? true,
+      bedType: rt.bedType,
+      maxGuests: rt.maxGuests,
+      depositPercent: rt.depositPercent ?? 30,
+      amenities: rt.amenities || [],
+    },
+  };
+}
+
+export async function apiListCmsContent(
+  contentType: CmsContentType,
+  options?: { includeInactive?: boolean; token?: string | null }
+): Promise<CmsListApiResponse> {
+  const params = new URLSearchParams({ type: contentType });
+  if (options?.includeInactive) {
+    params.append('includeInactive', 'true');
+  }
+  const headers: Record<string, string> = {
+    'Cache-Control': 'no-cache',
+  };
+  if (options?.token) {
+    headers.Authorization = `Bearer ${options.token}`;
+  }
+
+  const res = await fetch(`/api/cms?${params.toString()}`, {
+    cache: 'no-store',
+    headers,
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Không thể tải dữ liệu CMS');
+  }
+  return json as CmsListApiResponse;
+}
+
+export async function apiSaveCmsContent(
+  payload: SaveCmsPayload,
+  token: string
+): Promise<{
+  success: boolean;
+  isDemo: boolean;
+  item: CmsContentItem;
+  roomType?: RoomType;
+}> {
+  const res = await fetch('/api/cms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+    body: JSON.stringify({ action: 'save', item: payload }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Không thể lưu thay đổi CMS');
+  }
+  return json;
+}
+
+export async function apiUploadCmsImage(
+  payload: {
+    contentType: CmsContentType;
+    itemId: string;
+    fileBase64: string;
+    filename: string;
+    mimeType: string;
+    altText?: string;
+  },
+  token: string
+): Promise<{
+  success: boolean;
+  isDemo: boolean;
+  publicUrl: string;
+  storagePath: string;
+}> {
+  const res = await fetch('/api/cms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+    body: JSON.stringify({
+      action: 'upload-image',
+      ...payload,
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Tải ảnh lên thất bại');
+  }
+  return json;
+}
+

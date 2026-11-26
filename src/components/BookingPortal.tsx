@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Calendar, Users, Check, Sparkles, MapPin, Phone, ShieldCheck, 
   ArrowLeft, Search, Eye, Maximize2, Coffee, Tv, Bath, Wind, Flame, 
-  CheckCircle2, Clock, Info, AlertCircle, FileText, QrCode
+  CheckCircle2, Clock, Info, AlertCircle, FileText, QrCode, Loader2
 } from 'lucide-react';
 import { SeagullWingsIcon } from './SeagullWingsIcon';
 import { RoomType, Room, Booking, PropertyConfig } from '../types';
 import { useSiteContent } from '../context/SiteContentContext';
+import { apiCheckAvailability, apiCreateBooking } from '../services/dataAdapter';
+import { isBookingBlockingRoom } from '../utils/bookingHold';
 
 interface BookingPortalProps {
   roomTypes: RoomType[];
@@ -15,10 +17,12 @@ interface BookingPortalProps {
   bookings: Booking[];
   propertyConfig: PropertyConfig;
   onInitiateBooking: (bookingData: Omit<Booking, 'id' | 'code' | 'createdAt' | 'paymentStatus'>) => Booking;
+  onSyncExternalBooking?: (booking: Booking) => void;
   onOpenPaymentModal: (booking: Booking, room: Room) => void;
   activeConfirmedBooking?: Booking | null;
   onNavigateToWebsite: () => void;
   preselectedRoomTypeId?: string;
+  availabilityRefreshKey?: number;
 }
 
 export const BookingPortal: React.FC<BookingPortalProps> = ({
@@ -27,10 +31,12 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
   bookings,
   propertyConfig,
   onInitiateBooking,
+  onSyncExternalBooking,
   onOpenPaymentModal,
   activeConfirmedBooking,
   onNavigateToWebsite,
   preselectedRoomTypeId,
+  availabilityRefreshKey = 0,
 }) => {
   const { getMediaUrl } = useSiteContent();
 
@@ -39,20 +45,105 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
     ? propertyConfig.ownerName
     : 'Mr Thiện / Ms Điền';
 
+  const parseBookingQueryParams = () => {
+    const defaults = { checkIn: '2026-08-05', checkOut: '2026-08-07', guestCount: 2, childrenCount: 0 };
+    if (typeof window === 'undefined') return defaults;
+    const sp = new URLSearchParams(window.location.search);
+    const isoRe = /^\d{4}-\d{2}-\d{2}$/;
+    const rawIn = sp.get('checkin') || sp.get('checkIn') || '';
+    const rawOut = sp.get('checkout') || sp.get('checkOut') || '';
+    const rawAdults = sp.get('adults');
+    const rawChildren = sp.get('children');
+
+    let nextIn = defaults.checkIn;
+    let nextOut = defaults.checkOut;
+
+    if (isoRe.test(rawIn)) {
+      nextIn = rawIn;
+      if (isoRe.test(rawOut) && rawOut > rawIn) {
+        nextOut = rawOut;
+      } else {
+        const d = new Date(`${rawIn}T00:00:00`);
+        if (!Number.isNaN(d.getTime())) {
+          d.setDate(d.getDate() + 1);
+          nextOut = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+      }
+    } else if (isoRe.test(rawOut) && rawOut > defaults.checkIn) {
+      nextOut = rawOut;
+    }
+
+    const parsedAdults = rawAdults !== null ? Number.parseInt(rawAdults, 10) : NaN;
+    const parsedChildren = rawChildren !== null ? Number.parseInt(rawChildren, 10) : NaN;
+    const validAdults = Number.isFinite(parsedAdults) && parsedAdults >= 1 ? Math.min(20, parsedAdults) : null;
+    const validChildren = Number.isFinite(parsedChildren) && parsedChildren >= 0 ? Math.min(20, parsedChildren) : 0;
+
+    const nextGuests = validAdults !== null ? validAdults + validChildren : defaults.guestCount;
+    const nextChildren = validAdults !== null ? validChildren : 0;
+
+    return {
+      checkIn: nextIn,
+      checkOut: nextOut,
+      guestCount: nextGuests,
+      childrenCount: nextChildren,
+    };
+  };
+
+  const initialQuery = parseBookingQueryParams();
+
   // Search filter states
-  const [checkIn, setCheckIn] = useState('2026-08-05');
-  const [checkOut, setCheckOut] = useState('2026-08-07');
-  const [guestCount, setGuestCount] = useState(2);
+  const [checkIn, setCheckIn] = useState(initialQuery.checkIn);
+  const [checkOut, setCheckOut] = useState(initialQuery.checkOut);
+  const [guestCount, setGuestCount] = useState(initialQuery.guestCount);
+  const [childrenCount, setChildrenCount] = useState(initialQuery.childrenCount);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('all');
+
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const sp = new URLSearchParams(window.location.search);
+      if (!sp.has('checkin') && !sp.has('checkIn') && !sp.has('checkout') && !sp.has('checkOut') && !sp.has('adults')) {
+        return;
+      }
+      const next = parseBookingQueryParams();
+      setCheckIn(next.checkIn);
+      setCheckOut(next.checkOut);
+      setGuestCount(next.guestCount);
+      setChildrenCount(next.childrenCount);
+    };
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, []);
+
+  // Live server availability state (real-time expired-hold excluded on backend)
+  const [liveAvailableRooms, setLiveAvailableRooms] = useState<Room[] | null>(null);
+  const [isLiveBackend, setIsLiveBackend] = useState<boolean>(false);
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState<boolean>(false);
+  const [nowTickMs, setNowTickMs] = useState<number>(() => Date.now());
 
   // Room modal & selection
   const [detailModalRoomType, setDetailModalRoomType] = useState<RoomType | null>(null);
+  const [detailModalActiveImage, setDetailModalActiveImage] = useState<string>('');
   const [selectedRoomType, setSelectedRoomType] = useState<RoomType | null>(() => {
     if (preselectedRoomTypeId) {
       return roomTypes.find((r) => r.id === preselectedRoomTypeId) || null;
     }
     return null;
   });
+
+  // Keep preselected or active roomType synced when live CMS roomTypes hydrate or change
+  useEffect(() => {
+    if (selectedRoomType) {
+      const updated = roomTypes.find((r) => r.id === selectedRoomType.id);
+      if (updated && updated !== selectedRoomType) {
+        setSelectedRoomType(updated);
+      }
+    } else if (preselectedRoomTypeId) {
+      const matched = roomTypes.find((r) => r.id === preselectedRoomTypeId);
+      if (matched) {
+        setSelectedRoomType(matched);
+      }
+    }
+  }, [roomTypes, preselectedRoomTypeId]);
 
   // Booking Form State
   const [customerName, setCustomerName] = useState('');
@@ -68,6 +159,43 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
   const [foundBooking, setFoundBooking] = useState<Booking | null>(null);
   const [lookupError, setLookupError] = useState('');
 
+  // Fetch real-time availability from backend API (excludes expired holds immediately at query time)
+  const fetchLiveAvailability = useCallback(async () => {
+    if (!checkIn || !checkOut || checkOut <= checkIn) return;
+    const result = await apiCheckAvailability(undefined, checkIn, checkOut);
+    setNowTickMs(Date.now());
+    if (result && !result.isDemo && Array.isArray(result.availableRooms)) {
+      const mappedRooms: Room[] = result.availableRooms.map((r: any) => ({
+        id: r.id,
+        number: r.room_code || r.number || r.id,
+        floor: Number(r.floor_or_area ?? r.floor ?? 1),
+        area: r.area_label || r.area,
+        roomTypeId: r.room_type_id || r.roomTypeId,
+        status: 'available',
+        housekeepingStatus: r.housekeeping_status || r.housekeepingStatus || 'clean',
+        isActive: r.active !== false,
+      }));
+      setLiveAvailableRooms(mappedRooms);
+      setIsLiveBackend(true);
+    } else {
+      setLiveAvailableRooms(null);
+      setIsLiveBackend(false);
+    }
+  }, [checkIn, checkOut]);
+
+  useEffect(() => {
+    fetchLiveAvailability();
+  }, [fetchLiveAvailability, availabilityRefreshKey]);
+
+  // Auto-refresh availability every 30s so expired 15-min holds release on screen without page reload
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNowTickMs(Date.now());
+      fetchLiveAvailability();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [fetchLiveAvailability]);
+
   // Calculate nights
   const calculateNights = () => {
     const d1 = new Date(checkIn);
@@ -78,13 +206,31 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
   };
   const nights = calculateNights();
 
-  // Inventory filtering: Only count active rooms (isActive !== false)
-  const getAvailableRoomsCount = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false).length;
+  // Inventory filtering:
+  // - Production: uses live /api/availability rooms (real-time expired-hold excluded on server)
+  // - Local/Demo fallback: excludes active overlapping bookings while auto-releasing expired holds
+  const getAvailableRoomsList = (typeId: string): Room[] => {
+    if (isLiveBackend && liveAvailableRooms) {
+      return liveAvailableRooms.filter((r) => r.roomTypeId === typeId && r.isActive !== false);
+    }
+
+    const busyRoomIds = new Set(
+      bookings
+        .filter((b) => isBookingBlockingRoom(b, checkIn, checkOut, nowTickMs))
+        .map((b) => b.roomId)
+    );
+
+    return rooms.filter(
+      (r) =>
+        r.roomTypeId === typeId &&
+        r.status === 'available' &&
+        r.isActive !== false &&
+        !busyRoomIds.has(r.id)
+    );
   };
 
-  const getAvailableRoomsList = (typeId: string) => {
-    return rooms.filter((r) => r.roomTypeId === typeId && r.status === 'available' && r.isActive !== false);
+  const getAvailableRoomsCount = (typeId: string) => {
+    return getAvailableRoomsList(typeId).length;
   };
 
   const handleStartBooking = (roomType: RoomType) => {
@@ -94,8 +240,10 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
     if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSubmitBooking = (e: React.FormEvent) => {
+  const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
+
     if (!customerName.trim() || !customerPhone.trim()) {
       setFormError('Vui lòng điền họ tên và số điện thoại liên hệ.');
       return;
@@ -112,29 +260,71 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
       return;
     }
 
-    // Allocate first available room
-    const targetRoom = availableRooms[0];
-    const totalPrice = selectedRoomType.basePrice * nights;
-    const depositPercent = 30; // 30% deposit rule
-    const depositAmount = Math.ceil(totalPrice * 0.30);
+    setIsSubmittingBooking(true);
+    try {
+      // Create booking hold via backend API (which real-time filters expired holds before assigning)
+      const apiRes = await apiCreateBooking({
+        roomTypeId: selectedRoomType.id,
+        checkIn,
+        checkOut,
+        guestName: customerName.trim(),
+        phone: customerPhone.trim(),
+        email: customerEmail.trim() || undefined,
+        adults: childrenCount > 0 ? Math.max(1, guestCount - childrenCount) : guestCount,
+        children: childrenCount,
+        notes: customerNotes.trim() || undefined,
+      });
 
-    const newBooking = onInitiateBooking({
-      customerName,
-      customerPhone,
-      customerEmail: customerEmail || `${customerPhone}@guest.seagull`,
-      checkIn,
-      checkOut,
-      nights,
-      roomId: targetRoom.id,
-      roomNumber: targetRoom.number,
-      roomTypeName: selectedRoomType.name,
-      totalPrice,
-      depositPercent,
-      depositAmount,
-      channel: 'direct',
-    });
+      if (apiRes.success && !apiRes.isDemo && apiRes.booking) {
+        const createdBooking = apiRes.booking;
+        const matchedRoom: Room =
+          availableRooms.find((r) => r.id === createdBooking.roomId) || {
+            id: createdBooking.roomId,
+            number: createdBooking.roomNumber,
+            floor: 1,
+            roomTypeId: selectedRoomType.id,
+            status: 'available',
+            isActive: true,
+          };
 
-    onOpenPaymentModal(newBooking, targetRoom);
+        if (onSyncExternalBooking) {
+          onSyncExternalBooking(createdBooking);
+        }
+        onOpenPaymentModal(createdBooking, matchedRoom);
+        // Refresh real-time availability immediately after holding
+        fetchLiveAvailability();
+        return;
+      }
+
+      // Demo mode fallback
+      const targetRoom = availableRooms[0];
+      const totalPrice = selectedRoomType.basePrice * nights;
+      const depositPercent = selectedRoomType.depositPercent ?? 30;
+      const depositAmount = Math.ceil((totalPrice * depositPercent) / 100);
+
+      const newBooking = onInitiateBooking({
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerEmail: customerEmail.trim() || `${customerPhone.trim()}@guest.seagull`,
+        checkIn,
+        checkOut,
+        nights,
+        roomId: targetRoom.id,
+        roomNumber: targetRoom.number,
+        roomTypeName: selectedRoomType.name,
+        totalPrice,
+        depositPercent,
+        depositAmount,
+        channel: 'direct',
+      });
+
+      onOpenPaymentModal(newBooking, targetRoom);
+    } catch (err: any) {
+      setFormError(err?.message || 'Không thể giữ phòng lúc này. Vui lòng thử lại.');
+      fetchLiveAvailability();
+    } finally {
+      setIsSubmittingBooking(false);
+    }
   };
 
   const handleLookupBooking = (e: React.FormEvent) => {
@@ -378,16 +568,27 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
             <div>
               <label className="block text-[11px] font-bold text-[#706557] uppercase mb-1">
                 Số lượng khách
+                {childrenCount > 0 && (
+                  <span className="ml-1.5 normal-case font-semibold text-[#9E7A3B]">
+                    ({Math.max(1, guestCount - childrenCount)} người lớn · {childrenCount} trẻ em)
+                  </span>
+                )}
               </label>
               <select
                 value={guestCount}
-                onChange={(e) => setGuestCount(Number(e.target.value))}
+                onChange={(e) => {
+                  setGuestCount(Number(e.target.value));
+                  setChildrenCount(0);
+                }}
                 className="w-full bg-[#FAF8F5] border border-[#E0D8CD] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#1C2321] focus:ring-2 focus:ring-[#C8A261]"
               >
                 <option value={1}>1 Khách (Đi một mình)</option>
                 <option value={2}>2 Khách (Cặp đôi / Bạn bè)</option>
                 <option value={3}>3 Khách</option>
                 <option value={4}>4 Khách (Gia đình / Nhóm nhỏ)</option>
+                {guestCount > 4 && (
+                  <option value={guestCount}>{guestCount} Khách (Gia đình / Nhóm)</option>
+                )}
               </select>
             </div>
           </div>
@@ -407,11 +608,20 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {roomTypes.map((rt) => {
+            {roomTypes.filter((rt) => rt.active !== false).map((rt) => {
               const availableCount = getAvailableRoomsCount(rt.id);
               const totalPrice = rt.basePrice * nights;
-              const deposit30 = Math.ceil(totalPrice * 0.30);
+              const depositPercent = rt.depositPercent ?? 30;
+              const depositAmount = Math.ceil((totalPrice * depositPercent) / 100);
               const isSelected = selectedRoomType?.id === rt.id;
+              const specSummary = [
+                rt.size,
+                `${rt.bedrooms ?? 1} phòng ngủ`,
+                `${rt.bathrooms ?? 1} phòng tắm`,
+                (rt.hasBalcony ?? true) ? 'Có ban công' : null,
+              ]
+                .filter(Boolean)
+                .join(' · ');
 
               return (
                 <div
@@ -446,19 +656,20 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
 
                       <div className="absolute bottom-3 right-3 bg-[#151B17]/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl border border-white/20 text-right">
                         <span className="text-[10px] text-[#C8A261] block">Giá {nights} đêm</span>
-                        <strong className="text-base font-serif text-[#FAF8F5]">
+                        <strong className="text-base font-serif text-[#FAF8F5] tabular-nums">
                           {totalPrice.toLocaleString('vi-VN')} đ
                         </strong>
-                        <span className="text-[10px] text-emerald-400 block font-semibold">
-                          Cọc 30%: {deposit30.toLocaleString('vi-VN')} đ
+                        <span className="text-[10px] text-emerald-400 block font-semibold tabular-nums">
+                          Cọc {depositPercent}%: {depositAmount.toLocaleString('vi-VN')} đ
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-6 space-y-3.5">
                       <div>
                         <h4 className="font-serif text-lg font-bold text-[#1C2321]">{rt.name}</h4>
-                        <p className="text-xs text-[#706557] mt-1 leading-relaxed">{rt.description}</p>
+                        <p className="text-[11px] font-semibold text-[#9E7A3B] mt-0.5">{specSummary}</p>
+                        <p className="text-xs text-[#706557] mt-1.5 leading-relaxed">{rt.description}</p>
                       </div>
 
                       <div className="flex flex-wrap gap-1.5 text-[11px]">
@@ -474,7 +685,10 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
                   <div className="p-6 pt-0 border-t border-[#F0EBE1] flex items-center justify-between">
                     <button
                       type="button"
-                      onClick={() => setDetailModalRoomType(rt)}
+                      onClick={() => {
+                        setDetailModalRoomType(rt);
+                        setDetailModalActiveImage(rt.image);
+                      }}
                       className="text-xs text-[#9E7A3B] hover:text-[#C8A261] font-bold flex items-center gap-1 underline"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -515,14 +729,21 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
         </section>
 
         {/* ------------------------------------------------------------- */}
-        {/* 5. GUEST DETAILS & DEPOSIT 30% CONFIRMATION FORM */}
+        {/* 5. GUEST DETAILS & DEPOSIT CONFIRMATION FORM */}
         {/* ------------------------------------------------------------- */}
-        {selectedRoomType && (
+        {selectedRoomType && (() => {
+          const selectedDepositPercent = selectedRoomType.depositPercent ?? 30;
+          const selectedTotal = selectedRoomType.basePrice * nights;
+          const selectedDepositAmount = Math.ceil((selectedTotal * selectedDepositPercent) / 100);
+          const selectedRemainingAmount = selectedTotal - selectedDepositAmount;
+          const remainingPercent = Math.max(0, 100 - selectedDepositPercent);
+
+          return (
           <section id="booking-drawer" className="bg-white border-2 border-[#C8A261] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E2D9] gap-2">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-widest text-[#9E7A3B] block">
-                  BƯỚC 2: THÔNG TIN KHÁCH HÀNG & XÁC NHẬN CỌC 30%
+                  BƯỚC 2: THÔNG TIN KHÁCH HÀNG & XÁC NHẬN CỌC {selectedDepositPercent}%
                 </span>
                 <h3 className="font-serif text-2xl font-bold text-[#1C2321]">
                   Đặt Hạng Phòng: {selectedRoomType.name}
@@ -531,8 +752,8 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
 
               <div className="text-right">
                 <span className="text-xs text-[#706557] block">Số đêm: {nights} đêm</span>
-                <strong className="text-lg font-serif text-[#C8A261]">
-                  {(selectedRoomType.basePrice * nights).toLocaleString('vi-VN')} đ
+                <strong className="text-lg font-serif text-[#C8A261] tabular-nums">
+                  {selectedTotal.toLocaleString('vi-VN')} đ
                 </strong>
               </div>
             </div>
@@ -541,20 +762,20 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
             <div className="bg-[#FAF8F5] border border-[#E0D8CD] rounded-2xl p-4 sm:p-5 text-xs grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1">
                 <span className="text-[#706557] block font-bold uppercase text-[10px]">1. Tổng Giá Tiền Phòng</span>
-                <strong className="text-base text-[#1C2321] font-serif">
-                  {(selectedRoomType.basePrice * nights).toLocaleString('vi-VN')} đ
+                <strong className="text-base text-[#1C2321] font-serif tabular-nums">
+                  {selectedTotal.toLocaleString('vi-VN')} đ
                 </strong>
-                <p className="text-[10px] text-[#A39687]">
-                  {selectedRoomType.basePrice.toLocaleString()}đ × {nights} đêm
+                <p className="text-[10px] text-[#A39687] tabular-nums">
+                  {selectedRoomType.basePrice.toLocaleString('vi-VN')}đ × {nights} đêm
                 </p>
               </div>
 
               <div className="space-y-1 bg-white p-3 rounded-xl border border-[#C8A261]/40">
                 <span className="text-[#9E7A3B] block font-bold uppercase text-[10px]">
-                  2. Tiền Cọc Tối Thiểu (30%)
+                  2. Tiền Cọc Tối Thiểu ({selectedDepositPercent}%)
                 </span>
-                <strong className="text-lg text-[#9E7A3B] font-serif">
-                  {Math.ceil(selectedRoomType.basePrice * nights * 0.30).toLocaleString('vi-VN')} đ
+                <strong className="text-lg text-[#9E7A3B] font-serif tabular-nums">
+                  {selectedDepositAmount.toLocaleString('vi-VN')} đ
                 </strong>
                 <p className="text-[10px] text-emerald-700 font-bold">
                   Thanh toán qua VietQR để khóa phòng 15 phút
@@ -563,10 +784,10 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
 
               <div className="space-y-1">
                 <span className="text-[#706557] block font-bold uppercase text-[10px]">
-                  3. Số Tiền Còn Lại Khi Check-in (70%)
+                  3. Số Tiền Còn Lại Khi Check-in ({remainingPercent}%)
                 </span>
-                <strong className="text-base text-[#1C2321] font-serif">
-                  {((selectedRoomType.basePrice * nights) - Math.ceil(selectedRoomType.basePrice * nights * 0.30)).toLocaleString('vi-VN')} đ
+                <strong className="text-base text-[#1C2321] font-serif tabular-nums">
+                  {selectedRemainingAmount.toLocaleString('vi-VN')} đ
                 </strong>
                 <p className="text-[10px] text-[#A39687]">
                   Thanh toán khi làm thủ tục nhận phòng
@@ -645,26 +866,52 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto bg-gradient-to-r from-[#C8A261] to-[#E2C799] hover:from-[#B38D4F] hover:to-[#C8A261] text-[#151B17] font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl shadow-xl shadow-[#C8A261]/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                  disabled={isSubmittingBooking}
+                  className="w-full sm:w-auto bg-gradient-to-r from-[#C8A261] to-[#E2C799] hover:from-[#B38D4F] hover:to-[#C8A261] disabled:opacity-60 text-[#151B17] font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl shadow-xl shadow-[#C8A261]/25 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
-                  <QrCode className="w-4 h-4" />
-                  <span>TIẾN HÀNH GIỮ PHÒNG & QUÉT MÃ CỌC 30%</span>
+                  {isSubmittingBooking ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>ĐANG KIỂM TRA & GIỮ PHÒNG...</span>
+                    </>
+                  ) : (
+                    <>
+                      <QrCode className="w-4 h-4" />
+                      <span>TIẾN HÀNH GIỮ PHÒNG &amp; QUÉT MÃ CỌC {selectedDepositPercent}%</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
           </section>
-        )}
+          );
+        })()}
       </main>
 
       {/* ------------------------------------------------------------- */}
       {/* 6. ROOM DETAIL MODAL */}
       {/* ------------------------------------------------------------- */}
-      {detailModalRoomType && (
+      {detailModalRoomType && (() => {
+        const modalGallery = Array.from(
+          new Set([detailModalRoomType.image, ...(detailModalRoomType.galleryImages || [])].filter(Boolean))
+        );
+        const currentModalImg = detailModalActiveImage || detailModalRoomType.image;
+        const modalSpecs = [
+          detailModalRoomType.size,
+          `${detailModalRoomType.bedrooms ?? 1} phòng ngủ`,
+          `${detailModalRoomType.bathrooms ?? 1} phòng tắm`,
+          (detailModalRoomType.hasBalcony ?? true) ? 'Có ban công' : 'Không ban công',
+          detailModalRoomType.bedType,
+        ]
+          .filter(Boolean)
+          .join(' · ');
+
+        return (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-[#E8E2D9] space-y-4 animate-fadeIn">
-            <div className="relative aspect-[16/10]">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#E8E2D9] space-y-4 animate-fadeIn">
+            <div className="relative aspect-[16/10] bg-slate-100">
               <img 
-                src={detailModalRoomType.image} 
+                src={currentModalImg} 
                 alt={detailModalRoomType.name}
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
@@ -677,22 +924,50 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
+            {modalGallery.length > 1 && (
+              <div className="px-6 flex items-center gap-2 overflow-x-auto pb-1">
+                {modalGallery.map((imgUrl, idx) => (
+                  <button
+                    key={`${imgUrl}-${idx}`}
+                    type="button"
+                    onClick={() => setDetailModalActiveImage(imgUrl)}
+                    className={`w-20 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
+                      currentModalImg === imgUrl ? 'border-[#C8A261]' : 'border-transparent opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`${detailModalRoomType.name} ${idx + 1}`}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="p-6 pt-2 space-y-4">
+              <div className="flex items-center justify-between gap-3">
                 <div>
                   <h3 className="font-serif text-2xl font-bold text-[#1C2321]">
                     {detailModalRoomType.name}
                   </h3>
-                  <span className="text-xs text-[#C8A261] font-mono font-bold">
-                    {detailModalRoomType.basePrice.toLocaleString('vi-VN')} đ / đêm
-                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-[#C8A261] font-mono font-bold tabular-nums">
+                      {detailModalRoomType.basePrice.toLocaleString('vi-VN')} đ / đêm
+                    </span>
+                    <span className="text-xs text-[#706557]">
+                      · Cọc {detailModalRoomType.depositPercent ?? 30}%
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-[#3D5461] mt-1">{modalSpecs}</p>
                 </div>
                 <button
                   onClick={() => {
                     handleStartBooking(detailModalRoomType);
                     setDetailModalRoomType(null);
                   }}
-                  className="bg-[#C8A261] hover:bg-[#B38D4F] text-[#151B17] font-bold text-xs px-5 py-2.5 rounded-xl"
+                  className="bg-[#C8A261] hover:bg-[#B38D4F] text-[#151B17] font-bold text-xs px-5 py-2.5 rounded-xl shrink-0"
                 >
                   Chọn Hạng Này
                 </button>
@@ -707,7 +982,7 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
                 <div className="grid grid-cols-2 gap-2 text-xs text-[#6B5F50]">
                   {detailModalRoomType.amenities.map((am, idx) => (
                     <div key={idx} className="flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5 text-[#C8A261]" />
+                      <Check className="w-3.5 h-3.5 text-[#C8A261] shrink-0" />
                       <span>{am}</span>
                     </div>
                   ))}
@@ -716,7 +991,8 @@ export const BookingPortal: React.FC<BookingPortalProps> = ({
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

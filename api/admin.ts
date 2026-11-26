@@ -19,6 +19,7 @@ import {
   listAuditLogs,
   recordAuditEvent,
 } from '../lib/staffAccountService.js';
+import { isHoldExpiredAt } from '../lib/bookingService.js';
 
 export default async function handler(req: Request, res: Response) {
   const action = req.query?.action || req.body?.action;
@@ -314,16 +315,21 @@ export default async function handler(req: Request, res: Response) {
 
       if (error) throw error;
 
-      // Apply PII masking for reception role
+      // Apply PII masking for reception role & real-time hold expiration status (zero cron dependency)
+      const nowMs = Date.now();
       const securedBookings = (bookings || []).map((b: any) => {
+        const holdExpired = isHoldExpiredAt(b, nowMs);
+        const normalized = holdExpired
+          ? { ...b, status: 'expired', is_hold_expired: true }
+          : { ...b, is_hold_expired: false };
         if (currentRole === 'reception') {
           return {
-            ...b,
-            guest_phone: maskPhoneNumber(b.guest_phone),
-            guest_email: maskEmail(b.guest_email),
+            ...normalized,
+            guest_phone: maskPhoneNumber(normalized.guest_phone),
+            guest_email: maskEmail(normalized.guest_email),
           };
         }
-        return b;
+        return normalized;
       });
 
       return res.status(200).json({

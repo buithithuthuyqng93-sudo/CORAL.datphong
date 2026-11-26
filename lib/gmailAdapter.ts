@@ -95,7 +95,7 @@ function createRawEmailMessage(
  * Sends Email Confirmation via Gmail REST API
  */
 export async function sendBookingConfirmationEmail(data: EmailData): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const senderEmail = process.env.GMAIL_SENDER_EMAIL || 'seagull.homestay.lyson@gmail.com';
+  const senderEmail = process.env.GMAIL_SENDER_EMAIL || 'seagulllyson@gmail.com';
   const accessToken = await getGmailAccessToken();
 
   if (!accessToken) {

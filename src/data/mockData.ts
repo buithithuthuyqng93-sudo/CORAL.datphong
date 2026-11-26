@@ -115,7 +115,7 @@ export const INITIAL_PROPERTY_CONFIG: PropertyConfig = {
   address: 'Thôn Đông An Vĩnh, Đặc khu Lý Sơn, Tỉnh Quảng Ngãi (Thửa 432, Tờ bản đồ số 27)',
   googleMapsUrl: 'https://maps.google.com/?q=Seagull+Ly+Son+Homestay',
   hotline: '0868011799 - 0981065065',
-  email: 'seagull.lyson@gmail.com',
+  email: 'seagulllyson@gmail.com',
   ownerName: 'Mr Thiện / Ms Điền',
   zaloPhone: '0868011799 - 0981065065',
   bankName: 'MB Bank (Ngân Hàng Quân Đội)',

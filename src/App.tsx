@@ -5,11 +5,13 @@ import { AdminManager } from './components/AdminManager';
 import { VietQRModal } from './components/VietQRModal';
 import { SiteContentProvider } from './context/SiteContentContext';
 
-import { Room, RoomStatus, RoomType, Booking, ChannelSyncLog, PropertyConfig, Customer, CashTransaction, StaffUser } from './types';
+import { Room, RoomStatus, RoomType, Booking, ChannelSyncLog, PropertyConfig, Customer, CashTransaction, StaffUser, BookingSearchQuery, CmsContentItem } from './types';
 import { 
   INITIAL_ROOMS, INITIAL_BOOKINGS, INITIAL_SYNC_LOGS, CORAL_ROOM_TYPES, 
   INITIAL_PROPERTY_CONFIG, INITIAL_CUSTOMERS, INITIAL_TRANSACTIONS, INITIAL_STAFF 
 } from './data/mockData';
+import { EXPERIENCE_SERVICES_SEED } from './data/serviceCatalog';
+import { apiListCmsContent } from './services/dataAdapter';
 
 export type AppRoute = 'website' | 'booking' | 'admin';
 
@@ -51,15 +53,24 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigateTo = (route: AppRoute, roomTypeId?: string) => {
+  const navigateTo = (route: AppRoute, target?: string | BookingSearchQuery) => {
     let targetUrl = '/';
     if (route === 'booking') {
-      targetUrl = roomTypeId ? `/booking?roomType=${encodeURIComponent(roomTypeId)}` : '/booking';
-      setPreselectedRoomTypeId(roomTypeId);
+      const opts: BookingSearchQuery = typeof target === 'string' ? { roomTypeId: target } : (target || {});
+      const params = new URLSearchParams();
+      if (opts.roomTypeId) params.set('roomType', opts.roomTypeId);
+      if (opts.checkin) params.set('checkin', opts.checkin);
+      if (opts.checkout) params.set('checkout', opts.checkout);
+      if (typeof opts.adults === 'number' && opts.adults >= 1) params.set('adults', String(opts.adults));
+      if (typeof opts.children === 'number' && opts.children >= 0) params.set('children', String(opts.children));
+      const qs = params.toString();
+      targetUrl = qs ? `/booking?${qs}` : '/booking';
+      setPreselectedRoomTypeId(opts.roomTypeId);
     } else if (route === 'admin') {
       targetUrl = '/admin';
     }
     window.history.pushState(null, '', targetUrl);
+    window.dispatchEvent(new PopStateEvent('popstate'));
     setCurrentRoute(route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -92,6 +103,11 @@ export default function App() {
       .replace(/chị\s*thủy/gi, 'Mr Thiện / Ms Điền')
       .trim();
 
+    const normalizedEmail =
+      !cfg.email || String(cfg.email).trim().toLowerCase() === 'seagull.lyson@gmail.com'
+        ? 'seagulllyson@gmail.com'
+        : String(cfg.email).trim();
+
     return {
       ...cfg,
       propertyName: 'SEAGULL LÝ SƠN',
@@ -102,6 +118,7 @@ export default function App() {
       announcementBar: announcementBar || 'SEAGULL LÝ SƠN — Homestay & Cà Phê • Thôn Đông An Vĩnh',
       heroDescription: heroDescription || INITIAL_PROPERTY_CONFIG.heroDescription,
       hotline,
+      email: normalizedEmail,
       ownerName,
       zaloPhone: cfg.zaloPhone || '0868011799 - 0981065065',
       accountHolder: 'SEAGULL HOMESTAY - BUI THI THU THUY',
@@ -167,6 +184,63 @@ export default function App() {
       console.warn('Could not save roomTypes to localStorage', e);
     }
   };
+
+  const [serviceItems, setServiceItems] = useState<CmsContentItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('seagull_cms_services_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return EXPERIENCE_SERVICES_SEED;
+  });
+
+  const handleUpdateServiceItems = (newServices: CmsContentItem[]) => {
+    setServiceItems(newServices);
+    try {
+      localStorage.setItem('seagull_cms_services_v1', JSON.stringify(newServices));
+    } catch (e) {
+      console.warn('Could not save serviceItems to localStorage', e);
+    }
+  };
+
+  // Single Source of Truth: hydrate live room types & experience services from /api/cms
+  // so Marketing site ("Phòng ở" & "/dich-vu"), /booking portal, and /admin always share identical data.
+  useEffect(() => {
+    let cancelled = false;
+    apiListCmsContent('room')
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.roomTypes) && res.roomTypes.length > 0) {
+          setRoomTypes(res.roomTypes);
+          try {
+            localStorage.setItem('seagull_room_types_v3_27', JSON.stringify(res.roomTypes));
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        console.warn('[App] Could not hydrate live room types from /api/cms:', err?.message || err);
+      });
+
+    apiListCmsContent('service')
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.items) && res.items.length > 0) {
+          setServiceItems(res.items);
+          try {
+            localStorage.setItem('seagull_cms_services_v1', JSON.stringify(res.items));
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        console.warn('[App] Could not hydrate live services from /api/cms:', err?.message || err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [rooms, setRooms] = useState<Room[]>(() => {
     try {
@@ -254,23 +328,29 @@ export default function App() {
 
   // Active confirmed booking to show success banner on Guest Website
   const [activeConfirmedBooking, setActiveConfirmedBooking] = useState<Booking | null>(null);
+  const [availabilityRefreshKey, setAvailabilityRefreshKey] = useState<number>(0);
 
-  // Initiate a new booking draft
+  // Initiate a new booking draft (with explicit ISO createdAt & 15-min holdExpiresAt)
   const handleInitiateBooking = (bookingData: Omit<Booking, 'id' | 'code' | 'createdAt' | 'paymentStatus'>): Booking => {
     const bookingCode = `SGL-${Math.floor(1000 + Math.random() * 9000)}`;
-    const now = new Date();
-    const timestamp = now.toISOString().replace('T', ' ').substring(0, 16);
+    const nowMs = Date.now();
+    const holdExpiresAt = new Date(nowMs + 15 * 60 * 1000).toISOString();
 
     const newBooking: Booking = {
       ...bookingData,
-      id: `bk-${Date.now()}`,
+      id: `bk-${nowMs}`,
       code: bookingCode,
-      createdAt: timestamp,
+      createdAt: new Date(nowMs).toISOString(),
+      holdExpiresAt,
       paymentStatus: 'pending_deposit',
     };
 
     setBookings((prev) => [newBooking, ...prev]);
     return newBooking;
+  };
+
+  const handleSyncExternalBooking = (created: Booking) => {
+    setBookings((prev) => (prev.some((b) => b.id === created.id) ? prev : [created, ...prev]));
   };
 
   // Open VietQR payment modal
@@ -515,7 +595,9 @@ export default function App() {
           <SeagullWebsite
             propertyConfig={propertyConfig}
             roomTypes={roomTypes}
-            onNavigateToBooking={(roomTypeId) => navigateTo('booking', roomTypeId)}
+            serviceItems={serviceItems}
+            onUpdateServiceItems={handleUpdateServiceItems}
+            onNavigateToBooking={(target) => navigateTo('booking', target)}
           />
         )}
 
@@ -529,10 +611,12 @@ export default function App() {
             bookings={bookings}
             propertyConfig={propertyConfig}
             onInitiateBooking={handleInitiateBooking}
+            onSyncExternalBooking={handleSyncExternalBooking}
             onOpenPaymentModal={handleOpenPaymentModal}
             activeConfirmedBooking={activeConfirmedBooking}
             onNavigateToWebsite={() => navigateTo('website')}
             preselectedRoomTypeId={preselectedRoomTypeId}
+            availabilityRefreshKey={availabilityRefreshKey}
           />
         )}
 
@@ -542,6 +626,7 @@ export default function App() {
         {currentRoute === 'admin' && (
           <AdminManager
             roomTypes={roomTypes}
+            serviceItems={serviceItems}
             rooms={rooms}
             bookings={bookings}
             propertyConfig={propertyConfig}
@@ -550,6 +635,7 @@ export default function App() {
             transactions={transactions}
             staffList={staffList}
             onUpdateRoomTypes={handleUpdateRoomTypes}
+            onUpdateServiceItems={handleUpdateServiceItems}
             onUpdateRooms={handleUpdateRooms}
             onUpdateBookings={setBookings}
             onUpdatePropertyConfig={handleUpdatePropertyConfig}
@@ -568,8 +654,14 @@ export default function App() {
           <VietQRModal
             booking={paymentModalState.booking}
             room={paymentModalState.room}
-            onClose={() => setPaymentModalState(null)}
-            onConfirmPayment={handleConfirmPayment}
+            onClose={() => {
+              setPaymentModalState(null);
+              setAvailabilityRefreshKey((k) => k + 1);
+            }}
+            onConfirmPayment={(bookingId) => {
+              handleConfirmPayment(bookingId);
+              setAvailabilityRefreshKey((k) => k + 1);
+            }}
             propertyConfig={propertyConfig}
           />
         )}

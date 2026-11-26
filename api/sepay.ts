@@ -8,6 +8,7 @@ import {
 import { getSupabaseServerClient, isSupabaseConfigured } from '../lib/supabaseServer.js';
 import { sendBookingConfirmationEmail } from '../lib/gmailAdapter.js';
 import { syncBookingToGoogleSheet } from '../lib/googleSheetsAdapter.js';
+import { isHoldExpiredAt } from '../lib/bookingService.js';
 
 export default async function handler(req: Request, res: Response) {
   if (req.method !== 'POST') {
@@ -124,7 +125,7 @@ export default async function handler(req: Request, res: Response) {
 
   // 6. State Machine Validation: Check hold expiration, cancellation & deposit threshold
   const requiredDeposit = Number(booking.required_payment_amount) || Math.ceil(Number(booking.total_amount) * 0.30);
-  const isHoldExpired = booking.hold_expires_at ? new Date() > new Date(booking.hold_expires_at) : false;
+  const isHoldExpired = isHoldExpiredAt(booking);
   const isCancelledOrExpiredState = booking.status === 'cancelled' || booking.status === 'expired';
   const isUnderpaid = transferAmount < Math.max(0, requiredDeposit - 1000); // allowance for 1000 VND rounding
 
