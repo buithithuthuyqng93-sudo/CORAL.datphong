@@ -46,11 +46,12 @@ async function startServer() {
   app.post('/api/media/upload', mediaHandler);
   app.post('/api/media/restore', mediaHandler);
 
-  // Generic CMS API (rooms & services)
+  // Generic CMS & Contact API (rooms, services, contact messages)
   app.route('/api/cms')
     .get(cmsHandler)
     .post(cmsHandler);
   app.post('/api/cms/upload-image', cmsHandler);
+  app.all('/api/cms/*', cmsHandler);
 
   app.route('/api/cron')
     .get(cronHandler)
@@ -59,6 +60,23 @@ async function startServer() {
   app.route('/api/cron/expire-holds')
     .get(cronHandler)
     .post(cronHandler);
+
+  // Guarantee NO /api/* request ever falls through to Vite SPA HTML (<!doctype html>)
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: `Không tìm thấy API endpoint: ${req.method} ${req.path}`,
+    });
+  });
+
+  // Guarantee Express errors on /api/* always return valid JSON
+  app.use('/api', (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    console.error('[API Error Middleware]:', err);
+    res.status(err?.status || 500).json({
+      success: false,
+      error: err?.message || 'Lỗi máy chủ khi xử lý yêu cầu API.',
+    });
+  });
 
   // Serve static images & assets directly before Vite to guarantee binary JPEG/PNG delivery
   app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));

@@ -11,6 +11,8 @@ import { SettingsManagerV2 } from './SettingsManagerV2';
 import { CheckInFlowModal } from './CheckInFlowModal';
 import { RoomCmsManager } from './RoomCmsManager';
 import { ServiceCmsManager } from './ServiceCmsManager';
+import { ContactMessagesManager } from './ContactMessagesManager';
+import { apiListContactMessages } from '../services/dataAdapter';
 import { 
   LayoutDashboard, BedDouble, DollarSign, BarChart3, Settings, 
   Plus, Search, Lock, Unlock, CheckCircle2, AlertCircle, 
@@ -19,7 +21,7 @@ import {
   QrCode, CalendarCheck, ChevronRight, Filter, ArrowLeft, 
   Eye, EyeOff, X, Tag, Sliders, ArrowUpRight, ArrowDownRight,
   Sparkles, Check, RefreshCw, Smartphone, Edit3, Trash2,
-  Shield, User, Compass
+  Shield, User, Compass, MessageSquare
 } from 'lucide-react';
 import { SeagullWingsIcon } from './SeagullWingsIcon';
 import { isLocalHoldExpired } from '../utils/bookingHold';
@@ -49,7 +51,7 @@ interface AdminManagerProps {
 }
 
 // Main Navigation Tabs
-type AdminTab = 'overview' | 'rooms-bookings' | 'room-cms' | 'service-cms' | 'revenue' | 'reports' | 'settings';
+type AdminTab = 'overview' | 'rooms-bookings' | 'room-cms' | 'service-cms' | 'contacts' | 'revenue' | 'reports' | 'settings';
 
 // Preset photo options for quick photo selection
 const PHOTO_PRESETS = [
@@ -123,6 +125,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
     }
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [newContactsCount, setNewContactsCount] = useState<number>(0);
 
   useEffect(() => {
     fetch('/api/admin?action=db-status')
@@ -134,6 +137,27 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
       })
       .catch(() => {});
   }, []);
+
+  // Load count of unread ("Mới") customer contact messages when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setNewContactsCount(0);
+      return;
+    }
+    let cancelled = false;
+    const token = sessionStorage.getItem('seagull_admin_token');
+    if (!token) return;
+    apiListContactMessages(token)
+      .then((res) => {
+        if (!cancelled && res.success) {
+          setNewContactsCount(res.newCount ?? res.items.filter((m) => m.status === 'new').length);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   // Helper to mask customer phone number for non-owner roles
   const maskPhone = (phone?: string) => {
@@ -910,6 +934,32 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             </button>
 
             <button
+              onClick={() => setActiveTab('contacts')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'contacts'
+                  ? 'bg-[#C8A261] text-[#0E2A47] shadow-md shadow-[#C8A261]/20'
+                  : 'text-slate-300 hover:text-white hover:bg-[#163A5F]'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span>5. Liên hệ khách hàng</span>
+              </div>
+              {newContactsCount > 0 && (
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    activeTab === 'contacts'
+                      ? 'bg-[#0E2A47] text-rose-300'
+                      : 'bg-rose-500 text-white'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                  {newContactsCount}
+                </span>
+              )}
+            </button>
+
+            <button
               onClick={() => setActiveTab('revenue')}
               className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'revenue'
@@ -918,7 +968,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <DollarSign className="w-4 h-4 shrink-0" />
-              <span>5. Doanh thu</span>
+              <span>6. Doanh thu</span>
             </button>
 
             <button
@@ -930,7 +980,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <BarChart3 className="w-4 h-4 shrink-0" />
-              <span>6. Báo cáo</span>
+              <span>7. Báo cáo</span>
             </button>
 
             <button
@@ -942,7 +992,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               }`}
             >
               <Settings className="w-4 h-4 shrink-0" />
-              <span>7. Cài đặt</span>
+              <span>8. Cài đặt</span>
             </button>
           </nav>
         </div>
@@ -1050,6 +1100,7 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
               {activeTab === 'rooms-bookings' && 'Quản Lý Phòng & Danh Sách Đặt Phòng'}
               {activeTab === 'room-cms' && 'Quản Lý Phòng (CMS Ảnh, Giá & Thuộc Tính)'}
               {activeTab === 'service-cms' && 'Quản Lý Dịch Vụ (CMS Ảnh & Mô Tả Trải Nghiệm)'}
+              {activeTab === 'contacts' && 'Liên Hệ Khách Hàng (Trang /lien-he)'}
               {activeTab === 'revenue' && 'Báo Cáo Doanh Thu (Homestay & Coffee)'}
               {activeTab === 'reports' && 'Báo Cáo Hoạt Động & Xuất Dữ Liệu Excel'}
               {activeTab === 'settings' && 'Cài Đặt Hệ Thống & Bảng Giá'}
@@ -2144,6 +2195,17 @@ export const AdminManager: React.FC<AdminManagerProps> = ({
             userRole={userRole}
             onUpdateServices={(updated) => onUpdateServiceItems?.(updated)}
             showToast={showToast}
+          />
+        )}
+
+        {/* ================================================================= */}
+        {/* TAB: LIÊN HỆ KHÁCH HÀNG */}
+        {/* ================================================================= */}
+        {activeTab === 'contacts' && (
+          <ContactMessagesManager
+            userRole={userRole}
+            showToast={showToast}
+            onNewCountChange={setNewContactsCount}
           />
         )}
 

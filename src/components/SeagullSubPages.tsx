@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Ship, Bike, Wifi } from 'lucide-react';
 import type { PropertyConfig, CmsContentItem } from '../types';
 import { EXPERIENCE_SERVICES_SEED, UTILITY_SERVICES } from '../data/serviceCatalog';
-import { apiListCmsContent } from '../services/dataAdapter';
+import { apiListCmsContent, apiSubmitContactMessage } from '../services/dataAdapter';
 
 export type WebsiteSubPage = 'home' | 'about' | 'services' | 'contact' | 'room-detail';
 
@@ -417,16 +417,21 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedAgain, setCopiedAgain] = useState(false);
   const [submittedData, setSubmittedData] = useState<{
     fullName: string;
     phone: string;
     message: string;
+    copiedText: string;
+    clipboardCopied: boolean;
   } | null>(null);
 
   const hotlineDisplay = (propertyConfig?.hotline || '0868011799 - 0981065065')
     .replace(/\s*\([^)]*\)/g, '')
     .trim();
   const primaryPhoneDigits = '0868011799';
+  const zaloChatUrl = `https://zalo.me/${primaryPhoneDigits}`;
   const emailDisplay =
     propertyConfig?.email && propertyConfig.email.toLowerCase() !== 'seagull.lyson@gmail.com'
       ? propertyConfig.email
@@ -435,9 +440,57 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
     propertyConfig?.address ||
     'Thôn Đông An Vĩnh, Đặc khu Lý Sơn, Tỉnh Quảng Ngãi (Thửa 432, Tờ bản đồ số 27)';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const tryCopyToClipboard = async (text: string): Promise<boolean> => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      // Fallback below
+    }
+    try {
+      if (typeof document !== 'undefined') {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        ta.style.pointerEvents = 'none';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return Boolean(ok);
+      }
+    } catch {
+      // Ignore clipboard failure; Part 1 save is already completed
+    }
+    return false;
+  };
+
+  const tryOpenZaloTab = () => {
+    try {
+      if (typeof document !== 'undefined') {
+        const anchor = document.createElement('a');
+        anchor.href = zaloChatUrl;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+      }
+    } catch {
+      // Ignore popup blocker; guest can click the Zalo button directly in the confirmation card
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setFormError('');
+    setCopiedAgain(false);
 
     const cleanName = fullName.trim();
     const cleanPhone = phone.trim();
@@ -449,8 +502,8 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
     }
 
     const digitsOnly = cleanPhone.replace(/\D/g, '');
-    if (digitsOnly.length < 9 || digitsOnly.length > 13) {
-      setFormError('Vui lòng nhập số điện thoại hoặc Zalo hợp lệ (9–13 chữ số).');
+    if (digitsOnly.length < 9 || digitsOnly.length > 15) {
+      setFormError('Vui lòng nhập số điện thoại hoặc Zalo hợp lệ (9–15 chữ số).');
       return;
     }
 
@@ -459,14 +512,51 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
       return;
     }
 
-    setSubmittedData({
-      fullName: cleanName,
-      phone: cleanPhone,
-      message: cleanMsg,
-    });
-    setFullName('');
-    setPhone('');
-    setMessage('');
+    setIsSubmitting(true);
+    try {
+      // PHẦN 1: Lưu đầy đủ thông tin liên hệ vào Supabase (/api/cms -> contact_messages)
+      await apiSubmitContactMessage({
+        fullName: cleanName,
+        phone: cleanPhone,
+        message: cleanMsg,
+        source: 'website_contact_page',
+      });
+
+      const formattedCopyText = `Tôi là ${cleanName}, SDT ${cleanPhone}. Nội dung: ${cleanMsg}`;
+
+      // Xóa trắng form ngay sau khi lưu thành công để tránh gửi trùng
+      setFullName('');
+      setPhone('');
+      setMessage('');
+
+      // PHẦN 2: Copy nội dung vào clipboard & mở khung chat Zalo (bọc try/catch để không ảnh hưởng Phần 1)
+      const clipboardCopied = await tryCopyToClipboard(formattedCopyText);
+
+      setSubmittedData({
+        fullName: cleanName,
+        phone: cleanPhone,
+        message: cleanMsg,
+        copiedText: formattedCopyText,
+        clipboardCopied,
+      });
+
+      tryOpenZaloTab();
+    } catch (err: any) {
+      setFormError(
+        err?.message || 'Không thể gửi thông tin lúc này. Vui lòng thử lại hoặc gọi trực tiếp 0868 011 799.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleManualCopy = async () => {
+    if (!submittedData) return;
+    const ok = await tryCopyToClipboard(submittedData.copiedText);
+    if (ok) {
+      setCopiedAgain(true);
+      setTimeout(() => setCopiedAgain(false), 3000);
+    }
   };
 
   return (
@@ -498,6 +588,7 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
                   id="contactFullName"
                   type="text"
                   required
+                  disabled={isSubmitting}
                   placeholder="Nguyễn Văn A"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -510,6 +601,7 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
                   id="contactPhone"
                   type="tel"
                   required
+                  disabled={isSubmitting}
                   placeholder="0868 xxx xxx"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -522,6 +614,7 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
                   id="contactMessage"
                   rows={5}
                   required
+                  disabled={isSubmitting}
                   placeholder="Ví dụ: Mình dự kiến đi Lý Sơn ngày 15/08, nhóm 4 người, cần tư vấn phòng view biển và đón tại cảng..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -534,26 +627,33 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
                 </p>
               )}
 
-              <button type="submit" className="button stay-request-button">
-                Gửi thông tin liên hệ
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="button stay-request-button"
+                style={isSubmitting ? { opacity: 0.7, cursor: 'wait' } : undefined}
+              >
+                {isSubmitting ? 'Đang gửi thông tin...' : 'Gửi thông tin liên hệ'}
               </button>
             </form>
 
             {submittedData && (
               <div className="stay-request-result" role="status">
-                <strong>Đã ghi nhận yêu cầu liên hệ của {submittedData.fullName}!</strong>
-                <p style={{ marginTop: '0.4rem', lineHeight: 1.55 }}>
+                <strong>
+                  {submittedData.clipboardCopied
+                    ? 'Đã gửi thông tin! Đã copy nội dung — hãy dán vào khung chat Zalo vừa mở để Seagull phản hồi nhanh hơn'
+                    : 'Đã gửi thông tin thành công! Bấm "Copy nội dung" bên dưới rồi dán vào khung chat Zalo để Seagull phản hồi nhanh hơn'}
+                </strong>
+                <p style={{ marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  Họ và tên: <strong>{submittedData.fullName}</strong>
+                  <br />
                   Số điện thoại / Zalo: <strong>{submittedData.phone}</strong>
                   <br />
                   Nội dung: {submittedData.message}
                 </p>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#2D5A46' }}>
-                  Để được phản hồi ngay lập tức, bạn có thể nhắn trực tiếp qua Zalo hoặc gọi hotline
-                  bên cạnh.
-                </p>
                 <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <a
-                    href={`https://zalo.me/${primaryPhoneDigits}`}
+                    href={zaloChatUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="button"
@@ -564,8 +664,16 @@ export const SeagullContactPage: React.FC<SubPageCommonProps> = ({ propertyConfi
                       color: '#FFFFFF',
                     }}
                   >
-                    Nhắn Zalo 0868 011 799
+                    Mở chat Zalo 0868 011 799
                   </a>
+                  <button
+                    type="button"
+                    onClick={handleManualCopy}
+                    className="button light"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.78rem' }}
+                  >
+                    {copiedAgain ? 'Đã copy nội dung ✓' : 'Copy lại nội dung'}
+                  </button>
                   <a
                     href={`tel:${primaryPhoneDigits}`}
                     className="button light"

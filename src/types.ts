@@ -422,3 +422,18 @@ export interface PackageComparison {
   cons: string[];
   isTopRecommendation?: boolean;
 }
+
+export type ContactMessageStatus = 'new' | 'contacted' | 'done';
+
+export interface ContactMessage {
+  id: string;
+  fullName: string;
+  phone: string;
+  message: string;
+  status: ContactMessageStatus;
+  source?: string;
+  handledBy?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+

@@ -1,4 +1,12 @@
-import { Booking, RoomType, Room, CmsContentItem, CmsContentType } from '../types';
+import {
+  Booking,
+  RoomType,
+  Room,
+  CmsContentItem,
+  CmsContentType,
+  ContactMessage,
+  ContactMessageStatus,
+} from '../types';
 import { SEAGULL_ROOM_TYPES, INITIAL_ROOMS, INITIAL_BOOKINGS } from '../data/mockData';
 
 export interface CreateBookingPayload {
@@ -320,4 +328,107 @@ export async function apiUploadCmsImage(
   }
   return json;
 }
+
+// ============================================================================
+// CONTACT MESSAGES API ADAPTER (Mounted on /api/cms to stay within Hobby limit)
+// ============================================================================
+
+async function parseJsonSafely<T = any>(res: Response, fallbackError: string): Promise<T> {
+  const rawText = await res.text();
+  const trimmed = rawText.trim();
+  if (!trimmed) {
+    throw new Error(`${fallbackError} (HTTP ${res.status}, phản hồi trống)`);
+  }
+  try {
+    return JSON.parse(trimmed) as T;
+  } catch {
+    throw new Error(`${fallbackError} (HTTP ${res.status} — máy chủ trả về định dạng không phải JSON)`);
+  }
+}
+
+export async function apiSubmitContactMessage(payload: {
+  fullName: string;
+  phone: string;
+  message: string;
+  source?: string;
+}): Promise<{
+  success: boolean;
+  isDemo: boolean;
+  storageTable?: 'contact_messages' | 'site_content' | 'demo';
+  item: ContactMessage;
+}> {
+  const res = await fetch('/api/cms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    cache: 'no-store',
+    body: JSON.stringify({
+      action: 'contact-submit',
+      ...payload,
+    }),
+  });
+  const json = await parseJsonSafely<any>(res, 'Không thể gửi thông tin liên hệ');
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Không thể gửi thông tin liên hệ. Vui lòng thử lại.');
+  }
+  return json;
+}
+
+export async function apiListContactMessages(token: string): Promise<{
+  success: boolean;
+  isDemo: boolean;
+  storageTable?: 'contact_messages' | 'site_content' | 'demo';
+  items: ContactMessage[];
+  newCount: number;
+}> {
+  // Use X-Admin-Token (instead of Authorization) so Cloud Run / AI Studio reverse proxy
+  // never intercepts custom HMAC tokens and returns an HTML login page.
+  const res = await fetch('/api/cms?type=contact', {
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+      'Cache-Control': 'no-cache',
+      'X-Admin-Token': `Bearer ${token}`,
+    },
+  });
+  const json = await parseJsonSafely<any>(res, 'Không thể tải danh sách liên hệ khách hàng');
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Không thể tải danh sách liên hệ khách hàng.');
+  }
+  return json;
+}
+
+export async function apiUpdateContactMessageStatus(
+  id: string,
+  status: ContactMessageStatus,
+  token: string
+): Promise<{
+  success: boolean;
+  isDemo: boolean;
+  item: ContactMessage;
+}> {
+  const res = await fetch('/api/cms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-Admin-Token': `Bearer ${token}`,
+    },
+    cache: 'no-store',
+    body: JSON.stringify({
+      action: 'contact-status',
+      id,
+      status,
+    }),
+  });
+  const json = await parseJsonSafely<any>(res, 'Không thể cập nhật trạng thái liên hệ');
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Không thể cập nhật trạng thái liên hệ.');
+  }
+  return json;
+}
+
+
 

@@ -14,6 +14,7 @@
     { "source": "/api/sepay/webhook", "destination": "/api/sepay" },
     { "source": "/api/admin/:path*", "destination": "/api/admin" },
     { "source": "/api/media/:path*", "destination": "/api/media" },
+    { "source": "/api/cms/:path*", "destination": "/api/cms" },
     { "source": "/api/cron/expire-holds", "destination": "/api/cron" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
